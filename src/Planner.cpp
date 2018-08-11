@@ -11,8 +11,8 @@ public:
 
 void Planner::plan(State start, State end, int** obs_map)
 {
-	int visited[MAPX][MAPY][MAP_THETA]={0};//To mark the visited states. MAXX, MAXY and MAX_THETA are to be imported from the map class
 	Map map(obs_map);//object of Map class
+	int visited[map.MAPX][map.MAPY][map.MAP_THETA]={0};//To mark the visited states. MAXX, MAXY and MAX_THETA are to be imported from the map class
 	Vehicle car;//object of vehicle class
 	priority_queue<state, Heuristic::compare> pq;
 

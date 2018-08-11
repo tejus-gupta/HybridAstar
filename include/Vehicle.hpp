@@ -1,3 +1,6 @@
+#ifndef VEH_HPP
+#define VEH_HPP
+
 #include <stdio.h>
 #include <iostream>
 #include "bits/stdc++.h"
@@ -29,3 +32,5 @@ typedef struct a{
 }State;
 
 vector <State> nextStates(State);
+
+#endif
