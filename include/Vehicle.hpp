@@ -3,13 +3,18 @@
 #include "bits/stdc++.h"
 //#include "ros/ros.h"
 
-#define CAR_L 60
-#define CAR_W 40 
-#define CAR_MAX_ALPHA 30
-#define MIN_TURN_RADIUS 40
+
 #define PI 3.14159265359
 
 using namespace std;
+
+class Vehicle{
+
+public:
+
+	int CAR_L;
+	int CAR_W;
+	int CAR_MAX_ALPHA;
 
 typedef struct a{
 
@@ -29,3 +34,4 @@ typedef struct a{
 }State;
 
 vector <State> nextStates(State);
+};
