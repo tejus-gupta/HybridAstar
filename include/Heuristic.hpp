@@ -4,7 +4,7 @@
 class Heuristic
 {
 public:
-	Vehicle::State target;
+	State target;
 	typedef struct
 	{
 		int x,y;

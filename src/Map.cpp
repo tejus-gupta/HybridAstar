@@ -1,4 +1,4 @@
-#include "../include/map.hpp"
+#include "../include/Map.hpp"
 
 
 Map::Map( bool **obsmap, State end){

@@ -17,10 +17,9 @@ int main(){
             obs_map[i][j] = (obs_img.at<uchar>(j, h-i) >= 120);
     }
 
-	State start(700, 100, 36);
-	State target(100, 600, 18);
+	State start(700, 100, 0);
+	State target(100, 600, 0);
     Vehicle car;
-
 	Planner astar;
 	vector<state> path = astar.plan(start, target, obs_map, car);
 

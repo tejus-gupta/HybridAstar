@@ -1,39 +1,38 @@
 #include "../include/Vehicle.hpp"
 
-vector<State> nextStates(State n)
+ vector<State> nextStates(State n)//vector<Vehicle::State>
 {
+	
 	vector<State> next;
 	State t;
-	float alpha,beta,R;
+	float alpha,beta,r,d=10; //alpha=steering angle, beta = turning angle, r=turning radius, d= distanced travelled
 
-	for(alpha=-CAR_MAX_ALPHA; alpha<=CAR_MAX_ALPHA; alpha+=CAR_MAX_ALPHA/2)
+	for(alpha=-BOT_MAX_ALPHA; alpha<=BOT_MAX_ALPHA; alpha+=BOT_MAX_ALPHA/2)
 	{
-		beta= (CAR_W/CAR_L)*tan(alpha*PI/180);
+		beta= (d/CAR_L)*tan(alpha*PI/180);
 
 		if(abs(beta)>0.001)
 		{
-			R=CAR_W/beta;
-			t.x=n.x - sin(n.theta*PI/180)*R + sin((n.theta+beta)*PI/180)*R;
-			t.y=n.y + cos(n.theta*PI/180)*R - cos((n.theta+beta)*PI/180)*R;
+			R=d/beta;
+			t.x=n.x - sin(n.theta)*r + sin(n.theta+beta)*r;
+			t.y=n.y + cos(n.theta)*r - cos(n.theta+beta)*r;
 			t.theta=fmod(n.theta+beta,2*PI);
 		}
 		else
 		{
-			t.x=n.x + CAR_W*cos(n.theta*PI/180);
-			t.y=n.y + CAR_W*sin(n.theta*PI/180);
+			t.x=n.x + d*cos(n.theta); // if turning radius is very small we assume that the back tire has moved straight
+			t.y=n.y + d*sin(n.theta);
 			t.theta=n.theta;
 		}
 		t.steer_angle=alpha;
 		t.parent=&n;
-		next.push_back(n);
+		next.push_back(t);
 
+		//printf("%f,%f,%f\n",t.x,t.y,t.theta);
+
+		return next;		
 
 	}
 
 
-}
-
-int main()
-{
-	
 }
