@@ -1,7 +1,5 @@
 #include "../include/Vehicle.hpp"
-
-
- vector<State> Vehicle::nextStates(State n)//vector<Vehicle::State>
+ vector <State> Vehicle::nextStates(State n)//vector<Vehicle::State>
 {
 	
 	vector<State> next;
@@ -28,11 +26,7 @@
 		t.steer_angle=alpha;
 		t.parent=&n;
 		next.push_back(t);
-
 		//printf("%f,%f,%f\n",t.x,t.y,t.theta);
-
 		return next;		
-
 	}
-
 }
