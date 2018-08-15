@@ -7,7 +7,8 @@ public:
 	float x;
     float y;
 	float theta;
-
+	int gx;
+	int gy;
 	float cost2d;
 	float cost3d;
 
