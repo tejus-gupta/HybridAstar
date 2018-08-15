@@ -23,6 +23,13 @@ public:
 		y=Y;
 		theta=THETA;
 	}
+
+	State()
+	{
+		x=0;
+		y=0;
+		theta=0;
+	}
 };
 #endif
 

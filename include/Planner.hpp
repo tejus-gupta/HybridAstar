@@ -1,5 +1,6 @@
 #include "Heuristic.hpp"
-#include "Map.hpp"
+#include "../src/Map.cpp"
+
 using namespace std;
 class Planner
 {

@@ -1,6 +1,7 @@
 #include "../include/Vehicle.hpp"
 
- vector<State> nextStates(State n)//vector<Vehicle::State>
+
+ vector<State> Vehicle::nextStates(State n)//vector<Vehicle::State>
 {
 	
 	vector<State> next;
@@ -9,11 +10,11 @@
 
 	for(alpha=-BOT_MAX_ALPHA; alpha<=BOT_MAX_ALPHA; alpha+=BOT_MAX_ALPHA/2)
 	{
-		beta= (d/CAR_L)*tan(alpha*PI/180);
+		beta= (d/BOT_L)*tan(alpha*PI/180);
 
 		if(abs(beta)>0.001)
 		{
-			R=d/beta;
+			r=d/beta;
 			t.x=n.x - sin(n.theta)*r + sin(n.theta+beta)*r;
 			t.y=n.y + cos(n.theta)*r - cos(n.theta+beta)*r;
 			t.theta=fmod(n.theta+beta,2*PI);
@@ -33,6 +34,5 @@
 		return next;		
 
 	}
-
 
 }

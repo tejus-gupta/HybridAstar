@@ -1,7 +1,7 @@
 #ifndef MAP_HPP
 #define MAP_HPP
 
-#include"Vehicle.hpp"
+#include"../src/Vehicle.cpp"
 
 class Map{
 public:
@@ -14,8 +14,10 @@ public:
     int MAPX=1000;
     int MAPY=1000;
 
+    Vehicle car;
 
     Map();
+    Map(bool**,State);
     void initCollisionChecker();
     bool checkCollision(State pos);
     bool isReached(State curr);

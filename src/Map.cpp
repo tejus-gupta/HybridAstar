@@ -55,11 +55,11 @@ bool Map::checkCollision(State pos){
 
 	//first use a bounding box around car to check for collision in O(1) time
 	int max_x, min_x, max_y, min_y;
-	max_x=pos.x+BOT_L*abs(cos(pos.theta*2*PI/MAP_THETA))/2+BOT_W*abs(sin(pos.theta*2*PI/MAP_THETA))/2+1;
-	min_x=pos.x-BOT_L*abs(cos(pos.theta*2*PI/MAP_THETA))/2-BOT_W*abs(sin(pos.theta*2*PI/MAP_THETA))/2-1;
+	max_x=pos.x+car.BOT_L*abs(cos(pos.theta*2*PI/MAP_THETA))/2+car.BOT_W*abs(sin(pos.theta*2*PI/MAP_THETA))/2+1;
+	min_x=pos.x-car.BOT_L*abs(cos(pos.theta*2*PI/MAP_THETA))/2-car.BOT_W*abs(sin(pos.theta*2*PI/MAP_THETA))/2-1;
 
-	max_y=pos.y+BOT_L*abs(sin(pos.theta*2*PI/MAP_THETA))/2+BOT_W*abs(cos(pos.theta*2*PI/MAP_THETA))/2+1;
-	min_y=pos.y-BOT_L*abs(sin(pos.theta*2*PI/MAP_THETA))/2-BOT_W*abs(cos(pos.theta*2*PI/MAP_THETA))/2-1;
+	max_y=pos.y+car.BOT_L*abs(sin(pos.theta*2*PI/MAP_THETA))/2+car.BOT_W*abs(cos(pos.theta*2*PI/MAP_THETA))/2+1;
+	min_y=pos.y-car.BOT_L*abs(sin(pos.theta*2*PI/MAP_THETA))/2-car.BOT_W*abs(cos(pos.theta*2*PI/MAP_THETA))/2-1;
 
 	if(max_x>=MAPX || min_x<0 || max_y>=MAPY || min_y<0)
 		return true;
@@ -81,3 +81,6 @@ bool Map::checkCollision(State pos){
 	// 	}
 	// return false;
 }
+
+int main()
+{}

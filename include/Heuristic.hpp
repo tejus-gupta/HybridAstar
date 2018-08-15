@@ -1,4 +1,4 @@
-#include "../include/Vehicle.hpp"
+#include "../src/Vehicle.cpp"
 #define DX 100
 #define DY 100
 class Heuristic
@@ -12,4 +12,4 @@ public:
 	}smallestcost_2d;
 	smallestcost_2d** h_vals;
 	void Dijkstra();
-}
+};

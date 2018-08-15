@@ -1,5 +1,6 @@
 #include "../include/Planner.hpp"
 
+
 void Planner::plan(State start, State end, bool** obs_map, Vehicle car)
 {
 	Map map(obs_map,end);//object of Map class
