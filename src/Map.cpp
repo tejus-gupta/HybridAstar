@@ -82,5 +82,3 @@ bool Map::checkCollision(State pos){
 	// return false;
 }
 
-int main()
-{}

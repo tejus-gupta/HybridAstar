@@ -4,7 +4,7 @@ bool operator < (State a,State b)
 {
 	return (p.h_obj.h_vals[a.gx][a.gy].dis<p.h_obj.h_vals[b.gx][b.gy].dis);
 }
-void Planner::plan(State start, State end, bool** obs_map, Vehicle car)
+stack<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car)
 {
 	Map map(obs_map,end);//object of Map class
 	bool visited[map.MAPX][map.MAPY][map.MAP_THETA]={0};//To mark the visited states. MAXX, MAXY and MAX_THETA are to be imported from the map class
@@ -16,7 +16,17 @@ void Planner::plan(State start, State end, bool** obs_map, Vehicle car)
 		pq.pop();
 		visited[current.gx][current.gy][(int)current.theta]=1;
 		if(map.isReached(current))//checks if it has reached the goal
-			break;
+		{
+			stack<State> path;
+			State *temp=&current;
+			while( temp!=NULL )
+			{
+				path.push(*temp);
+				temp=temp->parent;
+
+			}
+			return path;
+		} 
 		vector <State> next=car.nextStates(current);
 		for(vector <State>::iterator it= next.begin(); it!=next.end();it++)
 		{
@@ -30,3 +40,4 @@ void Planner::plan(State start, State end, bool** obs_map, Vehicle car)
 		}
 	}
 }
+

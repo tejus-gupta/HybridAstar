@@ -16,7 +16,10 @@ public:
 
     Vehicle car;
 
-    Map();
+    Map()
+    {
+        
+    }
     Map(bool**,State);
     void initCollisionChecker();
     bool checkCollision(State pos);

@@ -10,7 +10,10 @@ public:
 		int x,y;
 		float dis;
 	}smallestcost_2d;
-	Heuristic ();
+	Heuristic ()
+	{
+		
+	}
 	Map map;
 	smallestcost_2d** h_vals;
 	State target;

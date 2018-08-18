@@ -23,6 +23,7 @@ public:
 		x=X;
 		y=Y;
 		theta=THETA;
+		parent=NULL;
 	}
 
 	State()
@@ -30,6 +31,7 @@ public:
 		x=0;
 		y=0;
 		theta=0;
+		parent=NULL;
 	}
 };
 #endif
