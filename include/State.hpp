@@ -16,12 +16,13 @@ public:
 	float steer_angle;
 
 	State* parent;
-	State* next;
-
+	
 	State(float X,float Y,float THETA)
 	{
-		x=X;
-		y=Y;
+		gx=X;
+		gy=Y;
+		x=gx*0.1;
+		y=gy*0.1;
 		theta=THETA;
 		parent=NULL;
 	}
@@ -35,4 +36,3 @@ public:
 	}
 };
 #endif
-

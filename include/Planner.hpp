@@ -9,5 +9,5 @@ public:
 
 	}
 	Heuristic h_obj;
-	stack<State> plan(State,State,bool**,Vehicle);
+	vector<State> plan(State,State,bool**,Vehicle);
 };

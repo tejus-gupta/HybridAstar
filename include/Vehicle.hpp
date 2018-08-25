@@ -19,6 +19,6 @@ public:
 	 int BOT_W=20;
 	 int BOT_MAX_ALPHA=30;
 
-	vector<State> nextStates(State);
+	vector<State> nextStates(State*);
 };
 #endif

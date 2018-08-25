@@ -5,7 +5,7 @@
 
 using namespace cv;
 
-int main(){
+int main(){ 
 	Mat obs_img = imread("../maps/map.jpg", 0);
     int h = obs_img.rows, w = obs_img.cols;
 

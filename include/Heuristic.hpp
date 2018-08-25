@@ -1,7 +1,7 @@
 // #include "../src/Vehicle.cpp"
 #include "../src/Map.cpp"
-#define DX 100
-#define DY 100
+#define DX 1000
+#define DY 1000
 class Heuristic
 {
 public:
@@ -14,8 +14,7 @@ public:
 	{
 		
 	}
-	Map map;
 	smallestcost_2d** h_vals;
-	State target;
-	void Dijkstra();
+	//State target;
+	void Dijkstra(Map map,State);
 };
