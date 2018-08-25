@@ -4,7 +4,7 @@
 	
 	vector<State> next;
 	State t;
-	float alpha,beta,r,d=10; //alpha=steering angle, beta = turning angle, r=turning radius, d= distanced travelled
+	float alpha,beta,r,d=1; //alpha=steering angle, beta = turning angle, r=turning radius, d= distanced travelled
 
 	for(alpha=-BOT_MAX_ALPHA; alpha<=BOT_MAX_ALPHA; alpha+=BOT_MAX_ALPHA/2)
 	{
@@ -23,10 +23,16 @@
 			t.y=n.y + d*sin(n.theta);
 			t.theta=n.theta;
 		}
+		t.gx=(int)(t.x*10);
+		t.gy=(int)(t.y*10);
 		t.steer_angle=alpha;
 		t.parent=&n;
-		next.push_back(t);
+		if(t.gx>=0&&t.gx<1000&&t.gy>=0&&t.gy<1000)//change upperbound according to the map size
+		{	
+			next.push_back(t);
+			cout<<" Next states of "<<n.gx<<","<<n.gy<<","<<n.theta<<" "<<t.gx<<","<<t.gy<<","<<t.theta<<endl;
+		}
 		//printf("%f,%f,%f\n",t.x,t.y,t.theta);
-		return next;		
 	}
+	return next;		
 }

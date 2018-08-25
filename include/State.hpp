@@ -7,8 +7,10 @@ public:
 	float x;
     float y;
 	float theta;
+	
 	int gx;
 	int gy;
+
 	float cost2d;
 	float cost3d;
 
@@ -20,8 +22,10 @@ public:
 
 	State(float X,float Y,float THETA)
 	{
-		x=X;
-		y=Y;
+		gx=X;
+		gy=Y;
+		x=gx*0.1;
+		y=gy*0.1;
 		theta=THETA;
 		parent=NULL;
 	}

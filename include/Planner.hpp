@@ -1,13 +1,14 @@
 #include "../src/GUI.cpp"
-// #include "../src/Map.cpp"
+#include "../src/Map.cpp"
+#include "../src/Heuristic.cpp"
+
 using namespace std;
+
 class Planner
 {
 public:	
-	Planner()
-	{
-
-	}
+	Planner(){}
 	Heuristic h_obj;
-	stack<State> plan(State,State,bool**,Vehicle);
+	bool operator()(State a,State b);
+	vector<State> plan(State,State,bool**,Vehicle);
 };
