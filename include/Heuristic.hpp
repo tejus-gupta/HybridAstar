@@ -1,3 +1,6 @@
+#ifndef HEURISTIC_HPP
+#define HEURISTIC_HPP
+
 // #include "../src/Vehicle.cpp"
 #include "../src/Map.cpp"
 #define DX 1000
@@ -10,11 +13,10 @@ public:
 		int x,y;
 		float dis;
 	}smallestcost_2d;
-	Heuristic ()
-	{
-		
-	}
+
+	Heuristic (){}
 	smallestcost_2d** h_vals;
-	//State target;
-	void Dijkstra(Map map,State);
+	State target;
+	void Dijkstra(Map map,State target);
 };
+#endif

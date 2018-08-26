@@ -15,10 +15,9 @@ class Vehicle{
 
 public:
 
-	 int BOT_L=50;
-	 int BOT_W=20;
-	 int BOT_MAX_ALPHA=30;
-
+	int BOT_L=3;
+	int BOT_W=2;
+	int BOT_MAX_ALPHA=30;
 	vector<State> nextStates(State*);
 };
 #endif

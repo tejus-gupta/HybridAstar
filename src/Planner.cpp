@@ -1,24 +1,55 @@
 #include "../include/Planner.hpp"
-
-Planner p;
-class Compare
+double** H;
+bool Planner::operator()(State a,State b)
 {
-public:
-	bool  operator () (const State& a, const State& b) const
-	{
-		return (p.h_obj.h_vals[a.gx][a.gy].dis > p.h_obj.h_vals[b.gx][b.gy].dis);
-	}
-};
+	// cout<<"X "<<a.gx<<" Y "<<a.gy<<" Cost "<<H[a.gx][a.gy]<<endl;
+	// cout<<"X "<<b.gx<<" Y "<<b.gy<<" Cost "<<H[b.gx][b.gy]<<endl;
+	return (a.cost2d+H[a.gx][a.gy]/10 < b.cost2d+H[b.gx][b.gy]/10);
+}
+
+double dis (State a,State* b)
+{
+	return (sqrt((b->gx-a.gx)*(b->gx-a.gx)+(b->gy-a.gy)*(b->gy-a.gy)));
+}
+
 vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car)
 {
+
+	//  State test_state(50, 50, 3.14159265359);
+	//  while(true)
+	// {
+	// 	vector<State> next_states = car.nextStates(&test_state);
+	// 	test_state = next_states[0];
+	// 	cout<<"Left: "<<test_state.x<<","<<test_state.y<<","<<test_state.theta*180/3.14159265359<<endl;
+	// 	test_state = next_states[1];
+	// 	cout<<"Right: "<<test_state.x<<","<<test_state.y<<","<<test_state.theta*180/3.14159265359<<endl;
+
+	// 	int t;
+	// 	cin>>t;
+	// }
+
 	Map map(obs_map,end);//object of Map class
 	map.initCollisionChecker();
-	p.h_obj.Dijkstra(map,end); 
-	bool*** visited=new bool**[map.MAPX];//To mark the visited states. MAXX, MAXY and MAX_THETA are to be imported from the map class
-	for(int i=0;i<map.MAPX;i++)
+	h_obj.Dijkstra(map,end);
+	// int DX=1000,DY=1000;  //Please make them class member variables
+	H=new double*[DX];
+	for(int i=0;i<DX;i++)
 	{
-		visited[i]=new bool*[map.MAPY];
-		for(int j=0;j<map.MAPY;j++)
+		
+		H[i]=new double[DY];
+		
+	    for (int j=0;j<DY;j++)
+			{
+				
+				H[i][j]=h_obj.h_vals[i][j].dis;
+			}
+	}
+	bool*** visited=new bool**[map.VISX];
+	//To mark the visited states MAPX, MAPY and MAP_THETA are to be imported from the Map class
+	for(int i=0;i<map.VISX;i++)
+	{
+		visited[i]=new bool*[map.VISY];
+		for(int j=0;j<map.VISY;j++)
 			{
 				visited[i][j]=new bool[map.MAP_THETA];
 				for(int k=0;k<72;k++)
@@ -28,64 +59,89 @@ vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car)
 
 			}
 	}
-	priority_queue <State, vector<State>, Compare> pq;
+	priority_queue <State, vector<State>, Planner> pq;
 	pq.push(start);
-	cout<<"starting size "<<pq.size()<<endl;
 	Mat img=imread("../maps/map.jpg",1);
 
-	while(1)
+	while(!pq.empty())
 	{
+		//cout<<"Inside Queue"<<endl;
 		State current=pq.top();
 		pq.pop();
-		int t=current.theta*180/(PI*5);
-		//cout<<"\n"<<t<<endl;
-		if(visited[current.gx][current.gy][t])
-				continue;
-		img.at<Vec3b>(current.gx,current.gy)[0]=0;
-		img.at<Vec3b>(current.gx,current.gy)[1]=0;		
-		img.at<Vec3b>(current.gx,current.gy)[2]=255;
-		imshow("a",img);
-		waitKey(1);
+		int grid_theta=((int)(current.theta*180/(PI*5)))%72; //grid_theta varies from 0-71 
+		if( visited[(int)current.x][(int)current.y][grid_theta] )
+		{
+			//cout<<"Already Visited Queue"<<endl;
+			continue;
+		}
 
-		visited[current.gx][current.gy][t]=true;//current.theta has to be changed later on
+		visited[(int)current.x][(int)current.y][grid_theta]=true;//current.theta has to be changed later on
 		if(map.isReached(current))//checks if it has reached the goal
 		{
-			cout<<"Reached"<<endl;
-			 vector<State> path;
-			 State* temp=&current;
-			// while( temp!=NULL )
-			// {
-			// 	path.push_back(*temp);
-			// 	temp=temp->parent;
-
-			// }
-			return path;
-		} 
-		vector <State> next=car.nextStates(&current);
-		for(vector <State>::iterator it= next.begin(); it!=next.end();it++)
-		{
-			cout<<"next state loop"<<endl;
-			State s;
-			s=*it;
-			int t_temp=s.theta*180/(PI*5);
-			cout<<"state:"<<s.gx<<","<<s.gy<<","<<s.theta<<","<<t_temp<<endl;
+			cout<<"REACHED!"<<endl;
 			
-			
-			if(visited[s.gx][s.gy][t_temp])
-				continue;
-			if(true)
+			State* temp=&current;
+			while( temp!=NULL )
 			{
-				// cout<<"NOT COLLIDING"<<endl;
-				cout<<"state to push"<<s.gx<<","<<s.gy<<","<<s.theta<<endl;
-				//cout<<"@@@@@@@@@@@@"<<p.h_obj.h_vals[s.gx][s.gy].dis<<endl;//","<<p.h_obj.h_vals[b.gx][b.gy].dis<<endl;
-				pq.push(s);
-				cout<<"pushed"<<endl;
-				cout<<"Parent: "<<s.parent->gx<<","<<s.parent->gy<<","<<s.parent->theta<<endl;
-				int x;
-				cin>>x;
-				// //cout<<"size after push "<<pq.size()<<endl;
-			}
-
+				// img.at<Vec3b>(temp->gx,temp->gy)[0]=0;
+				// img.at<Vec3b>(temp->gx,temp->gy)[1]=0;		
+				// img.at<Vec3b>(temp->gx,temp->gy)[2]=255;
+				// imshow("a",img);
+				// waitKey(1);
+				path.push_back(*temp);
+				temp=temp->parent;
+			}			
+			return path;
 		}
+
+				img.at<Vec3b>(current.gx,current.gy)[0]=0;
+				img.at<Vec3b>(current.gx,current.gy)[1]=0;		
+				img.at<Vec3b>(current.gx,current.gy)[2]=255;
+				namedWindow("w",WINDOW_NORMAL);
+				imshow("w",img);
+				waitKey(1);
+
+		vector<State> next=car.nextStates(&current);
+		cout<<"Current: X "<<current.x<<" Y "<<current.y<<" Theta "<<grid_theta<<endl;
+		for(vector<State>::iterator it= next.begin(); it!=next.end();it++)
+		{
+			State nextS;
+			nextS=*it;
+			int next_theta=((int)(nextS.theta*180/(PI*5)))%72;
+
+			
+			// int junk;
+			// cin>>junk;	
+			
+			if( visited[(int)nextS.x][(int)nextS.y][next_theta] )
+			{
+				//cout<<"Already Visited"<<endl;
+				continue;
+			}
+			if( !map.checkCollision(nextS) )
+			{
+				// cout<<"\nNot Colliding"<<endl;
+
+				nextS.cost2d=nextS.parent->cost2d+1;//dis(nextS,nextS.parent);
+				cout<<"Next to push: x "<<nextS.x<<" y "<<nextS.y<<" theta "<<(nextS.theta*180/PI)<<endl;
+				cout<<"Parent: "<<nextS.parent->x<<","<<nextS.parent->y<<","<<(nextS.parent->theta*180/PI)<<endl;
+				// cout<<"Cost "<<nextS.cost2d<<endl;
+				cout<<"Cost: "<<nextS.cost2d+H[nextS.gx][nextS.gy]<<endl;
+				pq.push(nextS);
+				// char ch;
+				// cin>>ch;
+
+			}
+			
+			// int jun;
+			// cin>>jun;
+		
+		}
+		// int t;
+		// cin>>t;
 	}
+	cout<<"Goal cannot be reached"<<endl;
+	exit(0);
 }
+
+

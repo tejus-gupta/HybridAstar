@@ -13,6 +13,8 @@ public:
     int MAP_THETA=72;
     int MAPX=1000;
     int MAPY=1000;
+    int VISX=100;
+    int VISY=100;
 
     Vehicle car;
 

@@ -1,0 +1,6 @@
+In GUI.hpp header changed to Vehicle.hpp
+%72 
+s changed to next
+p is removed
+h_obj object has say only inside public region for heuristic global double made 
+heuristic operator changes made  
