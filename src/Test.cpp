@@ -18,7 +18,7 @@ int main(){
             obs_map[i][j] = !(obs_img.at<uchar>(i,j) >= 120);  
     }
 
-	State start(60, 10, 3.14/2);
+	State start(10, 5, 0);
 	State target(30, 50, 3.14);
     Vehicle car;
 	Planner astar;

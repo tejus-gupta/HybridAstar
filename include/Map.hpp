@@ -6,9 +6,10 @@
 class Map{
 public:
     
-    State End;
+    State end;
     bool** obs_map;
     int** acc_obs_map;
+    float map_resolution;
        
     int MAP_THETA=72;
     int MAPX=1000;
