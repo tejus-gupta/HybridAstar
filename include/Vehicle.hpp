@@ -15,9 +15,9 @@ class Vehicle{
 
 public:
 
-	int BOT_L=3;
-	int BOT_W=2;
-	int BOT_MAX_ALPHA=30;
+	float BOT_L=2.5;
+	float BOT_W=1.5;
+	float BOT_MAX_ALPHA=30;
 	vector<State> nextStates(State*);
 };
 #endif

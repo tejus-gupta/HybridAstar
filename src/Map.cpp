@@ -25,7 +25,9 @@ bool Map::isReached(State Curr){
  	/* In this we could have int in place of bool which tells distance between them so 
  	thst we could act accordingly && fabs(Curr.theta-End.theta)<5*/
  	//
- 	if(  sqrt(pow(Curr.x-End.x,2)+ pow(Curr.y-End.y,2))<20 ) return true;
+	if( abs(Curr.x - End.x) < 1 && abs(Curr.y - End.y) < 1 && (abs(Curr.theta - End.theta) < 3.14/9 || abs(Curr.theta - 72 + End.theta) < 3.14/9))
+		return true;
+ 	//if(  sqrt(pow(Curr.x-End.x,2)+ pow(Curr.y-End.y,2))<20 ) return true;
  	else return false;
 }
 

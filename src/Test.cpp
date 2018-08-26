@@ -18,17 +18,20 @@ int main(){
             obs_map[i][j] = !(obs_img.at<uchar>(i,j) >= 120);  
     }
 
-	State start(60, 10, 0);
-	State target(90, 40, 0);
+	State start(60, 10, 3.14/2);
+	State target(30, 50, 3.14);
     Vehicle car;
 	Planner astar;
 	
 	vector<State> path = astar.plan(start, target, obs_map, car);
-	cout<<"Out of Planner"<<endl;
+	cout<<"Got path of length "<<path.size()<<endl;
     
     GUI display(1000, 1000);
     display.draw_obstacles(obs_map);
     for(int i=0;i<=path.size();i++)
+    {
         display.draw_car(path[i], car);
+        display.show(1);
+    }
     display.show();
 }

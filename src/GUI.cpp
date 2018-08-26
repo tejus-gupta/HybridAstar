@@ -16,7 +16,7 @@ void GUI::draw_obstacles(bool** obs_map){
 }
 
 void GUI::draw_car(State state, Vehicle car){
-	RotatedRect rotRect = RotatedRect(Point2f(state.x*10, state.y*10), Size2f(car.BOT_L*10, car.BOT_W*10), state.theta*5);
+	RotatedRect rotRect = RotatedRect(Point2f(state.x*10, 1000-state.y*10), Size2f(car.BOT_L*10, car.BOT_W*10), -state.theta*180/3.14);
 	Point2f vert[4];
 	rotRect.points(vert);
 	for(int i=0;i<4;i++)
@@ -28,6 +28,12 @@ void GUI::draw_car(State state, Vehicle car){
 void GUI::show(){
 	imshow("Display", display);
 	waitKey(0);
+	return;
+}
+
+void GUI::show(int t){
+	imshow("Display", display);
+	waitKey(t);
 	return;
 }
 
