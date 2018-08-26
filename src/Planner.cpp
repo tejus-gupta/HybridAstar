@@ -4,7 +4,7 @@ bool Planner::operator()(State a,State b)
 {
 	// cout<<"X "<<a.gx<<" Y "<<a.gy<<" Cost "<<H[a.gx][a.gy]<<endl;
 	// cout<<"X "<<b.gx<<" Y "<<b.gy<<" Cost "<<H[b.gx][b.gy]<<endl;
-	return (a.cost2d+H[a.gx][a.gy]/10 < b.cost2d+H[b.gx][b.gy]/10);
+	return (a.cost2d+H[a.gx][a.gy]/10 > b.cost2d+H[b.gx][b.gy]/10);
 }
 
 double dis (State a,State* b)
@@ -52,11 +52,8 @@ vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car)
 	priority_queue <State, vector<State>, Planner> pq;
 	pq.push(start);
 
-	int oi=0;
-
 	while(!pq.empty())
 	{
-		oi++;
 		State current=pq.top();
 		pq.pop();
 		int grid_theta=((int)(current.theta*180/(PI*5)))%72; //grid_theta varies from 0-71 
@@ -74,11 +71,9 @@ vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car)
 			while( temp.parent != NULL )
 			{
 				path.push_back(temp);
-				//cout<<(temp.x)<<","<<(temp.y)<<","<<(temp.theta)<<endl;
 				temp=*(temp.parent);
 			}
-			cout<<temp.x<<","<<temp.y<<","<<temp.theta<<endl;
-			cout<<oi<<endl;
+			reverse(path.begin(), path.end());
 			return path;
 		}
 
