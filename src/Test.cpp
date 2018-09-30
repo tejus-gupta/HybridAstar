@@ -9,7 +9,7 @@ using namespace cv;
 int main(){ 
 	Mat obs_img = imread("../maps/map.jpg", 0);
     int h = obs_img.rows, w = obs_img.cols;
-
+ 
     bool** obs_map = new bool*[h];
     for(int i=0; i<h; i++)
     {
@@ -18,12 +18,15 @@ int main(){
             obs_map[i][j] = !(obs_img.at<uchar>(i,j) >= 120);  
     }
 
-	State start(10, 5, 0);
-	State target(30, 50, 3.14);
+	State start(1, 90, 0);
+	State target(1, 20, 3.14);
     Vehicle car;
 	Planner astar;
 	
+	clock_t start_time=clock();
 	vector<State> path = astar.plan(start, target, obs_map, car);
+	clock_t end_time=clock();
+	cout<<"Total time taken: "<<(double)(end_time-start_time)/CLOCKS_PER_SEC<<endl;
 	cout<<"Got path of length "<<path.size()<<endl;
     
     GUI display(1000, 1000);

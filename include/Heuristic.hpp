@@ -3,8 +3,8 @@
 
 // #include "../src/Vehicle.cpp"
 #include "../src/Map.cpp"
-#define DX 1000
-#define DY 1000
+#define DX 250
+#define DY 250
 class Heuristic
 {
 public:

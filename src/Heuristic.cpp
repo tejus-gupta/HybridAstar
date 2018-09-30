@@ -27,7 +27,21 @@ float distance (Heuristic::smallestcost_2d source,Heuristic::smallestcost_2d nei
 void Heuristic::Dijkstra(Map map,State target)
 {
 	priority_queue <smallestcost_2d,vector<smallestcost_2d>,compareHeuristic> pq;
+
+	int** grid_map=new int*[DX];
+	for(int i=0;i<DX;i++)
+	{
+		grid_map[i]=new int[DY];
+	}
 	
+	for(int i=0;i<map.MAPX;i++)
+	{
+		for(int j=0;j<map.MAPY;j++)
+		{
+			if(map.obs_map[i][j])
+			grid_map[i*DX/map.MAPX][j*DY/map.MAPY]=1;
+		}
+	}
 	h_vals=new smallestcost_2d*[DX];
 	for(int i=0;i<DX;i++)
 	{
@@ -46,12 +60,12 @@ void Heuristic::Dijkstra(Map map,State target)
 		}
 	}
 
-	is_visited[target.gx][target.gy]=true;
+	is_visited[target.gx*DX/map.MAPX][target.gy*DY/map.MAPY]=true;
 
-	h_vals[target.gx][target.gy].dis=0;
-	h_vals[target.gx][target.gy].x=target.gx;
-	h_vals[target.gx][target.gy].y=target.gy;
-	pq.push(h_vals[target.gx][target.gy]);
+	h_vals[target.gx*DX/map.MAPX][target.gy*DY/map.MAPY].dis=0;
+	h_vals[target.gx*DX/map.MAPX][target.gy*DY/map.MAPY].x=target.gx*DX/map.MAPX;
+	h_vals[target.gx*DX/map.MAPX][target.gy*DY/map.MAPY].y=target.gy*DY/map.MAPY;
+	pq.push(h_vals[target.gx*DX/map.MAPX][target.gy*DY/map.MAPY]);
 
 
 	while (pq.size()>0)
@@ -70,7 +84,7 @@ void Heuristic::Dijkstra(Map map,State target)
 				neighbor.y=j;
 
 				if(!isvalid(neighbor)) continue;				
-				if ( map.obs_map[i][j]!=1 &&is_visited[i][j]==false )
+				if ( grid_map[i][j]!=1 &&is_visited[i][j]==false )
 				{
 					if (h_vals[i][j].dis>h_vals[temp.x][temp.y].dis+distance(temp,neighbor))
 					{
