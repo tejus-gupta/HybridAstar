@@ -4,12 +4,15 @@
 class State{
 
 public:
+	//These represents the actual x and actual y
 	float x;
     float y;
 	float theta;
 	
-	int gx;
+	//These represents the grid x and grid y  
+	int gx;  
 	int gy;
+
 
 	float cost2d;
 	float cost3d;
@@ -22,12 +25,13 @@ public:
 
 	State(float X,float Y,float THETA)
 	{
-		gx=X;
-		gy=Y;
-		x=gx*0.1;
-		y=gy*0.1;
+		x=X;
+		y=Y;
+		gx=x*10;
+		gy=y*10;
 		theta=THETA;
 		parent=NULL;
+		cost2d=0;
 	}
 
 	State()
@@ -36,6 +40,7 @@ public:
 		y=0;
 		theta=0;
 		parent=NULL;
+		cost2d=0;
 	}
 };
 #endif

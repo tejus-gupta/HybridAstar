@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 #include <iostream>
-#include "bits/stdc++.h"
+#include <bits/stdc++.h>
 #include "State.hpp"
 //#include "ros/ros.h"
 
@@ -15,9 +15,10 @@ class Vehicle{
 
 public:
 
-	int BOT_L=50;
-	int BOT_W=20;
-	int BOT_MAX_ALPHA=30;
-	vector<State> nextStates(State);
+	float BOT_L=2.5;
+	float BOT_W=1.5;
+	float BOT_MAX_ALPHA=30;
+	vector<State> nextStates(State*);
 };
+
 #endif

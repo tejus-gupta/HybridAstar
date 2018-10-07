@@ -17,6 +17,7 @@ public:
     void draw_obstacles(bool** obs_map);
     void draw_car(State src, Vehicle car);
     void show();
+    void show(int t);
 };
 
 #endif
