@@ -43,6 +43,8 @@ void Map::initCollisionChecker(){
 
 bool Map::checkCollision(State pos){
 
+	vector <Point> vertices;
+	
 	if(pos.x*map_resolution>=MAPX || pos.x*map_resolution<0 || pos.y*map_resolution>=MAPY || pos.y*map_resolution<0 )
 		return true;
 
@@ -72,5 +74,71 @@ bool Map::checkCollision(State pos){
 				return true;
 		}
 	return false;
+
+}
+bool Map::checkCollisionSat(vector <Point> v1,vector <Point> v2)
+{
+	double slope;
+	double theta;
+	double dis;
+	double rmin1,rmax1,rmin2,rmax2;
+	rmin1=INT_MAX;
+	rmin2=INT_MAX;
+	rmax1=INT_MIN;
+	rmax2=INT_MIN;
+	bool collide=0;
+	for (int i=0;i<v1.size()-1;i++)
+	{
+		slope=(v1[i+1].y-v1[i].y)/(v1[i+1].x-v1[i].x);
+		slope=-1*(1/slope);
+		for (int j=0;j<v1.size();j++)
+		{
+			theta=arctan((v1[j].y)/(v1[j].x))-slope;
+			dis=sqrt(v1[j].y*v1[j].y+v1[j].x*v1[j].x);
+			rmin1=min(rmin1,dis*cos(theta));
+			rmax1=max(rmax1,dis*cos(theta));
+		}
+		for (int j=0;j<v2.size();j++)
+		{
+			theta=arctan((v2[j].y)/(v2[j].x))-slope;
+			dis=sqrt(v2[j].y*v2[j].y+v2[j].x*v2[j].x);
+			rmin2=min(rmin2,dis*cos(theta));
+			rmax2=max(rmax2,dis*cos(theta));
+		}
+		if (rmin2>=rmin1&&rmin2<=rmax1)
+			collide=true;
+		else if (rmin1>=rmin2&&rmin1<=rmax2)
+			collide=true;
+		if (!collide)
+			return false;
+		// we assume the line passes through origin and the slope is -1/slope
+	}
+	for (int i=0;i<v2.size()-1;i++)
+	{
+		slope=(v2[i+1].y-v2[i].y)/(v2[i+1].x-v2[i].x);
+		slope=-1*(1/slope);
+		for (int j=0;j<v1.size();j++)
+		{
+			theta=arctan((v1[j].y)/(v1[j].x))-slope;
+			dis=sqrt(v1[j].y*v1[j].y+v1[j].x*v1[j].x);
+			rmin1=min(rmin1,dis*cos(theta));
+			rmax1=max(rmax1,dis*cos(theta));
+		}
+		for (int j=0;j<v2.size();j++)
+		{
+			theta=arctan((v2[j].y)/(v2[j].x))-slope;
+			dis=sqrt(v2[j].y*v2[j].y+v2[j].x*v2[j].x);
+			rmin2=min(rmin2,dis*cos(theta));
+			rmax2=max(rmax2,dis*cos(theta));
+		}
+		if (rmin2>=rmin1&&rmin2<=rmax1)
+			collide=true;
+		else if (rmin1>=rmin2&&rmin1<=rmax2)
+			collide=true;
+		if (!collide)
+			return false;
+		// we assume the line passes through origin and the slope is -1/slope
+	}
+	return true;
 }
 #endif
