@@ -14,16 +14,25 @@ double dis (State a,State* b)
 
 vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car)
 {
+
 	Map map(obs_map, end);//object of Map class
+	clock_t time_begin= clock();
 	map.initCollisionChecker();
-	h_obj.Dijkstra(map,end);
+	clock_t time_end= clock();
+	cout<<"Time: initCollisionChecker= "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
 	
-	H=new double*[DX];
-	for(int i=0;i<DX;i++)
+	time_begin= clock();
+	h_obj.Dijkstra(map,end);
+	time_end= clock();
+	cout<<"Time: Dijkstra= "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
+
+	
+	H=new double*[map.MAPX];
+	for(int i=0;i<map.MAPX;i++)
 	{
-		H[i]=new double[DY];
-	    for (int j=0;j<DY;j++)
-			H[i][j]=h_obj.h_vals[i][j].dis;
+		H[i]=new double[map.MAPY];
+	    for (int j=0;j<map.MAPY;j++)
+			H[i][j]=h_obj.h_vals[i*DX/map.MAPX][j*DY/map.MAPY].dis;
 	}
 	
 
@@ -52,6 +61,9 @@ vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car)
 	priority_queue <State, vector<State>, Planner> pq;
 	pq.push(start);
 
+	double checkCollisionTime=0;
+	double nextStatesTime=0;
+
 	while(!pq.empty())
 	{
 		State current=pq.top();
@@ -65,6 +77,8 @@ vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car)
 
 		if(map.isReached(current))//checks if it has reached the goal
 		{
+			cout<<"Time :CollisionChecker= "<<checkCollisionTime<<endl;
+			cout<<"Time :nextStates= "<<nextStatesTime<<endl;
 			cout<<"REACHED!"<<endl;
 			
 			State temp=current;
@@ -76,9 +90,11 @@ vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car)
 			reverse(path.begin(), path.end());
 			return path;
 		}
-
+		time_begin=clock();
 		vector<State> next=car.nextStates(&current);
-		
+		time_end=clock();
+		nextStatesTime+=double(time_end-time_begin)/CLOCKS_PER_SEC;
+
 		for(vector<State>::iterator it= next.begin(); it!=next.end();it++)
 		{
 			State nextS = *it;
@@ -87,16 +103,22 @@ vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car)
 			if( visited[(int)nextS.x][(int)nextS.y][next_theta] )
 				continue;
 			
+
+			time_begin=clock();
 			if( !map.checkCollision(nextS) )
 			{
 				it->parent = &(visited_state[(int)current.x][(int)current.y][grid_theta]);
 				it->cost2d = current.cost2d+1;
 				pq.push(*it);
 			}
+			time_end=clock();
+			//cout<<" time: "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
+			checkCollisionTime+=double(time_end-time_begin)/CLOCKS_PER_SEC;
 		}
 	}
 	cout<<"Goal cannot be reached"<<endl;
 	exit(0);
 }
+
 
 
