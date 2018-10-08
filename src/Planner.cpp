@@ -107,11 +107,13 @@ vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car)
 			time_begin=clock();
 			if( !map.checkCollision(nextS) )
 			{
+				time_end=clock();
 				it->parent = &(visited_state[(int)current.x][(int)current.y][grid_theta]);
 				it->cost2d = current.cost2d+1;
 				pq.push(*it);
 			}
-			time_end=clock();
+			else
+				time_end=clock();
 			//cout<<" time: "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
 			checkCollisionTime+=double(time_end-time_begin)/CLOCKS_PER_SEC;
 		}
