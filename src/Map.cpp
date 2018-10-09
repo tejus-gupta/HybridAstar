@@ -3,8 +3,9 @@
 
 #include "../include/Map.hpp"
 
-Map::Map( bool **obs_map, State end ){
+Map::Map( bool **obs_map, State end,vector<vector<Point>> obs ){
 
+	this->obs=obs;
 	this->obs_map = obs_map;
 	this->end = end;
 	this->map_resolution = 10;
@@ -67,8 +68,8 @@ bool Map::checkCollision(State pos){
 	for(float i=-car.BOT_L/2.0;i<=car.BOT_L/2.0+0.001;i+=0.25)
 		for(float j=-car.BOT_W/2.0;j<=car.BOT_W/2.0+0.001;j+=0.25)
 		{
-			int s = map_resolution * (pos.x+i*cos(pos.theta*2.0*PI/MAP_THETA)+j*sin(pos.theta*2.0*PI/MAP_THETA)) + 0.001;
-			int t = map_resolution * (pos.y+i*sin(pos.theta*2.0*PI/MAP_THETA)+j*cos(pos.theta*2.0*PI/MAP_THETA)) + 0.001;
+			int s = map_resolution * (pos.x+i*cos(pos.theta)+j*sin(pos.theta)) + 0.001;
+			int t = map_resolution * (pos.y+i*sin(pos.theta)+j*cos(pos.theta)) + 0.001;
 
      		if(obs_map[s][t])
 				return true;
@@ -76,8 +77,17 @@ bool Map::checkCollision(State pos){
 	return false;
 
 }
-bool Map::checkCollisionSat(vector <Point> v1,vector <Point> v2)
+bool Map::helperSAT(vector <Point> v1,vector <Point> v2)
 {
+	// cout<<"Inside SAT"<<endl;
+	for (int i = 0; i < v1.size(); ++i)
+	{
+		// cout<<v1[i]<<endl;
+	}
+	// cout<<v1.size()<<" "<<v2.size()<<endl;
+	// int t;
+	// cin >>t;
+
 	double slope;
 	double theta;
 	double dis;
@@ -86,59 +96,122 @@ bool Map::checkCollisionSat(vector <Point> v1,vector <Point> v2)
 	rmin2=INT_MAX;
 	rmax1=INT_MIN;
 	rmax2=INT_MIN;
-	bool collide=0;
+	bool collide=false;
 	for (int i=0;i<v1.size()-1;i++)
 	{
-		slope=(v1[i+1].y-v1[i].y)/(v1[i+1].x-v1[i].x);
-		slope=-1*(1/slope);
+		if( (v1[i+1].x==v1[i].x)) slope=INT_MAX;
+		else slope=(v1[i+1].y-v1[i].y)/(v1[i+1].x-v1[i].x);
+		
+		if( slope==0 ) slope=INT_MAX;
+		else slope=-1*(1/slope);
+		
+		// cout<<"1"<<endl;
+		int count=0;
 		for (int j=0;j<v1.size();j++)
 		{
-			theta=arctan((v1[j].y)/(v1[j].x))-slope;
+			// cout<<"D"<<endl;
+			// cout<<slope<<endl;
+			// // cout<<atan((v1[j].y)/(v1[j].x))<<endl;
+			if( v1[j].x==0 ) theta=CV_PI/2 - slope;
+			else theta=atan((v1[j].y)/(v1[j].x))-slope;
+			// cout<<"D"<<endl;
 			dis=sqrt(v1[j].y*v1[j].y+v1[j].x*v1[j].x);
+			// cout<<"D"<<endl;
 			rmin1=min(rmin1,dis*cos(theta));
+			// cout<<"D"<<endl;
 			rmax1=max(rmax1,dis*cos(theta));
 		}
+		// cout<<"1"<<endl;
 		for (int j=0;j<v2.size();j++)
 		{
-			theta=arctan((v2[j].y)/(v2[j].x))-slope;
+			if( v2[j].x==0 ) theta=CV_PI/2 - slope;
+			else theta=atan((v2[j].y)/(v2[j].x))-slope;
 			dis=sqrt(v2[j].y*v2[j].y+v2[j].x*v2[j].x);
 			rmin2=min(rmin2,dis*cos(theta));
 			rmax2=max(rmax2,dis*cos(theta));
 		}
-		if (rmin2>=rmin1&&rmin2<=rmax1)
+		if (rmin2>=rmin1&&rmax2<=rmax1)
 			collide=true;
-		else if (rmin1>=rmin2&&rmin1<=rmax2)
+		else if (rmin1>=rmin2&&rmax1<=rmax2)
 			collide=true;
 		if (!collide)
+		{
+			// cout<<"Returned"<<endl;
 			return false;
+		}
 		// we assume the line passes through origin and the slope is -1/slope
 	}
+
+	// cout<<"After Loop1 "<<endl;
+	// int t;
+	// cin >>t;
+
 	for (int i=0;i<v2.size()-1;i++)
 	{
-		slope=(v2[i+1].y-v2[i].y)/(v2[i+1].x-v2[i].x);
-		slope=-1*(1/slope);
+
+		if( (v1[i+1].x==v1[i].x)) slope=INT_MAX;
+		else slope=(v1[i+1].y-v1[i].y)/(v1[i+1].x-v1[i].x);
+
+		if( slope==0 ) slope=INT_MAX;
+		else slope=-1*(1/slope);
+
 		for (int j=0;j<v1.size();j++)
 		{
-			theta=arctan((v1[j].y)/(v1[j].x))-slope;
+			if( v1[j].x==0 ) theta=CV_PI/2 - slope;
+			else theta=atan((v1[j].y)/(v1[j].x))-slope;
 			dis=sqrt(v1[j].y*v1[j].y+v1[j].x*v1[j].x);
 			rmin1=min(rmin1,dis*cos(theta));
 			rmax1=max(rmax1,dis*cos(theta));
 		}
 		for (int j=0;j<v2.size();j++)
 		{
-			theta=arctan((v2[j].y)/(v2[j].x))-slope;
+			if( v2[j].x==0 ) theta=CV_PI/2 - slope;
+			else theta=atan((v2[j].y)/(v2[j].x))-slope;
 			dis=sqrt(v2[j].y*v2[j].y+v2[j].x*v2[j].x);
 			rmin2=min(rmin2,dis*cos(theta));
 			rmax2=max(rmax2,dis*cos(theta));
 		}
-		if (rmin2>=rmin1&&rmin2<=rmax1)
+		if (rmin2>=rmin1&&rmax2<=rmax1)
 			collide=true;
-		else if (rmin1>=rmin2&&rmin1<=rmax2)
+		else if (rmin1>=rmin2&&rmax1<=rmax2)
 			collide=true;
 		if (!collide)
 			return false;
 		// we assume the line passes through origin and the slope is -1/slope
 	}
 	return true;
+}
+
+bool Map::checkCollisionSat(State pos)
+{
+	bool collide=false;
+	vector<Point> v1;
+
+	Point p1;
+	p1.x = map_resolution * (pos.x-car.BOT_L*abs(cos(pos.theta))/2-car.BOT_W*abs(sin(pos.theta))/2) ;
+	p1.y = map_resolution * (pos.y-car.BOT_L*abs(sin(pos.theta))/2+car.BOT_W*abs(cos(pos.theta))/2) ;
+	v1.push_back(p1);
+
+	Point p2;
+	p2.x = map_resolution * (pos.x-car.BOT_L*abs(cos(pos.theta))/2-car.BOT_W*abs(sin(pos.theta))/2) ;
+	p2.y = map_resolution * (pos.y+car.BOT_L*abs(sin(pos.theta))/2+car.BOT_W*abs(cos(pos.theta))/2) ;
+	v1.push_back(p2);
+
+	Point p3;
+	p3.x = map_resolution * (pos.x+car.BOT_L*abs(cos(pos.theta))/2+car.BOT_W*abs(sin(pos.theta))/2) ;
+	p3.y = map_resolution * (pos.y+car.BOT_L*abs(sin(pos.theta))/2-car.BOT_W*abs(cos(pos.theta))/2) ;
+	v1.push_back(p3);
+
+	Point p4;
+	p4.x = map_resolution * (pos.x+car.BOT_L*abs(cos(pos.theta))/2+car.BOT_W*abs(sin(pos.theta))/2) ;
+	p4.y = map_resolution * (pos.y-car.BOT_L*abs(sin(pos.theta))/2-car.BOT_W*abs(cos(pos.theta))/2) ;
+	v1.push_back(p4);
+
+	for (int i = 0; i < obs.size() ; ++i)
+	{
+		if( helperSAT( v1 , obs[i] ) )
+			return true;
+	}
+	return false;
 }
 #endif

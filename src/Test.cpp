@@ -10,6 +10,21 @@ int main(){
 	Mat obs_img = imread("../maps/map.jpg", 0);
     int h = obs_img.rows, w = obs_img.cols;
  
+    Mat canny;
+    vector<vector<Point> > obs;
+    vector<Vec4i> hierarchy;
+    Canny( obs_img, canny, 100, 200, 3 );
+    findContours( canny,obs, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0) );
+    
+    Mat drawing = Mat::zeros( canny.size(), CV_8UC3 );
+    for( int i = 0; i< obs.size(); i++ )
+    {
+       Scalar color = Scalar( rand()%256, rand()%256, rand()%256);
+       drawContours( drawing, obs, i, color, 2, 8, hierarchy, 0, Point() );
+    }
+
+    imshow( "Contours", drawing );
+
     bool** obs_map = new bool*[h];
     for(int i=0; i<h; i++)
     {
@@ -24,7 +39,7 @@ int main(){
 	Planner astar;
 	
 	clock_t start_time=clock();
-	vector<State> path = astar.plan(start, target, obs_map, car);
+    vector<State> path = astar.plan(start, target, obs_map, car ,obs);
 	clock_t end_time=clock();
 	cout<<"Total time taken: "<<(double)(end_time-start_time)/CLOCKS_PER_SEC<<endl;
 	cout<<"Got path of length "<<path.size()<<endl;
