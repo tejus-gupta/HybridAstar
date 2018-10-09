@@ -12,15 +12,23 @@ double dis (State a,State* b)
 	return (sqrt((b->gx-a.gx)*(b->gx-a.gx)+(b->gy-a.gy)*(b->gy-a.gy)));
 }
 
-vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car)
+vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,vector<vector<Point>> obs)
 {
 
-	Map map(obs_map, end);//object of Map class
+	Map map(obs_map, end , obs);                          //object of Map class
 	clock_t time_begin= clock();
 	map.initCollisionChecker();
 	clock_t time_end= clock();
 	cout<<"Time: initCollisionChecker= "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
-	
+
+    State star(25, 90, 0);
+
+	cout<<"SAT : "<<map.checkCollisionSat(start)<<endl;;
+	cout<<"SAT : "<<map.checkCollisionSat(end)<<endl;;
+
+	// int t;
+	// cin >>t;
+
 	time_begin= clock();
 	h_obj.Dijkstra(map,end);
 	time_end= clock();
@@ -105,7 +113,7 @@ vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car)
 			
 
 			time_begin=clock();
-			if( !map.checkCollision(nextS) )
+			if( !map.checkCollisionSat(nextS) )
 			{
 				time_end=clock();
 				it->parent = &(visited_state[(int)current.x][(int)current.y][grid_theta]);
