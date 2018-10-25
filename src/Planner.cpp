@@ -21,10 +21,10 @@ vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,
 	clock_t time_end= clock();
 	cout<<"Time: initCollisionChecker= "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
 
-    State star(25, 90, 0);
+    State star(70, 120, 0);
 
-	cout<<"SAT : "<<map.checkCollisionSat(start)<<endl;;
-	cout<<"SAT : "<<map.checkCollisionSat(end)<<endl;;
+	cout<<"SAT : "<<map.checkCollisionSat(star)<<endl;;
+	//cout<<"SAT : "<<map.checkCollisionSat(end)<<endl;;
 
 	// int t;
 	// cin >>t;
@@ -113,6 +113,7 @@ vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,
 			
 
 			time_begin=clock();
+			//cout<<"check collision sat "<<map.checkCollisionSat(nextS)<<endl;
 			if( !map.checkCollisionSat(nextS) )
 			{
 				time_end=clock();
@@ -121,7 +122,11 @@ vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,
 				pq.push(*it);
 			}
 			else
+			{
+				//cout<<"value of map check "<<map.checkCollisionSat(nextS)<<endl;
 				time_end=clock();
+				cout<<"collided at "<<nextS.x<<" "<<nextS.y<<endl;	
+			}
 			//cout<<" time: "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
 			checkCollisionTime+=double(time_end-time_begin)/CLOCKS_PER_SEC;
 		}

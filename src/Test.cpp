@@ -9,32 +9,51 @@ using namespace cv;
 int main(){ 
 	Mat obs_img = imread("../maps/map.jpg", 0);
     int h = obs_img.rows, w = obs_img.cols;
+
+    //cout<<"h and w"<<h<<" "<<w<<endl;
  
-    Mat canny;
-    vector<vector<Point> > obs;
-    vector<Vec4i> hierarchy;
-    Canny( obs_img, canny, 100, 200, 3 );
-    findContours( canny,obs, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0) );
+   // Mat canny;
+    vector<vector<Point> > obs;  
+    vector <Point> a;
+    vector <Point> b;
+    vector <Point> c;
+    //vector<Vec4i> hierarchy;
+    // Canny( obs_img, canny, 100, 200, 3 );
+    // findContours( canny,obs, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0) );
     
-    Mat drawing = Mat::zeros( canny.size(), CV_8UC3 );
-    for( int i = 0; i< obs.size(); i++ )
-    {
-       Scalar color = Scalar( rand()%256, rand()%256, rand()%256);
-       drawContours( drawing, obs, i, color, 2, 8, hierarchy, 0, Point() );
-    }
+    // Mat drawing = Mat::zeros( canny.size(), CV_8UC3 );
+    // for( int i = 0; i< obs.size(); i++ )
+    // {
+    //    Scalar color = Scalar( rand()%256, rand()%256, rand()%256);
+    //    drawContours( drawing, obs, i, color, 2, 8, hierarchy, 0, Point() );
+    // }
 
-    imshow( "Contours", drawing );
-
+    // imshow( "Contours", drawing );
+    a.push_back(Point(64,105));
+    a.push_back(Point(64,185));
+    a.push_back(Point(280,185));
+    a.push_back(Point(280,105));
+    obs.push_back(a);
+    b.push_back(Point(64,225));
+    b.push_back(Point(64,310));
+    b.push_back(Point(280,310));
+    b.push_back(Point(280,225));
+    obs.push_back(b);
+    c.push_back(Point(64,335));
+    c.push_back(Point(64,430));
+    c.push_back(Point(280,430));
+    c.push_back(Point(280,335));
+    obs.push_back(c);
     bool** obs_map = new bool*[h];
     for(int i=0; i<h; i++)
     {
-        obs_map[i] = new bool[w];
+        obs_map[i] = new bool[w]; 
         for(int j=0; j<w; j++)
             obs_map[i][j] = !(obs_img.at<uchar>(i,j) >= 120);  
     }
 
-	State start(1, 90, 0);
-	State target(1, 20, 3.14);
+	State start(10, 90, 0);
+	State target(10,1, 0);
     Vehicle car;
 	Planner astar;
 	
@@ -50,6 +69,6 @@ int main(){
     {
         display.draw_car(path[i], car);
         display.show(1);
-    }
+    } 
     display.show();
 }
