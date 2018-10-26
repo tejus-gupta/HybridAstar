@@ -10,8 +10,8 @@ int main(){
 	Mat obs_img = imread("../maps/map.jpg", 0);
     int h = obs_img.rows, w = obs_img.cols;
 
-    //cout<<"h and w"<<h<<" "<<w<<endl;
- 
+    cout<<"h and w"<<h<<" "<<w<<endl;
+
    // Mat canny;
     vector<vector<Point> > obs;  
     vector <Point> a;
@@ -43,7 +43,8 @@ int main(){
     c.push_back(Point(64,430));
     c.push_back(Point(280,430));
     c.push_back(Point(280,335));
-    obs.push_back(c);
+    obs.push_back(c );
+
     bool** obs_map = new bool*[h];
     for(int i=0; i<h; i++)
     {
@@ -52,8 +53,8 @@ int main(){
             obs_map[i][j] = !(obs_img.at<uchar>(i,j) >= 120);  
     }
 
-	State start(10, 90, 0);
-	State target(10,1, 0);
+	State start(10, 9, 0);
+	State target(99,90, 0);
     Vehicle car;
 	Planner astar;
 	

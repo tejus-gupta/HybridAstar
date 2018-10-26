@@ -77,36 +77,20 @@ bool Map::checkCollision(State pos){
 	return false;
 
 }
+
+// v2 is obstacle and v1 is bot
 bool Map::helperSAT(vector <Point> v1,vector <Point> v2)
 {
-	// cout<<"Inside SAT"<<endl;
-	for (int i=0;i<v2.size();i++)
-	{
-		cout<<" Obstacle ";
-		cout<<v2[i].x<<" "<<v2[i].y<<" "<<endl;
-	}
-	
-	// cout<<endl;
-	// for (int i = 0; i < v1.size(); ++i)
-	// {
-	// 	 cout<<v1[i]<<endl;
-	// }
-	// cout<<v1.size()<<" "<<v2.size()<<endl;
-	// int t;
-	// cin >>t;
 
-	double slope;
-	double theta;
+	double slope,theta,alpha;
 	double dis;
-	double alpha;
 	double rmin1,rmax1,rmin2,rmax2;
-	rmin1=INT_MAX;
-	rmin2=INT_MAX;
-	rmax1=INT_MIN;
-	rmax2=INT_MIN;
-	bool collide;//=false;
-	for (int i=0;i<v1.size()-1;i++)
+
+	for (int i=0;i<v1.size()-2;i++)
 	{
+		rmin1=rmin2=INT_MAX;
+		rmax1=rmax2=INT_MIN;
+
 		if( (v1[i+1].x==v1[i].x)) 
 		{
 			alpha=0;
@@ -119,105 +103,66 @@ bool Map::helperSAT(vector <Point> v1,vector <Point> v2)
 		}
 		else 
 		{
-			slope=(v1[i+1].y-v1[i].y)/(v1[i+1].x-v1[i].x);
+			slope=(double)(v1[i+1].y-v1[i].y)/(v1[i+1].x-v1[i].x);
 			slope=-1*(1/slope);
 			if (slope<0)
 				alpha=CV_PI+atan(slope);
 			else
 				alpha=atan(slope);
 		}
-
-		// cout<<"1"<<endl;
+		// cout<<v1[i].x<<" "<<v1[i].y<<" "<<v1[i+1].x<<" "<<v1[i+1].y<<endl;
+		// cout<<"slope of the axis for this run : "<<slope<<" and alpha : "<<alpha<<endl;
 		int count=0;
 		for (int j=0;j<v1.size();j++)
 		{
-			// cout<<"D"<<endl;
-			// cout<<slope<<endl;
 			// // cout<<atan((v1[j].y)/(v1[j].x))<<endl;
-			if (slope<0)
-			{
-				if(v1[j].x==0)
-				{
-					if(v1[j].y<0)
-						theta=CV_PI/2-alpha;
-					else
-						theta=3*CV_PI/2-alpha;
-				}
-				else
-					theta=CV_PI-alpha+atan((double)v1[j].y/(double)v1[j].x);
-			}
+			if(v1[j].x==0)
+				theta=alpha-CV_PI/2;
 			else
-			{
-				if(v1[j].x==0)
-				{
-					if(v1[j].y<0)
-						theta=alpha+ CV_PI/2;
-					else
-						theta=alpha - CV_PI/2;
-				}
-				else
-					theta=atan(((double)v1[j].y)/(double)(v1[j].x))-alpha;
-			}
-			// cout<<"D"<<endl;
+				theta=alpha-atan((double)v1[j].y/(double)v1[j].x);
+			if( theta>CV_PI/2 )
+				theta=atan((double)v1[j].y/(double)v1[j].x)-alpha+CV_PI;
+
 			dis=sqrt(v1[j].y*v1[j].y+v1[j].x*v1[j].x);
-			// cout<<"D"<<endl;
+			// cout<<"Theta :"<<theta<<endl;
+			// cout<<"atan(((double)v1[j].y)/(double)(v1[j].x)) :"<<atan(((double)v1[j].y)/(double)(v1[j].x))<<endl;			
+			// cout<<"X: "<<v1[j].x<<" Y: "<<v1[j].y<<endl;
+			// cout<<"dis*cos(theta): "<<dis*cos(theta)<<endl;
 			rmin1=min(rmin1,dis*cos(theta));
-			// cout<<"D"<<endl;
+			// cout<<rmin1<<endl;
 			rmax1=max(rmax1,dis*cos(theta));
+			// cout<<rmax1<<endl;
 		}
-		// cout<<"1"<<endl;
+		// cout<<"Ended"<<endl;
 		for (int j=0;j<v2.size();j++)
 		{
-			if (slope<0)
-			{
-				if(v2[j].x==0)
-				{
-					if(v2[j].y<0)
-						theta=CV_PI/2-alpha;
-					else
-						theta=3*CV_PI/2-alpha;
-				}
-				else
-					theta=CV_PI-alpha+atan((double)v2[j].y/(double)v2[j].x);
-			}
+			if(v2[j].x==0)
+				theta=alpha-CV_PI/2;
 			else
-			{
-				if(v2[j].x==0)
-				{
-					if(v2[j].y<0)
-						theta=alpha+ CV_PI/2;
-					else
-						theta=alpha - CV_PI/2;
-				}
-				else
-					theta=atan(((double)v2[j].y)/(double)(v2[j].x))-alpha;
-			}
-			// cout<<"D"<<endl;
+				theta=alpha-atan((double)v2[j].y/(double)v2[j].x);
+			if( theta>CV_PI/2 )
+				theta=atan((double)v2[j].y/(double)v2[j].x)-alpha+CV_PI;
+
 			dis=sqrt(v2[j].y*v2[j].y+v2[j].x*v2[j].x);
-			// cout<<"D"<<endl;
+		//	// cout<<"D"<<endl;
 			rmin2=min(rmin2,dis*cos(theta));
-			// cout<<"D"<<endl;
+			// cout<<rmin2<<endl;
 			rmax2=max(rmax2,dis*cos(theta));
+			// cout<<rmax2<<endl;
 		}
 
-		if (rmin2>=rmin1&&rmax2<=rmax1)
-			collide=true;
-		else if (rmin1>=rmin2&&rmax1<=rmax2)
-			collide=true;
-		if (!collide)
+		if ( rmin1>rmax2 || rmin2>rmax1 ) 
 		{
 			// cout<<"Returned"<<endl;
 			return false;
 		}
 		// we assume the line passes through origin and the slope is -1/slope
 	}
-
-	// cout<<"After Loop1 "<<endl;
-	// int t;
-	// cin >>t;
-
-	for (int i=0;i<v2.size()-1;i++)
+	for (int i=0;i<v2.size()-2;i++)
 	{
+		rmin1=rmin2=INT_MAX;
+		rmax1=rmax2=INT_MIN;
+
 		if( (v2[i+1].x==v2[i].x)) 
 		{
 			alpha=0;
@@ -230,92 +175,55 @@ bool Map::helperSAT(vector <Point> v1,vector <Point> v2)
 		}
 		else 
 		{
-			slope=(v2[i+1].y-v2[i].y)/(v2[i+1].x-v2[i].x);
+			slope=(double)(v2[i+1].y-v2[i].y)/(v2[i+1].x-v2[i].x);
 			slope=-1*(1/slope);
 			if (slope<0)
 				alpha=CV_PI+atan(slope);
 			else
 				alpha=atan(slope);
 		}
-
-		// cout<<"1"<<endl;
+		// cout<<v2[i].x<<" "<<v2[i].y<<" "<<v2[i+1].x<<" "<<v2[i+1].y<<endl;
+		// cout<<"slope of the axis for this run : "<<slope<<" and alpha : "<<alpha<<endl;
 		int count=0;
 		for (int j=0;j<v1.size();j++)
 		{
-			// cout<<"D"<<endl;
-			// cout<<slope<<endl;
 			// // cout<<atan((v1[j].y)/(v1[j].x))<<endl;
-			if (slope<0)
-			{
-				if(v1[j].x==0)
-				{
-					if(v1[j].y<0)
-						theta=CV_PI/2-alpha;
-					else
-						theta=3*CV_PI/2-alpha;
-				}
-				else
-					theta=CV_PI-alpha+atan((double)v1[j].y/(double)v1[j].x);
-			}
+			if(v1[j].x==0)
+				theta=alpha-CV_PI/2;
 			else
-			{
-				if(v1[j].x==0)
-				{
-					if(v1[j].y<0)
-						theta=alpha+ CV_PI/2;
-					else
-						theta=alpha - CV_PI/2;
-				}
-				else
-					theta=atan(((double)v1[j].y)/(double)(v1[j].x))-alpha;
-			}
-			// cout<<"D"<<endl;
+				theta=alpha-atan((double)v1[j].y/(double)v1[j].x);
+			if( theta>CV_PI/2 )
+				theta=atan((double)v1[j].y/(double)v1[j].x)-alpha+CV_PI;
+
 			dis=sqrt(v1[j].y*v1[j].y+v1[j].x*v1[j].x);
-			// cout<<"D"<<endl;
+			// cout<<"Theta :"<<theta<<endl;
+			// cout<<"atan(((double)v1[j].y)/(double)(v1[j].x)) :"<<atan(((double)v1[j].y)/(double)(v1[j].x))<<endl;			
+			// cout<<"X: "<<v1[j].x<<" Y: "<<v1[j].y<<endl;
+			// cout<<"dis*cos(theta): "<<dis*cos(theta)<<endl;
 			rmin1=min(rmin1,dis*cos(theta));
-			// cout<<"D"<<endl;
+			// cout<<rmin1<<endl;
 			rmax1=max(rmax1,dis*cos(theta));
+			// cout<<rmax1<<endl;
 		}
-		// cout<<"1"<<endl;
+		// cout<<"Ended"<<endl;
 		for (int j=0;j<v2.size();j++)
 		{
-			if (slope<0)
-			{
-				if(v2[j].x==0)
-				{
-					if(v2[j].y<0)
-						theta=CV_PI/2-alpha;
-					else
-						theta=3*CV_PI/2-alpha;
-				}
-				else
-					theta=CV_PI-alpha+atan((double)v2[j].y/(double)v2[j].x);
-			}
+			if(v2[j].x==0)
+				theta=alpha-CV_PI/2;
 			else
-			{
-				if(v2[j].x==0)
-				{
-					if(v2[j].y<0)
-						theta=alpha+ CV_PI/2;
-					else
-						theta=alpha - CV_PI/2;
-				}
-				else
-					theta=atan(((double)v2[j].y)/(double)(v2[j].x))-alpha;
-			}
-			// cout<<"D"<<endl;
+				theta=alpha-atan((double)v2[j].y/(double)v2[j].x);
+			if( theta>CV_PI/2 )
+				theta=atan((double)v2[j].y/(double)v2[j].x)-alpha+CV_PI;
+
 			dis=sqrt(v2[j].y*v2[j].y+v2[j].x*v2[j].x);
-			// cout<<"D"<<endl;
+		//	// cout<<"D"<<endl;
 			rmin2=min(rmin2,dis*cos(theta));
-			// cout<<"D"<<endl;
+			// cout<<rmin2<<endl;
 			rmax2=max(rmax2,dis*cos(theta));
+			// cout<<rmax2<<endl;
 		}
-		
-		if (rmin2>=rmin1&&rmin2<=rmax1)
-			collide=true;//intersect
-		else if (rmin1>=rmin2&&rmin1<=rmax2) 
-			collide=true;
-		if (!collide)//if lines do not intersect
+
+		if ( rmin1>rmax2 || rmin2>rmax1 ) 
 		{
 			// cout<<"Returned"<<endl;
 			return false;
@@ -323,20 +231,21 @@ bool Map::helperSAT(vector <Point> v1,vector <Point> v2)
 		// we assume the line passes through origin and the slope is -1/slope
 	}
 	return true;
-}
 
+	}
 bool Map::checkCollisionSat(State pos)
 {
 	bool collide=false;
 	vector<Point> v1;
 
+	// We are trying to find the four corner points of our bot 
 	Point p1;
 	p1.x = map_resolution * (pos.x-car.BOT_L*abs(cos(pos.theta))/2-car.BOT_W*abs(sin(pos.theta))/2) ;
 	p1.y = map_resolution * (pos.y-car.BOT_L*abs(sin(pos.theta))/2+car.BOT_W*abs(cos(pos.theta))/2) ;
 	v1.push_back(p1);
 
 	Point p2;
-	p2.x = map_resolution * (pos.x-car.BOT_L*abs(cos(pos.theta))/2-car.BOT_W*abs(sin(pos.theta))/2) ;
+	p2.x = map_resolution * (pos.x+car.BOT_L*abs(cos(pos.theta))/2-car.BOT_W*abs(sin(pos.theta))/2) ;
 	p2.y = map_resolution * (pos.y+car.BOT_L*abs(sin(pos.theta))/2+car.BOT_W*abs(cos(pos.theta))/2) ;
 	v1.push_back(p2);
 
@@ -346,21 +255,26 @@ bool Map::checkCollisionSat(State pos)
 	v1.push_back(p3);
 
 	Point p4;
-	p4.x = map_resolution * (pos.x+car.BOT_L*abs(cos(pos.theta))/2+car.BOT_W*abs(sin(pos.theta))/2) ;
+	p4.x = map_resolution * (pos.x-car.BOT_L*abs(cos(pos.theta))/2+car.BOT_W*abs(sin(pos.theta))/2) ;
 	p4.y = map_resolution * (pos.y-car.BOT_L*abs(sin(pos.theta))/2-car.BOT_W*abs(cos(pos.theta))/2) ;
 	v1.push_back(p4);
 
-	cout<<" Current state "<<pos.x<<" "<<pos.y<<endl;
-	for (int i=0;i<v1.size();i++)
-	{
-		cout<<"bots "<<v1[i].x<<" "<<v1[i].y<<" ";
-	}
-	cout<<endl;
+	// // cout<<" Current state "<<pos.x<<" "<<pos.y<<" "<<pos.theta<<endl;
+	// for (int i=0;i<v1.size();i++)
+	// {
+	// 	// cout<<"bots "<<v1[i].x<<" "<<v1[i].y<<" ";
+	// }
+	// // cout<<endl;
 	for (int i = 0; i < obs.size() ; ++i)
 	{
 		if( helperSAT( v1 , obs[i] ) )
-			return true;
+			{
+				// cout<<"True"<<endl;
+				return true;
+			}
+			// else // cout<<"False"<<endl;
 	}
+
 	return false;
 }
 #endif
