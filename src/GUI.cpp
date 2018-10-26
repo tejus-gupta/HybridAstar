@@ -10,13 +10,13 @@ void GUI::draw_obstacles(bool** obs_map){
 	for(int i=0; i<cols; i++)
 		for(int j=0; j<rows; j++)
 			if(obs_map[i][j])
-				display.at<Vec3b>(rows-j, i) = {128, 128, 128};
+				display.at<Vec3b>( i,j) = {128, 128, 128};
 	
 	return;
 }
 
 void GUI::draw_car(State state, Vehicle car){
-	RotatedRect rotRect = RotatedRect(Point2f(state.x*10, 1000-state.y*10), Size2f(car.BOT_L*10, car.BOT_W*10), -state.theta*180/3.14);
+	RotatedRect rotRect = RotatedRect(Point2f(state.y*10, state.x*10), Size2f(car.BOT_W*10, car.BOT_L*10), 180-state.theta*180/3.14);
 	Point2f vert[4];
 	rotRect.points(vert);
 	for(int i=0;i<4;i++)

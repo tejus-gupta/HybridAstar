@@ -1,4 +1,6 @@
 #include "../include/Planner.hpp"
+// #include "../include/GUI.hpp"
+
 double** H;
 bool Planner::operator()(State a,State b)
 {
@@ -21,14 +23,14 @@ vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,
 	clock_t time_end= clock();
 	cout<<"Time: initCollisionChecker= "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
 
-    State star(70, 120, 0);
-
-	cout<<"SAT : "<<map.checkCollisionSat(star)<<endl;;
-	//cout<<"SAT : "<<map.checkCollisionSat(end)<<endl;;
-
-	// int t;
-	// cin >>t;
-
+/* 	State star(5.65154 ,24.9502 ,4.84974);
+ 	cout<<star.x<<" "<<star.y<<endl;
+	cout<<"SAT : "<<map.checkCollisionSat(star)<<endl;
+	GUI display(1000, 1000);
+ 	display.draw_obstacles(obs_map);
+	display.draw_car(star, car);
+	display.show();
+*/
 	time_begin= clock();
 	h_obj.Dijkstra(map,end);
 	time_end= clock();
@@ -125,7 +127,7 @@ vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,
 			{
 				//cout<<"value of map check "<<map.checkCollisionSat(nextS)<<endl;
 				time_end=clock();
-				cout<<"collided at "<<nextS.x<<" "<<nextS.y<<endl;	
+				cout<<"collided at "<<nextS.x<<" "<<nextS.y<<" "<<nextS.theta<<endl;	
 			}
 			//cout<<" time: "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
 			checkCollisionTime+=double(time_end-time_begin)/CLOCKS_PER_SEC;
