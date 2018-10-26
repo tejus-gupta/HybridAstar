@@ -36,6 +36,11 @@ vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,
 	time_end= clock();
 	cout<<"Time: Dijkstra= "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
 
+	time_begin= clock();
+	h_obj.Dubins(end);
+	time_end= clock();
+	cout<<"Time: Dubins= "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
+
 	
 	H=new double*[map.MAPX];
 	for(int i=0;i<map.MAPX;i++)
@@ -127,7 +132,7 @@ vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,
 			{
 				//cout<<"value of map check "<<map.checkCollisionSat(nextS)<<endl;
 				time_end=clock();
-				cout<<"collided at "<<nextS.x<<" "<<nextS.y<<" "<<nextS.theta<<endl;	
+				//cout<<"collided at "<<nextS.x<<" "<<nextS.y<<" "<<nextS.theta<<endl;	
 			}
 			//cout<<" time: "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
 			checkCollisionTime+=double(time_end-time_begin)/CLOCKS_PER_SEC;
