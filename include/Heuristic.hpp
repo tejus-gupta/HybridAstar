@@ -5,18 +5,29 @@
 #include "../src/Map.cpp"
 #define DX 250
 #define DY 250
+#define D_S 5.0
 class Heuristic
 {
-public:
-	typedef struct
-	{
-		int x,y;
-		float dis;
-	}smallestcost_2d;
+	public:
+		typedef struct
+		{
+			int x,y;
+			float dis;
+		}smallestcost_2d;
 
-	Heuristic (){}
-	smallestcost_2d** h_vals;
-	State target;
-	void Dijkstra(Map map,State target);
+		typedef struct
+		{
+			int x,y,z;
+			double cost,theta;
+		}smallestcost_3d;
+
+		Heuristic (){}
+		smallestcost_2d** h_vals;
+		smallestcost_3d*** dub_cost;
+		State target;
+		double min_radius;
+		void Dijkstra(Map map,State target);
+		void Dubins_write(char *);
+		void Dubins_read(char *);
 };
 #endif

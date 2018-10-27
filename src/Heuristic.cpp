@@ -3,8 +3,8 @@
 
 double Pi=M_PI;
 
-#define D_X 50
-#define D_Y 50
+#define D_X 200
+#define D_Y 200
 
 class compareHeuristic{
  public:
@@ -113,8 +113,6 @@ double distance(State x, State y)
 {
     return sqrt(round(x.x-y.x)*round(x.x-y.x) + round(x.y-y.y)*round(x.y-y.y));
 }
-
-
 
 class Dubins_Path{
 
@@ -274,7 +272,7 @@ class Dubins_Path{
         return path;
     }
 
-    vector<double> find_cost(double alpha, double beta, double d, string& s)
+    double find_cost(double alpha, double beta, double d, string& s)
     {
         // LSL, RSR, LSR, RSL, RLR, LRL
         double cost=1e9;
@@ -285,68 +283,44 @@ class Dubins_Path{
 
         //LSL
         temp = LSL(alpha,beta,d,flag);
-        temp_c = fabs(temp[0]) + fabs(temp[1]) + fabs(temp[2]);
+        temp_c = c*fabs(temp[0]) + fabs(temp[1]) + c*fabs(temp[2]);
         if(cost>temp_c && flag)
-        {
             cost=temp_c;
-            fin=temp;
-            s="LSL";
-        }
-
+            
         //RSR
         temp = RSR(alpha,beta,d,flag);
-        temp_c = fabs(temp[0]) + fabs(temp[1]) + fabs(temp[2]);
+        temp_c = c*fabs(temp[0]) + fabs(temp[1]) + c*fabs(temp[2]);
         if(cost>temp_c && flag)
-        {
             cost=temp_c;
-            fin=temp;
-            s="RSR";
-        }
         
         //LSR
         temp = LSR(alpha,beta,d,flag);
-        temp_c = fabs(temp[0]) + fabs(temp[1]) + fabs(temp[2]);
+        temp_c = c*fabs(temp[0]) + fabs(temp[1]) + c*fabs(temp[2]);
         if(cost>temp_c && flag)
-        {
             cost=temp_c;
-            fin=temp;
-            s="LSR";
-        }
-
+            
         //RSL
         temp = RSL(alpha,beta,d,flag);
-        temp_c = fabs(temp[0]) + fabs(temp[1]) + fabs(temp[2]);
+        temp_c = c*fabs(temp[0]) + fabs(temp[1]) + c*fabs(temp[2]);
         if(cost>temp_c && flag)
-        {
             cost=temp_c;
-            fin=temp;
-            s="RSL";
-        }
-
+            
         //LRL
         temp = LRL(alpha,beta,d,flag);
-        temp_c = fabs(temp[0]) + fabs(temp[1]) + fabs(temp[2]);
+        temp_c = c*fabs(temp[0]) + c*fabs(temp[1]) + c*fabs(temp[2]);
         if(cost>temp_c && flag)
-        {
             cost=temp_c;
-            fin=temp;
-            s="LRL";
-        }
-
+            
         //RLR
         temp = RLR(alpha,beta,d,flag);
-        temp_c = fabs(temp[0]) + fabs(temp[1]) + fabs(temp[2]);
+        temp_c = c*fabs(temp[0]) + c*fabs(temp[1]) + c*fabs(temp[2]);
         if(cost>temp_c && flag)
-        {
             cost=temp_c;
-            fin=temp;
-            s="RLR";
-        }
-
-        return fin;
+            
+        return cost;
     }
 
-    vector<State> dubins_path_origin(double ex, double ey, double eyaw, double c)
+    void dubins_path_origin(double ex, double ey, double eyaw, double c)
     {
         double dx=ex,dy=ey;
         double D=sqrt(dx*dx + dy*dy);
@@ -357,9 +331,7 @@ class Dubins_Path{
         double beta = fmod(eyaw-theta,2*Pi);
 
         string type;
-        vector<double> val=find_cost(alpha,beta,d,type);
-        vector<State> path=generate_path(val,type,c); 
-        return path;
+        cost=find_cost(alpha,beta,d,type);
     }
 
     public:
@@ -370,22 +342,7 @@ class Dubins_Path{
             double ley = cos(start.theta)*rel_ey - sin(start.theta)*rel_ex;
             double leyaw = end.theta - start.theta;
 
-            vector<State> temp=dubins_path_origin(lex,ley,leyaw,c);
-            vector< State > fin_path;
-            path = &start;
-            State *head=path;
-            for(State pre : temp)
-            {
-                head->next = new State;
-                head->next->parent = head;
-                head = head->next;
-                head->x = cos(-start.theta)*pre.x + sin(-start.theta)*pre.y + start.x;
-                head->y = cos(-start.theta)*pre.y - sin(-start.theta)*pre.x + start.y;
-                double foo = fmod(pre.theta + start.theta + 2*Pi,2*Pi);
-                head->theta = foo>Pi?foo-2*Pi:foo;
-                head->next = NULL;
-            }
-            cost1();
+            dubins_path_origin(lex,ley,leyaw,c);
         }
 
         double ret_cost()
@@ -407,38 +364,55 @@ class Dubins_Path{
         }
 };
 
-void Heuristic::Dubins(State target)
+void Heuristic::Dubins_write(char *file)
 {
-    dub_cost = new smallestcost_3d**[D_X];
     int DT = 360/D_S;
-    for(int i=0;i<D_X;i++)
-    {
-        dub_cost[i] = new smallestcost_3d*[D_Y];
-        for(int j=0;j<D_Y;j++)
-            dub_cost[i][j] = new smallestcost_3d[DT];
-    }
+    ofstream dubin;
+    dubin.open(file);
+
     if(min_radius < 1e-6)
         min_radius=1.0;
-    for(int i=0;i<D_X;i++)
+    State target(DX/2,DY/2,0);
+    for(int i=0;i<DX;i++)
     {
-        for(int j=0;j<D_Y;j++)
+        for(int j=0;j<DY;j++)
         {
             for(int k=0;k<DT;k++)
             {
                 double theta = k*D_S*Pi/180;
                 State start(i,j,theta);
                 Dubins_Path temp(start,target,min_radius);
-                smallestcost_3d *val=&dub_cost[i][j][k];
-                val->x=i,val->y=j,val->z=k,val->theta=theta;
-                val->cost=temp.ret_cost();
+                dubin<<temp.ret_cost()<<" ";
             }
         }
     }
 }
 
-// int main()
-// {
-// 	Heuristic h;
-//     State start(1,0,0);
-// 	h.Dubins(start);
-// }
+void Heuristic::Dubins_read(char *file)
+{
+    dub_cost = new smallestcost_3d**[DX];
+    int DT = 360/D_S;
+    ifstream dubin;
+    dubin.open(file);
+
+    for(int i=0;i<DX;i++)
+    {
+        dub_cost[i] = new smallestcost_3d*[DY];
+        for(int j=0;j<DY;j++)
+            dub_cost[i][j] = new smallestcost_3d[DT];
+    }
+
+    for(int i=0;i<DX;i++)
+    {
+        for(int j=0;j<DY;j++)
+        {
+            for(int k=0;k<DT;k++)
+            {
+                double theta = k*D_S*Pi/180;
+                smallestcost_3d *val=&dub_cost[i][j][k];
+                val->x=i,val->y=j,val->z=k,val->theta=theta;
+                dubin>>val->cost;
+            }
+        }
+    }
+}

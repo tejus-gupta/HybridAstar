@@ -58,9 +58,14 @@ int main(){
     Vehicle car;
 	Planner astar;
 	
-	clock_t start_time=clock();
+    clock_t start_time=clock();
+    astar.h_obj.Dubins_write("Dubins.txt");
+    clock_t end_time=clock();
+	cout<<"Time: Calculated Dubins Cost= "<<(double)(end_time-start_time)/CLOCKS_PER_SEC<<endl;
+
+	start_time=clock();
     vector<State> path = astar.plan(start, target, obs_map, car ,obs);
-	clock_t end_time=clock();
+	end_time=clock();
 	cout<<"Total time taken: "<<(double)(end_time-start_time)/CLOCKS_PER_SEC<<endl;
 	cout<<"Got path of length "<<path.size()<<endl;
     

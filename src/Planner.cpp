@@ -21,25 +21,17 @@ vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,
 	clock_t time_begin= clock();
 	map.initCollisionChecker();
 	clock_t time_end= clock();
-	cout<<"Time: initCollisionChecker= "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
+	cout<<"Time: InitCollisionChecker= "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
 
-/* 	State star(5.65154 ,24.9502 ,4.84974);
- 	cout<<star.x<<" "<<star.y<<endl;
-	cout<<"SAT : "<<map.checkCollisionSat(star)<<endl;
-	GUI display(1000, 1000);
- 	display.draw_obstacles(obs_map);
-	display.draw_car(star, car);
-	display.show();
-*/
 	time_begin= clock();
 	h_obj.Dijkstra(map,end);
 	time_end= clock();
 	cout<<"Time: Dijkstra= "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
 
 	time_begin= clock();
-	h_obj.Dubins(end);
+	h_obj.Dubins_read("Dubins.txt");
 	time_end= clock();
-	cout<<"Time: Dubins= "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
+	cout<<"Time: Dubins Cost Stored = "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
 
 	
 	H=new double*[map.MAPX];
