@@ -1,31 +1,23 @@
+#ifndef VEH_HPP
+#define VEH_HPP
+
 #include <stdio.h>
 #include <iostream>
 #include "bits/stdc++.h"
+#include "State.hpp"
 //#include "ros/ros.h"
 
-#define CAR_L 60
-#define CAR_W 40 
-#define CAR_MAX_ALPHA 30
-#define MIN_TURN_RADIUS 40
 #define PI 3.14159265359
 
 using namespace std;
 
-typedef struct a{
+class Vehicle{
 
-	float x;
-    float y;
-	float theta;
+public:
 
-	float cost2d;
-	float cost3d;
-
-	float velocity;
-	float steer_angle;
-
-	struct a* parent;
-	struct a* next;
-
-}State;
-
-vector <State> nextStates(State);
+	float BOT_L=2.5;
+	float BOT_W=1.5;
+	float BOT_MAX_ALPHA=30;
+	vector<State> nextStates(State*);
+};
+#endif
