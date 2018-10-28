@@ -13,6 +13,8 @@
 #include <tf/transform_datatypes.h>
 #include "nav_msgs/OccupancyGrid.h"
 #include "nav_msgs/Odometry.h"
+#include <costmap_2d/costmap_2d.h>
+#include <costmap_converter/costmap_converter_interface.h>
 
 typedef struct _Quaternion{
 	float x;
@@ -25,7 +27,8 @@ typedef struct _Quaternion{
 using namespace cv;
 
 State start,target;
-nav_msgs::OccupancyGrid  obs_grid;
+nav_msgs::OccupancyGrid obs_grid;
+vector<vector<Point> > obs;
 
 void mapCallback(const nav_msgs::OccupancyGrid::ConstPtr& msg)
 {
@@ -58,10 +61,24 @@ void goalCallback(const nav_msgs::Odometry::ConstPtr&  goal)
     target.theta=yaw;
 }
 
+void obstacleCallback(const costmap_converter::ObstacleArrayMsg::ConstPtr& obst)
+{
+    for(int i=0;i<obst->obstacles.size();i++)
+    {
+        vector< Point > aur;
+        for(int j=0;j<obst->obstacles[i].polygon.points.size();j++)
+        {
+            Point temp(obst->obstacles[i].polygon.points[j].x,obst->obstacles[i].polygon.points[j].y);
+            aur.push_back(temp);
+        }
+        obs.push_back(aur);
+    }
+}
+
 Quaternion toQuaternion(double pitch, double roll, double yaw)
 {
 	Quaternion q;
-        // Abbreviations for the various angular functions
+    // Abbreviations for the various angular functions
 	double cy = cos(yaw * 0.5);
 	double sy = sin(yaw * 0.5);
 	double cr = cos(roll * 0.5);
@@ -86,6 +103,7 @@ int main(int argc,char **argv)
     ros::Subscriber sub1  = nh.subscribe("odometry/filtered",10,&odomCallback);
     ros::Subscriber sub2  = nh.subscribe("/map",10,&mapCallback);
     ros::Subscriber goal  = nh.subscribe("/goal",10,&goalCallback);
+    ros::Subscriber obstacles = nh.subscribe("/costmap_converter/costmap_obstacles",10,&obstacleCallback);
 
     ros::Publisher  pub = nh.advertise<geometry_msgs::PoseArray>("Topic", 1000);
 
@@ -100,8 +118,6 @@ int main(int argc,char **argv)
             obs_map[i][j] = (obs_grid.data[i*obs_grid.info.width+j]>= 120);  
     }
     cout<<"Started "<<obs_grid.info.width<<endl;
-
-    vector<vector<Point> > obs;  
 
 
     Vehicle car;
@@ -153,5 +169,4 @@ int main(int argc,char **argv)
         rate.sleep();
     }
 
-    
 }
