@@ -14,7 +14,7 @@ double dis (State a,State* b)
 	return (sqrt((b->gx-a.gx)*(b->gx-a.gx)+(b->gy-a.gy)*(b->gy-a.gy)));
 }
 
-vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,vector<vector<Point>> obs)
+vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,vector<vector<Point> > obs)
 {
 
 	Map map(obs_map, end , obs);                          //object of Map class
@@ -124,7 +124,7 @@ vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,
 			{
 				//cout<<"value of map check "<<map.checkCollisionSat(nextS)<<endl;
 				time_end=clock();
-				//cout<<"collided at "<<nextS.x<<" "<<nextS.y<<" "<<nextS.theta<<endl;	
+				// cout<<"collided at "<<nextS.x<<" "<<nextS.y<<" "<<nextS.theta<<endl;	
 			}
 			//cout<<" time: "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
 			checkCollisionTime+=double(time_end-time_begin)/CLOCKS_PER_SEC;

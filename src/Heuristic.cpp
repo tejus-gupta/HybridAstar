@@ -285,41 +285,41 @@ class Dubins_Path{
         temp = LSL(alpha,beta,d,flag);
         temp_c = c*fabs(temp[0]) + fabs(temp[1]) + c*fabs(temp[2]);
         if(cost>temp_c && flag)
-            cost=temp_c;
+            cost=temp_c,s="LSL";
             
         //RSR
         temp = RSR(alpha,beta,d,flag);
         temp_c = c*fabs(temp[0]) + fabs(temp[1]) + c*fabs(temp[2]);
         if(cost>temp_c && flag)
-            cost=temp_c;
+            cost=temp_c,s="RSR";
         
         //LSR
         temp = LSR(alpha,beta,d,flag);
         temp_c = c*fabs(temp[0]) + fabs(temp[1]) + c*fabs(temp[2]);
         if(cost>temp_c && flag)
-            cost=temp_c;
+            cost=temp_c,s="LSR";
             
         //RSL
         temp = RSL(alpha,beta,d,flag);
         temp_c = c*fabs(temp[0]) + fabs(temp[1]) + c*fabs(temp[2]);
         if(cost>temp_c && flag)
-            cost=temp_c;
+            cost=temp_c,s="RSL";
             
         //LRL
         temp = LRL(alpha,beta,d,flag);
         temp_c = c*fabs(temp[0]) + c*fabs(temp[1]) + c*fabs(temp[2]);
         if(cost>temp_c && flag)
-            cost=temp_c;
+            cost=temp_c,s="LRL";
             
         //RLR
         temp = RLR(alpha,beta,d,flag);
         temp_c = c*fabs(temp[0]) + c*fabs(temp[1]) + c*fabs(temp[2]);
         if(cost>temp_c && flag)
-            cost=temp_c;
+            cost=temp_c,s="RLR";
             
         return cost;
     }
-
+    
     void dubins_path_origin(double ex, double ey, double eyaw, double c)
     {
         double dx=ex,dy=ey;
