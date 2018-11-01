@@ -4,8 +4,6 @@
 double** H;
 bool Planner::operator()(State a,State b)
 {
-	// cout<<"X "<<a.gx<<" Y "<<a.gy<<" Cost "<<H[a.gx][a.gy]<<endl;
-	// cout<<"X "<<b.gx<<" Y "<<b.gy<<" Cost "<<H[b.gx][b.gy]<<endl;
 	return (a.cost2d+H[a.gx][a.gy]/10 > b.cost2d+H[b.gx][b.gy]/10);
 }
 
@@ -28,10 +26,10 @@ vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,
 	time_end= clock();
 	cout<<"Time: Dijkstra= "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
 
-	time_begin= clock();
-	h_obj.Dubins_read("Dubins.txt");
-	time_end= clock();
-	cout<<"Time: Dubins Cost Stored = "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
+	// time_begin= clock();
+	// h_obj.Dubins_read("Dubins.txt");
+	// time_end= clock();
+	// cout<<"Time: Dubins Cost Stored = "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
 
 	
 	H=new double*[map.MAPX];

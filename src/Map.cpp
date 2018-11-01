@@ -28,7 +28,7 @@ void Map::initCollisionChecker(){
 	{
 		acc_obs_map[i]=new int[MAPY];
 		for(int j=0;j<MAPY;j++)
-			acc_obs_map[i][j]=obs_map[i][j];
+			acc_obs_map[i][j]=obs_map[(int)(i/map_resolution)][(int)(j/map_resolution)];
 	}
 
 	for(int i=0;i<MAPX;i++)

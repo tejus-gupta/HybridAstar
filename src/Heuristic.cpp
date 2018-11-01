@@ -35,15 +35,16 @@ void Heuristic::Dijkstra(Map map,State target)
 	{
 		grid_map[i]=new int[DY];
 	}
-	
+
 	for(int i=0;i<map.MAPX;i++)
 	{
 		for(int j=0;j<map.MAPY;j++)
 		{
-			if(map.obs_map[i][j])
+			if(map.obs_map[(int)(i/map.map_resolution)][(int)(j/map.map_resolution)])
 			grid_map[i*DX/map.MAPX][j*DY/map.MAPY]=1;
 		}
 	}
+
 	h_vals=new smallestcost_2d*[DX];
 	for(int i=0;i<DX;i++)
 	{

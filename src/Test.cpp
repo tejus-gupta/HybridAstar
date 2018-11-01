@@ -29,13 +29,22 @@ using namespace cv;
 State start,target;
 nav_msgs::OccupancyGrid obs_grid;
 vector<vector<Point> > obs;
+bool** obs_map;
 
 void mapCallback(const nav_msgs::OccupancyGrid::ConstPtr& msg)
 {
-   obs_grid=*msg;
+   	obs_grid=*msg;
+   	obs_map = new bool*[obs_grid.info.width];
+	for(int i=0; i<obs_grid.info.width; i++)
+	{
+	    obs_map[i] = new bool[obs_grid.info.height]; 
+	    for(int j=0; j<obs_grid.info.height; j++)
+	        obs_map[i][j] = (obs_grid.data[i*obs_grid.info.width+j]>= 120);  
+	}
 }
 
 void odomCallback(const nav_msgs::Odometry::ConstPtr& odom_msg) {
+  cout<<"Inside OdomCallback"<<endl;
   start.x = odom_msg->pose.pose.position.x;
   start.y = odom_msg->pose.pose.position.y;
 
@@ -96,29 +105,26 @@ Quaternion toQuaternion(double pitch, double roll, double yaw)
 
 int main(int argc,char **argv)
 { 
-	cout<<"Inside Main"<<endl;
+	// start.x=5;
+	// start.y=4;
+	// start.theta=0;
+
+    // target.x=5;
+	// target.y=7;
+	// target.theta=0;
+
     ros::init(argc,argv,"hybrid_astar");
     ros::NodeHandle nh;
 
     ros::Subscriber sub1  = nh.subscribe("odometry/filtered",10,&odomCallback);
     ros::Subscriber sub2  = nh.subscribe("/map",10,&mapCallback);
-    ros::Subscriber goal  = nh.subscribe("/goal",10,&goalCallback);
+    ros::Subscriber goal  = nh.subscribe("/move_base_simple/goal",10,&goalCallback);
     ros::Subscriber obstacles = nh.subscribe("/costmap_converter/costmap_obstacles",10,&obstacleCallback);
 
-    ros::Publisher  pub = nh.advertise<geometry_msgs::PoseArray>("Topic", 1000);
+    ros::Publisher  pub = nh.advertise<geometry_msgs::PoseArray>("", 1000);
 
     geometry_msgs::PoseArray poseArray; 
     poseArray.header.frame_id = "/map";
-
-    bool** obs_map = new bool*[obs_grid.info.width];
-    for(int i=0; i<obs_grid.info.width; i++)
-    {
-        obs_map[i] = new bool[obs_grid.info.height]; 
-        for(int j=0; j<obs_grid.info.height; j++)
-            obs_map[i][j] = (obs_grid.data[i*obs_grid.info.width+j]>= 120);  
-    }
-    cout<<"Started "<<obs_grid.info.width<<endl;
-
 
     Vehicle car;
     Planner astar;
@@ -130,11 +136,17 @@ int main(int argc,char **argv)
         poseArray.poses.clear(); 
         poseArray.header.stamp = ros::Time::now();
 
+        while(!obs_grid.info.width || obs.empty())
+        	ros::spinOnce();
+
+	    cout<<"Started "<<obs_grid.info.width<<" "<<obs_grid.info.height<<endl;
+
+        cout<<obs.size()<<endl;
         clock_t start_time=clock();
         vector<State> path = astar.plan(start, target, obs_map, car ,obs);
         clock_t end_time=clock();
 
-        vector<State>::iterator ptr; 
+        vector<State>::iterator ptr;
         for (ptr = path.begin(); ptr != path.end(); ptr++) 
         {
             geometry_msgs::PoseStamped pose;
@@ -155,10 +167,10 @@ int main(int argc,char **argv)
         cout<<"Got path of length "<<path.size()<<endl;
 
         pub.publish(poseArray);
-        // ROS_INFO("poseArray size: %i", poseArray.poses.size()); 
+        ROS_INFO("poseArray size: %i", poseArray.poses.size()); 
 
         GUI display(1000, 1000);
-        display.draw_obstacles(obs_map);
+        display.draw_obstacles(obs_map,5);
         for(int i=0;i<=path.size();i++)
         {
             display.draw_car(path[i], car);
