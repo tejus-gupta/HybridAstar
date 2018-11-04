@@ -74,6 +74,7 @@ vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,
 	while(!pq.empty())
 	{
 		State current=pq.top();
+		//cout<<"current state "<<current.x<<" "<<current.y<<" "<<current.theta<<endl;	
 		pq.pop();
 		int grid_theta=((int)(current.theta*map.MAP_THETA/(2*PI)))%72; //grid_theta varies from 0-71 
 		if( visited[(int)current.x][(int)current.y][grid_theta] )
@@ -101,7 +102,7 @@ vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,
 		vector<State> next=car.nextStates(&current);
 		time_end=clock();
 		nextStatesTime+=double(time_end-time_begin)/CLOCKS_PER_SEC;
-
+	//	cout<<"Next state of "<<current.x<<" "<<current.y<<" "<<current.theta<<endl;
 		for(vector<State>::iterator it= next.begin(); it!=next.end();it++)
 		{
 			State nextS = *it;
@@ -109,10 +110,9 @@ vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,
 			
 			if( visited[(int)nextS.x][(int)nextS.y][next_theta] )
 				continue;
-			
-
+	//		cout<<"   "<<nextS.x<<" "<<nextS.y<<" "<<nextS.theta<<endl;	
+			//cout<<"check collision "<<map.checkCollision(nextS)<<endl;
 			time_begin=clock();
-			//cout<<"check collision sat "<<map.checkCollisionSat(nextS)<<endl;
 			if( !map.checkCollision(nextS) )
 			{
 				time_end=clock();
@@ -125,7 +125,7 @@ vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,
 				//cout<<"value of map check "<<map.checkCollisionSat(nextS)<<endl;
 				time_end=clock();
 				// if(nextS.x > 10 && nextS.y >50)
-				// cout<<"collided at "<<nextS.x<<" "<<nextS.y<<" "<<nextS.theta<<endl;	
+	//			cout<<"collided at "<<nextS.x<<" "<<nextS.y<<" "<<nextS.theta<<endl;	
 			}
 			//cout<<" time: "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
 			checkCollisionTime+=double(time_end-time_begin)/CLOCKS_PER_SEC;
