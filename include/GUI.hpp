@@ -14,8 +14,8 @@ public:
     Mat display;
 
     GUI(int rows, int cols);
-    void draw_obstacles(bool** obs_map);
-    void draw_car(State src, Vehicle car);
+    void draw_obstacles(bool** obs_map,float res);
+    void draw_car(State src, Vehicle car,float map_resolution);
     void show();
     void show(int t);
 };

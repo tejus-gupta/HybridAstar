@@ -2,11 +2,10 @@
 // #include "../include/GUI.hpp"
 
 double** H;
+float scale_up;
 bool Planner::operator()(State a,State b)
 {
-	// cout<<"X "<<a.gx<<" Y "<<a.gy<<" Cost "<<H[a.gx][a.gy]<<endl;
-	// cout<<"X "<<b.gx<<" Y "<<b.gy<<" Cost "<<H[b.gx][b.gy]<<endl;
-	return (a.cost2d+H[a.gx][a.gy]/10 > b.cost2d+H[b.gx][b.gy]/10);
+	return (a.cost2d+H[a.gx][a.gy]/scale_up > b.cost2d+H[b.gx][b.gy]/scale_up);
 }
 
 double dis (State a,State* b)
@@ -14,10 +13,11 @@ double dis (State a,State* b)
 	return (sqrt((b->gx-a.gx)*(b->gx-a.gx)+(b->gy-a.gy)*(b->gy-a.gy)));
 }
 
-vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,vector<vector<Point>> obs)
+vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,vector<vector<Point> > obs,float scale)
 {
 
-	Map map(obs_map, end , obs);                          //object of Map class
+	scale_up = scale;
+	Map map(obs_map, end , obs, scale);                          //object of Map class
 	clock_t time_begin= clock();
 	map.initCollisionChecker();
 	clock_t time_end= clock();
@@ -28,10 +28,10 @@ vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,
 	time_end= clock();
 	cout<<"Time: Dijkstra= "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
 
-	time_begin= clock();
-	h_obj.Dubins_read("Dubins.txt");
-	time_end= clock();
-	cout<<"Time: Dubins Cost Stored = "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
+	// time_begin= clock();
+	// h_obj.Dubins_read("Dubins.txt");
+	// time_end= clock();
+	// cout<<"Time: Dubins Cost Stored = "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
 
 	
 	H=new double*[map.MAPX];
@@ -43,12 +43,12 @@ vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,
 	}
 	
 
-	State*** visited_state=new State**[100];
-	for(int i=0;i<100;i++)
+	State*** visited_state=new State**[map.VISX];
+	for(int i=0;i<map.VISX;i++)
 	{
-		visited_state[i]=new State*[100];
-		for(int j=0;j<100;j++)
-			visited_state[i][j]=new State[72];
+		visited_state[i]=new State*[map.VISY];
+		for(int j=0;j<map.VISY;j++)
+			visited_state[i][j]=new State[map.MAP_THETA];
 	}
 
 	bool*** visited=new bool**[map.VISX];
@@ -59,7 +59,7 @@ vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,
 		for(int j=0;j<map.VISY;j++)
 			{
 				visited[i][j]=new bool[map.MAP_THETA];
-				for(int k=0;k<72;k++)
+				for(int k=0;k<map.MAP_THETA;k++)
 				{
 					visited[i][j][k]=false;
 				}
@@ -75,7 +75,7 @@ vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,
 	{
 		State current=pq.top();
 		pq.pop();
-		int grid_theta=((int)(current.theta*180/(PI*5)))%72; //grid_theta varies from 0-71 
+		int grid_theta=((int)(current.theta*map.MAP_THETA/(2*PI)))%72; //grid_theta varies from 0-71 
 		if( visited[(int)current.x][(int)current.y][grid_theta] )
 			continue;
 
@@ -113,7 +113,7 @@ vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,
 
 			time_begin=clock();
 			//cout<<"check collision sat "<<map.checkCollisionSat(nextS)<<endl;
-			if( !map.checkCollisionSat(nextS) )
+			if( !map.checkCollision(nextS) )
 			{
 				time_end=clock();
 				it->parent = &(visited_state[(int)current.x][(int)current.y][grid_theta]);
@@ -124,7 +124,8 @@ vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,
 			{
 				//cout<<"value of map check "<<map.checkCollisionSat(nextS)<<endl;
 				time_end=clock();
-				//cout<<"collided at "<<nextS.x<<" "<<nextS.y<<" "<<nextS.theta<<endl;	
+				// if(nextS.x > 10 && nextS.y >50)
+				// cout<<"collided at "<<nextS.x<<" "<<nextS.y<<" "<<nextS.theta<<endl;	
 			}
 			//cout<<" time: "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
 			checkCollisionTime+=double(time_end-time_begin)/CLOCKS_PER_SEC;

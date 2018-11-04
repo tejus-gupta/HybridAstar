@@ -21,11 +21,11 @@ class Heuristic
 			double cost,theta;
 		}smallestcost_3d;
 
-		Heuristic (){}
 		smallestcost_2d** h_vals;
 		smallestcost_3d*** dub_cost;
 		State target;
 		double min_radius;
+		Heuristic (){}
 		void Dijkstra(Map map,State target);
 		void Dubins_write(char *);
 		void Dubins_read(char *);

@@ -9,15 +9,14 @@ using namespace cv;
 int main(){ 
 	Mat obs_img = imread("../maps/map.jpg", 0);
     int h = obs_img.rows, w = obs_img.cols;
+    vector<vector<Point> > obs; 
 
-    cout<<"h and w"<<h<<" "<<w<<endl;
-
-   // Mat canny;
-    vector<vector<Point> > obs;  
+    /* SAT Points */
+    Mat canny; 
     vector <Point> a;
     vector <Point> b;
     vector <Point> c;
-    //vector<Vec4i> hierarchy;
+    // vector<Vec4i> hierarchy;
     // Canny( obs_img, canny, 100, 200, 3 );
     // findContours( canny,obs, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0) );
     
@@ -58,22 +57,19 @@ int main(){
     Vehicle car;
 	Planner astar;
 	
-    clock_t start_time=clock();
-    astar.h_obj.Dubins_write("Dubins.txt");
-    clock_t end_time=clock();
-	cout<<"Time: Calculated Dubins Cost= "<<(double)(end_time-start_time)/CLOCKS_PER_SEC<<endl;
+    float scale = 1000.0/h;
 
-	start_time=clock();
-    vector<State> path = astar.plan(start, target, obs_map, car ,obs);
-	end_time=clock();
+	clock_t start_time=clock();
+    vector<State> path = astar.plan(start, target, obs_map, car ,obs,scale);
+	clock_t end_time=clock();
 	cout<<"Total time taken: "<<(double)(end_time-start_time)/CLOCKS_PER_SEC<<endl;
 	cout<<"Got path of length "<<path.size()<<endl;
     
     GUI display(1000, 1000);
-    display.draw_obstacles(obs_map);
+    display.draw_obstacles(obs_map,scale);
     for(int i=0;i<=path.size();i++)
     {
-        display.draw_car(path[i], car);
+        display.draw_car(path[i], car,scale);
         display.show(1);
     } 
     display.show();
