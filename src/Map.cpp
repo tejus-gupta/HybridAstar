@@ -3,12 +3,17 @@
 
 #include "../include/Map.hpp"
 
-Map::Map( bool **obs_map, State end,vector<vector<Point>> obs ){
+Map::Map( bool **obs_map, State end,vector<vector<Point>> obs,float scale){
 
+	MAP_THETA=72;
+    MAPX=1000;
+    MAPY=1000;
+    VISX=MAPX/scale;
+    VISY=MAPY/scale;
 	this->obs=obs;
 	this->obs_map = obs_map;
 	this->end = end;
-	this->map_resolution = 10;
+	this->map_resolution = scale;
 	initCollisionChecker();
 }
 
@@ -59,19 +64,15 @@ bool Map::checkCollision(State pos){
 	if(max_x>=MAPX || min_x<0 || max_y>=MAPY || min_y<0)
 		return true;
 
-
-	if(acc_obs_map[max_x][max_y]+acc_obs_map[min_x][min_y]==acc_obs_map[max_x][min_y]+acc_obs_map[min_x][max_y]){
-				cout<<"Using Fast Check "<<endl;
-
+	if(acc_obs_map[max_x][max_y]+acc_obs_map[min_x][min_y]==acc_obs_map[max_x][min_y]+acc_obs_map[min_x][max_y])
 		return false;
-	}
 
 	// brute force check through the car
 	for(float i=-car.BOT_L/2.0;i<=car.BOT_L/2.0+0.001;i+=0.25)
 		for(float j=-car.BOT_W/2.0;j<=car.BOT_W/2.0+0.001;j+=0.25)
 		{
-			int s = map_resolution * (pos.x+i*cos(pos.theta)+j*sin(pos.theta)) + 0.001;
-			int t = map_resolution * (pos.y+i*sin(pos.theta)+j*cos(pos.theta)) + 0.001;
+			int s = pos.x+i*cos(pos.theta)+j*sin(pos.theta) + 0.001;
+			int t = pos.y+i*sin(pos.theta)+j*cos(pos.theta) + 0.001;
 
      		if(obs_map[s][t])
 				return true;
@@ -270,12 +271,9 @@ bool Map::checkCollisionSat(State pos)
 
 
 	for (int i = 0; i < obs.size() ; ++i)
-	{
 		if( helperSAT( v1 , obs[i] ) )
-		{
 			return true;
-		}
-	}
+
 	return false;
 }
 #endif

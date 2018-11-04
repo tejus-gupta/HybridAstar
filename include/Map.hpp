@@ -12,11 +12,11 @@ public:
     float map_resolution;
     vector<vector<Point> > obs;
        
-    int MAP_THETA=72;
-    int MAPX=1000;
-    int MAPY=1000;
-    int VISX=100;
-    int VISY=100;
+    int MAP_THETA;
+    int MAPX;
+    int MAPY;
+    int VISX;
+    int VISY;
 
     Vehicle car;
 
@@ -24,7 +24,7 @@ public:
     {
         
     }
-    Map(bool**,State,vector<vector<Point>>);
+    Map(bool**,State,vector<vector<Point>>,float);
     bool checkCollisionSat(State pos);
     bool helperSAT(vector <Point> v1,vector <Point> v2);
     void initCollisionChecker();
