@@ -3,8 +3,8 @@
 
 double Pi=M_PI;
 
-#define D_X 200
-#define D_Y 200
+#define D_X 500
+#define D_Y 500
 
 class compareHeuristic{
  public:
@@ -40,7 +40,7 @@ void Heuristic::Dijkstra(Map map,State target)
 	{
 		for(int j=0;j<map.MAPY;j++)
 		{
-			if(map.obs_map[i][j])
+			if(map.obs_map[(int)(i/map.map_resolution)][(int)(j/map.map_resolution)]) 
 			grid_map[i*DX/map.MAPX][j*DY/map.MAPY]=1;
 		}
 	}

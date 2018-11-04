@@ -7,8 +7,9 @@
 using namespace cv;
 
 int main(){ 
-	Mat obs_img = imread("../maps/map.jpg", 0);
+	Mat obs_img = imread("../maps/maze.png", 0);
     int h = obs_img.rows, w = obs_img.cols;
+  //  cout<<" h "<<h<<" w "<<w<<endl;
     vector<vector<Point> > obs; 
 
     /* SAT Points */
@@ -52,13 +53,13 @@ int main(){
             obs_map[i][j] = !(obs_img.at<uchar>(i,j) >= 120);  
     }
 
-	State start(10, 9, 0);
-	State target(99,90, 0);
     Vehicle car;
-	Planner astar;
-	
+    Planner astar;
+    
     float scale = 1000.0/h;
-
+	State start(10, 10, 0,scale);
+	State target(50,50, 0,scale);
+    //float scale =1;
 	clock_t start_time=clock();
     vector<State> path = astar.plan(start, target, obs_map, car ,obs,scale);
 	clock_t end_time=clock();
