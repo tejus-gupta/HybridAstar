@@ -3,22 +3,27 @@
 
 #include "../include/Map.hpp"
 
-Map::Map( bool **obs_map, State end,vector<vector<Point>> obs,float scale){
-
+Map::Map( bool **obs_map, State end,vector<vector<Point>> obs,float scale)
+{
 	MAP_THETA=72;
     MAPX=1000;
     MAPY=1000;
     VISX=MAPX/scale;
     VISY=MAPY/scale;
+
 	this->obs=obs;
 	this->obs_map = obs_map;
 	this->end = end;
 	this->map_resolution = scale;
-	initCollisionChecker();
+	
+	// initCollisionChecker();
+	initCollisionCheckerSat();
 }
 
-bool Map::isReached(State current){
- 	
+
+
+bool Map::isReached(State current)
+{ 	
  	/* In this we could have int in place of bool which tells distance between them so 
  	thst we could act accordingly && fabs(Curr.theta-End.theta)<5*/
 
@@ -81,6 +86,92 @@ bool Map::checkCollision(State pos){
 
 }
 
+void Map::initCollisionCheckerSat()
+{
+	for (int i = 0; i < obs.size(); ++i)
+	{
+		border temp;
+		temp.Xmax=temp.Xmin=obs[i][0].x;
+		temp.Ymax=temp.Ymin=obs[i][0].y;
+		for (int j = 0; j < obs[i].size(); ++j)
+		{
+			if( obs[i][j].x<temp.Xmin )
+				temp.Xmin=obs[i][j].x;
+			if( obs[i][j].x>temp.Xmax )
+				temp.Xmax=obs[i][j].x;
+			if( obs[i][j].y<temp.Ymin )
+				temp.Ymin=obs[i][j].y;
+			if( obs[i][j].y>temp.Ymax )
+				temp.Ymax=obs[i][j].y;
+		}
+		// cout<<temp.Xmin<<" "<<temp.Xmax<<" "<<temp.Ymin<<" "<<temp.Ymax<<endl;
+		bPoints.push_back(temp);
+	}
+}
+
+
+bool Map::checkCollisionSat(State pos)
+{
+
+	if(pos.x*map_resolution>=MAPX || pos.x*map_resolution<0 || pos.y*map_resolution>=MAPY || pos.y*map_resolution<0 )
+		return true;
+
+	vector<Point> v1;
+
+	// We are trying to find the four corner points of our bot 
+	Point p1;
+	p1.x = map_resolution * (pos.x-car.BOT_L*abs(cos(pos.theta))/2-car.BOT_W*abs(sin(pos.theta))/2) ;
+	p1.y = map_resolution * (pos.y-car.BOT_L*abs(sin(pos.theta))/2+car.BOT_W*abs(cos(pos.theta))/2) ;
+	v1.push_back(p1);
+
+	Point p2;
+	p2.x = map_resolution * (pos.x+car.BOT_L*abs(cos(pos.theta))/2-car.BOT_W*abs(sin(pos.theta))/2) ;
+	p2.y = map_resolution * (pos.y+car.BOT_L*abs(sin(pos.theta))/2+car.BOT_W*abs(cos(pos.theta))/2) ;
+	v1.push_back(p2);
+
+	Point p3;
+	p3.x = map_resolution * (pos.x+car.BOT_L*abs(cos(pos.theta))/2+car.BOT_W*abs(sin(pos.theta))/2) ;
+	p3.y = map_resolution * (pos.y+car.BOT_L*abs(sin(pos.theta))/2-car.BOT_W*abs(cos(pos.theta))/2) ;
+	v1.push_back(p3);
+
+	Point p4;
+	p4.x = map_resolution * (pos.x-car.BOT_L*abs(cos(pos.theta))/2+car.BOT_W*abs(sin(pos.theta))/2) ;
+	p4.y = map_resolution * (pos.y-car.BOT_L*abs(sin(pos.theta))/2-car.BOT_W*abs(cos(pos.theta))/2) ;
+	v1.push_back(p4);
+
+	int Xmax,Xmin,Ymax,Ymin;
+	Xmax=Xmin=v1[0].x;
+	Ymax=Ymin=v1[0].y;
+	for (int j = 1; j < v1.size(); ++j)
+	{
+		if( v1[j].x<Xmin )
+			Xmin=v1[j].x;
+		if( v1[j].x>Xmax )
+			Xmax=v1[j].x;
+		if( v1[j].y<Ymin )
+			Ymin=v1[j].y;
+		if( v1[j].y>Ymax )
+			Ymax=v1[j].y;
+	}
+
+	for (int i = 0; i < obs.size() ; ++i)
+	{
+		// cout<< Xmax<<" "<<Xmin<<" "<<Ymax<<" "<<Ymin<<endl;
+		// cout<<bPoints[i].Xmax<<" "<<bPoints[i].Xmin<<" "<<bPoints[i].Ymax<<" "<<bPoints[i].Ymin<<endl;
+		if( !(bPoints[i].Xmax<Xmin || bPoints[i].Xmin>Xmax || bPoints[i].Ymin>Ymax || bPoints[i].Ymax<Ymin ) ) 
+		{
+			// cout<<"Didn't Used This MF"<<endl;
+			if( helperSAT( v1 , obs[i] ) )
+				return true;
+		}
+		// else
+		// {
+		// 	// cout<<"Used This MF"<<endl;
+		// }
+	}
+
+	return false;
+}
 // v1 is bot and v2 is obstacle
 // we assume the line passes through origin and the slope is -1/slope
 
@@ -225,55 +316,4 @@ bool Map::helperSAT(vector <Point> v1,vector <Point> v2)
 
 }
 
-bool Map::checkCollisionSat(State pos)
-{
-
-	if(pos.x*map_resolution>=MAPX || pos.x*map_resolution<0 || pos.y*map_resolution>=MAPY || pos.y*map_resolution<0 )
-		return true;
-
-	//first use a bounding box around car to check for collision in O(1) time
-	int max_x, min_x, max_y, min_y;
-	max_x = map_resolution * (pos.x+car.BOT_L*abs(cos(pos.theta))/2+car.BOT_W*abs(sin(pos.theta))/2) + 1;
-	min_x = map_resolution * (pos.x-car.BOT_L*abs(cos(pos.theta))/2-car.BOT_W*abs(sin(pos.theta))/2) - 1;
-
-	max_y= map_resolution * (pos.y+car.BOT_L*abs(sin(pos.theta))/2+car.BOT_W*abs(cos(pos.theta))/2) + 1;
-	min_y= map_resolution * (pos.y-car.BOT_L*abs(sin(pos.theta))/2-car.BOT_W*abs(cos(pos.theta))/2) - 1;
-	
-	if(max_x>=MAPX || min_x<0 || max_y>=MAPY || min_y<0)
-		return true;
-
-	if(acc_obs_map[max_x][max_y]+acc_obs_map[min_x][min_y]==acc_obs_map[max_x][min_y]+acc_obs_map[min_x][max_y]){
-		return false;
-	}
-
-	vector<Point> v1;
-
-	// We are trying to find the four corner points of our bot 
-	Point p1;
-	p1.x = map_resolution * (pos.x-car.BOT_L*abs(cos(pos.theta))/2-car.BOT_W*abs(sin(pos.theta))/2) ;
-	p1.y = map_resolution * (pos.y-car.BOT_L*abs(sin(pos.theta))/2+car.BOT_W*abs(cos(pos.theta))/2) ;
-	v1.push_back(p1);
-
-	Point p2;
-	p2.x = map_resolution * (pos.x+car.BOT_L*abs(cos(pos.theta))/2-car.BOT_W*abs(sin(pos.theta))/2) ;
-	p2.y = map_resolution * (pos.y+car.BOT_L*abs(sin(pos.theta))/2+car.BOT_W*abs(cos(pos.theta))/2) ;
-	v1.push_back(p2);
-
-	Point p3;
-	p3.x = map_resolution * (pos.x+car.BOT_L*abs(cos(pos.theta))/2+car.BOT_W*abs(sin(pos.theta))/2) ;
-	p3.y = map_resolution * (pos.y+car.BOT_L*abs(sin(pos.theta))/2-car.BOT_W*abs(cos(pos.theta))/2) ;
-	v1.push_back(p3);
-
-	Point p4;
-	p4.x = map_resolution * (pos.x-car.BOT_L*abs(cos(pos.theta))/2+car.BOT_W*abs(sin(pos.theta))/2) ;
-	p4.y = map_resolution * (pos.y-car.BOT_L*abs(sin(pos.theta))/2-car.BOT_W*abs(cos(pos.theta))/2) ;
-	v1.push_back(p4);
-
-
-	for (int i = 0; i < obs.size() ; ++i)
-		if( helperSAT( v1 , obs[i] ) )
-			return true;
-
-	return false;
-}
 #endif

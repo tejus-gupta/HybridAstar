@@ -3,6 +3,13 @@
 
 #include"../src/Vehicle.cpp"
 
+typedef struct _border{
+    int Xmax;
+    int Xmin;
+    int Ymax;
+    int Ymin;
+}border;
+
 class Map{
 public:
     
@@ -10,6 +17,7 @@ public:
     bool** obs_map;
     int** acc_obs_map;
     float map_resolution;
+    vector<border> bPoints; 
     vector<vector<Point> > obs;
        
     int MAP_THETA;
@@ -28,6 +36,7 @@ public:
     bool checkCollisionSat(State pos);
     bool helperSAT(vector <Point> v1,vector <Point> v2);
     void initCollisionChecker();
+    void initCollisionCheckerSat();
     bool checkCollision(State pos);
     bool isReached(State curr);
 };

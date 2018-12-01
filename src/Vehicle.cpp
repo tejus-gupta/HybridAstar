@@ -3,7 +3,8 @@ vector <State> Vehicle::nextStates(State* n)//vector<Vehicle::State>
 {
 	vector<State> next;
 	State t;
-	float alpha,beta,r,d=1; //alpha=steering angle, beta = turning angle, r=turning radius, d= distanced travelled
+	//alpha=steering angle, beta=turning angle, r=turning radius, d=distanced travelled
+	float alpha,beta,r,d=10; 
 
 	for(alpha=-BOT_MAX_ALPHA; alpha<=BOT_MAX_ALPHA+0.01; alpha+=BOT_MAX_ALPHA/2)
 	{
@@ -29,13 +30,16 @@ vector <State> Vehicle::nextStates(State* n)//vector<Vehicle::State>
 		}
 		else
 		{
-			t.x=n->x + d*cos(n->theta); // if turning radius is very small we assume that the back tire has moved straight
+			// if turning radius is very small we assume that the back tire has moved straight
+			t.x=n->x + d*cos(n->theta); 
 			t.y=n->y + d*sin(n->theta);
 			t.theta=n->theta;
 		}
-		t.gx=(int)(t.y*5);
-		t.gy=(int)(t.x*5);
+		int map_resolution=1;
+		t.gx=(int)(t.y*map_resolution);
+		t.gy=(int)(t.x*map_resolution);
 		t.steer_angle=alpha;
+		// cout<<t.gx<<" "<<t.gy<<" "<<t.steer_angle<<endl;
 		//t.cost2d=n->cost2d+1;
 
 		if(t.gx>=0&&t.gx<1000&&t.gy>=0&&t.gy<1000)//change upperbound according to the map size

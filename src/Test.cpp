@@ -6,29 +6,16 @@
 
 using namespace cv;
 
-int main(){ 
-	Mat obs_img = imread("../maps/maze.png", 0);
-    int h = obs_img.rows, w = obs_img.cols;
-  //  cout<<" h "<<h<<" w "<<w<<endl;
-    vector<vector<Point> > obs; 
+int main()
+{ 
+	Mat obs_img = imread("../maps/map.jpg", 0);
 
     /* SAT Points */
-    Mat canny; 
+    vector<vector<Point> > obs; 
+    
     vector <Point> a;
     vector <Point> b;
     vector <Point> c;
-    // vector<Vec4i> hierarchy;
-    // Canny( obs_img, canny, 100, 200, 3 );
-    // findContours( canny,obs, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0) );
-    
-    // Mat drawing = Mat::zeros( canny.size(), CV_8UC3 );
-    // for( int i = 0; i< obs.size(); i++ )
-    // {
-    //    Scalar color = Scalar( rand()%256, rand()%256, rand()%256);
-    //    drawContours( drawing, obs, i, color, 2, 8, hierarchy, 0, Point() );
-    // }
-
-    // imshow( "Contours", drawing );
     a.push_back(Point(64,105));
     a.push_back(Point(64,185));
     a.push_back(Point(280,185));
@@ -45,24 +32,27 @@ int main(){
     c.push_back(Point(280,335));
     obs.push_back(c );
 
-    bool** obs_map = new bool*[h];
-    for(int i=0; i<h; i++)
+    bool** obs_map = new bool*[obs_img.rows];
+    for(int i=0; i<obs_img.rows; i++)
     {
-        obs_map[i] = new bool[w]; 
-        for(int j=0; j<w; j++)
+        obs_map[i] = new bool[obs_img.cols]; 
+        for(int j=0; j<obs_img.cols; j++)
             obs_map[i][j] = !(obs_img.at<uchar>(i,j) >= 120);  
     }
 
     Vehicle car;
     Planner astar;
     
-    float scale = 1000.0/h;
-	State start(10, 10, 0,scale);
-	State target(50,50, 0,scale);
-    //float scale =1;
+    float scale = 1000.0/obs_img.rows;
+
+	State start(0, 0, 0,scale);
+	State target(800,800, 0,scale);
+    
+	
 	clock_t start_time=clock();
     vector<State> path = astar.plan(start, target, obs_map, car ,obs,scale);
 	clock_t end_time=clock();
+	
 	cout<<"Total time taken: "<<(double)(end_time-start_time)/CLOCKS_PER_SEC<<endl;
 	cout<<"Got path of length "<<path.size()<<endl;
     
@@ -74,4 +64,5 @@ int main(){
         display.show(1);
     } 
     display.show();
+
 }

@@ -13,19 +13,28 @@ double dis (State a,State* b)
 	return (sqrt((b->gx-a.gx)*(b->gx-a.gx)+(b->gy-a.gy)*(b->gy-a.gy)));
 }
 
+
 vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,vector<vector<Point> > obs,float scale)
 {
 
 	scale_up = scale;
-	Map map(obs_map, end , obs, scale);                          //object of Map class
-	clock_t time_begin= clock();
-	map.initCollisionChecker();
-	clock_t time_end= clock();
-	cout<<"Time: InitCollisionChecker= "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
+	
+	//object of Map Class
+	Map map(obs_map, end , obs, scale);                          
+	
+	GUI display(1000, 1000);
+    display.draw_obstacles(obs_map,scale);
+    display.draw_car(start , car,scale);
+    display.draw_car(end, car,scale);
+    // display.show(1);
 
-	time_begin= clock();
+	// cout<<"Entering Sat"<<endl;
+	// if( !map.checkCollisionSat(temp) )
+	// 	cout<<"Not Collided"<<endl;
+
+	clock_t time_begin= clock();
 	h_obj.Dijkstra(map,end);
-	time_end= clock();
+	clock_t time_end= clock();
 	cout<<"Time: Dijkstra= "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
 
 	// time_begin= clock();
@@ -51,8 +60,8 @@ vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,
 			visited_state[i][j]=new State[map.MAP_THETA];
 	}
 
-	bool*** visited=new bool**[map.VISX];
 	//To mark the visited states MAPX, MAPY and MAP_THETA are to be imported from the Map class
+	bool*** visited=new bool**[map.VISX];
 	for(int i=0;i<map.VISX;i++)
 	{
 		visited[i]=new bool*[map.VISY];
@@ -65,6 +74,7 @@ vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,
 				}
 			}
 	}
+
 	priority_queue <State, vector<State>, Planner> pq;
 	pq.push(start);
 
@@ -74,11 +84,13 @@ vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,
 	while(!pq.empty())
 	{
 		State current=pq.top();
-		//cout<<"current state "<<current.x<<" "<<current.y<<" "<<current.theta<<endl;	
+		cout<<"current state "<<current.x<<" "<<current.y<<" "<<current.theta<<endl;	
 		pq.pop();
 		int grid_theta=((int)(current.theta*map.MAP_THETA/(2*PI)))%72; //grid_theta varies from 0-71 
+
 		if( visited[(int)current.x][(int)current.y][grid_theta] )
 			continue;
+
 
 		visited[(int)current.x][(int)current.y][grid_theta] = true;
 		visited_state[(int)current.x][(int)current.y][grid_theta] = current;
@@ -100,6 +112,7 @@ vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,
 		}
 		time_begin=clock();
 		vector<State> next=car.nextStates(&current);
+		// cout<<"Size of nextStates"<<next.size()<<endl;
 		time_end=clock();
 		nextStatesTime+=double(time_end-time_begin)/CLOCKS_PER_SEC;
 	//	cout<<"Next state of "<<current.x<<" "<<current.y<<" "<<current.theta<<endl;
@@ -110,26 +123,28 @@ vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,
 			
 			if( visited[(int)nextS.x][(int)nextS.y][next_theta] )
 				continue;
-	//		cout<<"   "<<nextS.x<<" "<<nextS.y<<" "<<nextS.theta<<endl;	
-			//cout<<"check collision "<<map.checkCollision(nextS)<<endl;
+			// cout<<nextS.x<<" "<<nextS.y<<" "<<nextS.theta<<endl;	
+			// cout<<"check collision "<<map.checkCollisionSat(nextS)<<endl;
 			time_begin=clock();
-			if( !map.checkCollision(nextS) )
+			if( !map.checkCollisionSat(nextS) )
 			{
 				time_end=clock();
 				it->parent = &(visited_state[(int)current.x][(int)current.y][grid_theta]);
 				it->cost2d = current.cost2d+1;
+				display.draw_path(current,nextS);
 				pq.push(*it);
 			}
 			else
 			{
-				//cout<<"value of map check "<<map.checkCollisionSat(nextS)<<endl;
 				time_end=clock();
 				// if(nextS.x > 10 && nextS.y >50)
-	//			cout<<"collided at "<<nextS.x<<" "<<nextS.y<<" "<<nextS.theta<<endl;	
+				cout<<"collided at "<<nextS.x<<" "<<nextS.y<<" "<<nextS.theta<<endl;	
+				// cout<<"value of map check "<<map.checkCollisionSat(nextS)<<endl;
 			}
 			//cout<<" time: "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
 			checkCollisionTime+=double(time_end-time_begin)/CLOCKS_PER_SEC;
 		}
+        display.show(1);
 	}
 	cout<<"Goal cannot be reached"<<endl;
 	exit(0);
