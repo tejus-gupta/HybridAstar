@@ -54,9 +54,9 @@ int main()
 	State target(800,800, 0,scale);
     
 	
-	clock_t start_time=clock();
+	start_time=clock();
     vector<State> path = astar.plan(start, target, obs_map, car ,obs,scale);
-	clock_t end_time=clock();
+	end_time=clock();
 	
 	cout<<"Total time taken: "<<(double)(end_time-start_time)/CLOCKS_PER_SEC<<endl;
 	cout<<"Got path of length "<<path.size()<<endl;

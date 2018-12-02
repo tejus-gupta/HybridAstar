@@ -1,5 +1,6 @@
 #include "../include/Vehicle.hpp"
-vector <State> Vehicle::nextStates(State* n)//vector<Vehicle::State>
+
+vector <State> Vehicle::nextStates(State* n, float scale_up)//vector<Vehicle::State>
 {
 	vector<State> next;
 	State t;

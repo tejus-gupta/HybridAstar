@@ -6,8 +6,8 @@ float scale_up;
 int THETA;
 bool Planner::operator()(State a,State b)
 {
-	int theta_a = (int)(a.theta*map.MAP_THETA/(2*PI))%map.MAP_THETA;
-	int theta_b = (int)(b.theta*map.MAP_THETA/(2*PI))%map.MAP_THETA;
+	int theta_a = (int)(a.theta*THETA/(2*PI))%THETA;
+	int theta_b = (int)(b.theta*THETA/(2*PI))%THETA;
 	double temp_a=max(H[a.gx][a.gy],D[a.gx][a.gy][theta_a]);
 	double temp_b=max(H[b.gx][b.gy],D[b.gx][b.gy][theta_b]);
 	return (a.cost2d+temp_a/scale_up > b.cost2d+temp_b/scale_up);
@@ -46,6 +46,8 @@ vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,
 	
 	// Dubins
 	D=new double**[map.MAPX];
+	int x_shift = end.gx - map.MAPX, y_shift = end.gy - map.MAPY;
+	int th_shift = ((int)round((end.theta*map.MAP_THETA/(2*PI))))%map.MAP_THETA;
 	for(int i=0;i<map.MAPX;i++)
 	{
 		D[i]=new double*[map.MAPY];
@@ -54,7 +56,9 @@ vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,
 			D[i][j]=new double[map.MAP_THETA];
 			for(int k=0;k<map.MAP_THETA;k++)
 			{
-				D[i][j][k]=h_obj.h_vals[i*DX/map.MAPX][j*DY/map.MAPY][k].cost;
+				int new_x = i-x_shift,new_y = i-y_shift;
+				int new_th = (k-th_shift+map.MAP_THETA)%map.MAP_THETA; 
+				D[i][j][k]=h_obj.dub_cost[new_x*DX/map.MAPX][new_y*DY/map.MAPY][new_th].cost;
 			}
 		}
 	}
@@ -118,7 +122,7 @@ vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,
 			return path;
 		}
 		time_begin=clock();
-		vector<State> next=car.nextStates(&current);
+		vector<State> next=car.nextStates(&current,scale);
 		// cout<<"Size of nextStates"<<next.size()<<endl;
 		time_end=clock();
 		nextStatesTime+=double(time_end-time_begin)/CLOCKS_PER_SEC;
@@ -138,7 +142,7 @@ vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,
 				time_end=clock();
 				it->parent = &(visited_state[(int)current.x][(int)current.y][grid_theta]);
 				it->cost2d = current.cost2d+1;
-				display.draw_path(current,nextS);
+				display.draw_tree(current,nextS);
 				pq.push(*it);
 			}
 			else

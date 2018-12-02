@@ -1,7 +1,7 @@
 #ifndef HEURISTIC_HPP
 #define HEURISTIC_HPP
 
-#include "../src/Vehicle.cpp"
+// #include "../src/Vehicle.cpp"
 #include "../src/Map.cpp"
 #define DX 250
 #define DY 250
