@@ -1,10 +1,10 @@
 #ifndef HEURISTIC_HPP
 #define HEURISTIC_HPP
 
-// #include "../src/Vehicle.cpp"
+#include "../src/Vehicle.cpp"
 #include "../src/Map.cpp"
-#define DX 200
-#define DY 200
+#define DX 250
+#define DY 250
 #define D_S 5.0
 class Heuristic
 {
@@ -24,10 +24,8 @@ class Heuristic
 		smallestcost_2d** h_vals;
 		smallestcost_3d*** dub_cost;
 		State target;
-		double min_radius;
 		Heuristic (){}
 		void Dijkstra(Map map,State target);
-		void Dubins_write(char *);
-		void Dubins_read(char *);
+		void Dubins(double min_radius);
 };
 #endif

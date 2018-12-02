@@ -43,6 +43,11 @@ int main()
     Vehicle car;
     Planner astar;
     
+    clock_t start_time=clock();
+    astar.h_obj.Dubins(car.min_radius);
+    clock_t end_time=clock();
+    cout<<"Dubin's time taken: "<<(double)(end_time-start_time)/CLOCKS_PER_SEC<<endl;
+
     float scale = 1000.0/obs_img.rows;
 
 	State start(0, 0, 0,scale);
@@ -63,6 +68,6 @@ int main()
         display.draw_car(path[i], car,scale);
         display.show(1);
     } 
-    display.show();
 
+    display.show();
 }

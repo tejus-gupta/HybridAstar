@@ -1,11 +1,16 @@
 #include "../include/Planner.hpp"
 // #include "../include/GUI.hpp"
 
-double** H;
+double **H,***D;
 float scale_up;
+int THETA;
 bool Planner::operator()(State a,State b)
 {
-	return (a.cost2d+H[a.gx][a.gy]/scale_up > b.cost2d+H[b.gx][b.gy]/scale_up);
+	int theta_a = (int)(a.theta*map.MAP_THETA/(2*PI))%map.MAP_THETA;
+	int theta_b = (int)(b.theta*map.MAP_THETA/(2*PI))%map.MAP_THETA;
+	double temp_a=max(H[a.gx][a.gy],D[a.gx][a.gy][theta_a]);
+	double temp_b=max(H[b.gx][b.gy],D[b.gx][b.gy][theta_b]);
+	return (a.cost2d+temp_a/scale_up > b.cost2d+temp_b/scale_up);
 }
 
 double dis (State a,State* b)
@@ -13,35 +18,23 @@ double dis (State a,State* b)
 	return (sqrt((b->gx-a.gx)*(b->gx-a.gx)+(b->gy-a.gy)*(b->gy-a.gy)));
 }
 
-
 vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,vector<vector<Point> > obs,float scale)
 {
 
 	scale_up = scale;
-	
-	//object of Map Class
-	Map map(obs_map, end , obs, scale);                          
+	Map map(obs_map, end , obs, scale);                          //object of Map class
+	THETA = map.MAP_THETA;                         
 	
 	GUI display(1000, 1000);
     display.draw_obstacles(obs_map,scale);
-    display.draw_car(start , car,scale);
+    display.draw_car(start, car,scale);
     display.draw_car(end, car,scale);
-    // display.show(1);
 
-	// cout<<"Entering Sat"<<endl;
-	// if( !map.checkCollisionSat(temp) )
-	// 	cout<<"Not Collided"<<endl;
-
+	// Djikstra
 	clock_t time_begin= clock();
 	h_obj.Dijkstra(map,end);
 	clock_t time_end= clock();
 	cout<<"Time: Dijkstra= "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
-
-	// time_begin= clock();
-	// h_obj.Dubins_read("Dubins.txt");
-	// time_end= clock();
-	// cout<<"Time: Dubins Cost Stored = "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
-
 	
 	H=new double*[map.MAPX];
 	for(int i=0;i<map.MAPX;i++)
@@ -51,6 +44,20 @@ vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,
 			H[i][j]=h_obj.h_vals[i*DX/map.MAPX][j*DY/map.MAPY].dis;
 	}
 	
+	// Dubins
+	D=new double**[map.MAPX];
+	for(int i=0;i<map.MAPX;i++)
+	{
+		D[i]=new double*[map.MAPY];
+	    for (int j=0;j<map.MAPY;j++)
+		{
+			D[i][j]=new double[map.MAP_THETA];
+			for(int k=0;k<map.MAP_THETA;k++)
+			{
+				D[i][j][k]=h_obj.h_vals[i*DX/map.MAPX][j*DY/map.MAPY][k].cost;
+			}
+		}
+	}
 
 	State*** visited_state=new State**[map.VISX];
 	for(int i=0;i<map.VISX;i++)
