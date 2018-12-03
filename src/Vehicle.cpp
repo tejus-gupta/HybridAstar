@@ -1,5 +1,6 @@
 #include "../include/Vehicle.hpp"
-vector <State> Vehicle::nextStates(State* n)//vector<Vehicle::State>
+
+vector <State> Vehicle::nextStates(State* n, float scale_up)//vector<Vehicle::State>
 {
 	vector<State> next;
 	State t;
@@ -35,9 +36,9 @@ vector <State> Vehicle::nextStates(State* n)//vector<Vehicle::State>
 			t.y=n->y + d*sin(n->theta);
 			t.theta=n->theta;
 		}
-		int map_resolution=1;
-		t.gx=(int)(t.y*map_resolution);
-		t.gy=(int)(t.x*map_resolution);
+
+		t.gx=(int)(t.y*scale_up);
+		t.gy=(int)(t.x*scale_up);
 		t.steer_angle=alpha;
 		// cout<<t.gx<<" "<<t.gy<<" "<<t.steer_angle<<endl;
 		//t.cost2d=n->cost2d+1;

@@ -31,7 +31,7 @@ int main()
     c.push_back(Point(280,430));
     c.push_back(Point(280,335));
     obs.push_back(c );
-
+    
     bool** obs_map = new bool*[obs_img.rows];
     for(int i=0; i<obs_img.rows; i++)
     {
@@ -42,16 +42,20 @@ int main()
 
     Vehicle car;
     Planner astar;
-    
-    float scale = 1000.0/obs_img.rows;
 
-	State start(0, 0, 0,scale);
-	State target(800,800, 0,scale);
+    clock_t start_time=clock();
+    // astar.h_obj.Dubins(car.min_radius);
+    clock_t end_time=clock();
+    cout<<"Dubin's time taken: "<<(double)(end_time-start_time)/CLOCKS_PER_SEC<<endl;
+
+    float scale = 1000.0/obs_img.rows;
+	State start(12, 13, 0,scale);
+	State target(42,84, 0,scale);
     
 	
-	clock_t start_time=clock();
+	start_time=clock();
     vector<State> path = astar.plan(start, target, obs_map, car ,obs,scale);
-	clock_t end_time=clock();
+	end_time=clock();
 	
 	cout<<"Total time taken: "<<(double)(end_time-start_time)/CLOCKS_PER_SEC<<endl;
 	cout<<"Got path of length "<<path.size()<<endl;
@@ -63,6 +67,6 @@ int main()
         display.draw_car(path[i], car,scale);
         display.show(1);
     } 
-    display.show();
 
+    display.show();
 }

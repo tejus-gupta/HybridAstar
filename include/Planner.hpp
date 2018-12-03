@@ -1,5 +1,5 @@
 #include "../src/GUI.cpp"
-#include "../src/Map.cpp"
+// #include "../src/Map.cpp"
 #include "../src/Heuristic.cpp"
 
 using namespace std;
