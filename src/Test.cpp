@@ -2,7 +2,7 @@
 #include "../include/GUI.hpp"
 #include "opencv/cv.h"
 #include <opencv2/highgui/highgui.hpp>
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
 
 using namespace cv;
 
@@ -43,8 +43,9 @@ int main()
     Vehicle car;
     Planner astar;
 
+    // Calculating Dubin's cost
     clock_t start_time=clock();
-    // astar.h_obj.Dubins(car.min_radius);
+    astar.h_obj.Dubins(car.min_radius);
     clock_t end_time=clock();
     cout<<"Dubin's time taken: "<<(double)(end_time-start_time)/CLOCKS_PER_SEC<<endl;
 
@@ -52,7 +53,6 @@ int main()
 	State start(12, 13, 0,scale);
 	State target(42,84, 0,scale);
     
-	
 	start_time=clock();
     vector<State> path = astar.plan(start, target, obs_map, car ,obs,scale);
 	end_time=clock();

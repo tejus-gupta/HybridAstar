@@ -15,14 +15,8 @@ class Heuristic
 			float dis;
 		}smallestcost_2d;
 
-		typedef struct
-		{
-			int x,y,z;
-			double cost,theta;
-		}smallestcost_3d;
-
 		smallestcost_2d** h_vals;
-		smallestcost_3d*** dub_cost;
+		double*** dub_cost;
 		State target;
 		Heuristic (){}
 		void Dijkstra(Map map,State target);

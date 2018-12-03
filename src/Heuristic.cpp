@@ -356,7 +356,7 @@ class Dubins_Path{
             return path;
         } 
 
-        Dubins_Path(State x,State y,double z)
+        void change(State x,State y,double z)
         {
             start=x;
             end=y;
@@ -368,14 +368,17 @@ class Dubins_Path{
 void Heuristic::Dubins(double min_radius)
 {
     State target(DX,DY,0);
-    dub_cost = new smallestcost_3d**[2*DX];
+    dub_cost = new double**[2*DX];
     int DT = 360/D_S;
+    
     for(int i=0;i<2*DX;i++)
     {
-        dub_cost[i] = new smallestcost_3d*[2*DY];
+        dub_cost[i] = new double*[2*DY];
         for(int j=0;j<2*DY;j++)
-            dub_cost[i][j] = new smallestcost_3d[DT];
+            dub_cost[i][j] = new double[DT];
     }
+
+    Dubins_Path temp;
     for(int i=0;i<2*DX;i++)
     {
         for(int j=0;j<2*DY;j++)
@@ -384,12 +387,12 @@ void Heuristic::Dubins(double min_radius)
             {
                 double theta = k*D_S*Pi/180;
                 State start(i,j,theta);
-                Dubins_Path temp(start,target,min_radius);
-                smallestcost_3d *val=&dub_cost[i][j][k];
-                val->x=i,val->y=j,val->z=k,val->theta=theta;
-                val->cost=temp.ret_cost();
+                
+                temp.change(start,target,min_radius);
+                double *val=&dub_cost[i][j][k];
+
+                *val=temp.ret_cost();
             }
         }
-        // cout<<i<<endl;
     }
 }
