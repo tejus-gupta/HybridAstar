@@ -29,6 +29,7 @@ vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,
     display.draw_obstacles(obs_map,scale);
     display.draw_car(start, car,scale);
     display.draw_car(end, car,scale);
+	display.show(0);
 
 	// Djikstra
 	clock_t time_begin= clock();

@@ -373,7 +373,7 @@ void Heuristic::Dubins(double min_radius)
     for(int i=0;i<2*DX;i++)
     {
         dub_cost[i] = new smallestcost_3d*[2*DY];
-        for(int j=0;j<DY;j++)
+        for(int j=0;j<2*DY;j++)
             dub_cost[i][j] = new smallestcost_3d[DT];
     }
     for(int i=0;i<2*DX;i++)
@@ -390,5 +390,6 @@ void Heuristic::Dubins(double min_radius)
                 val->cost=temp.ret_cost();
             }
         }
+        // cout<<i<<endl;
     }
 }
