@@ -16,6 +16,7 @@ public:
     GUI(int rows, int cols);
     void draw_obstacles(bool** obs_map,float res);
     void draw_car(State src, Vehicle car,float map_resolution);
+    void draw_tree(State, State);
     void show();
     void show(int t);
 };
