@@ -39,7 +39,11 @@ void mapCallback(const nav_msgs::OccupancyGrid::ConstPtr& msg)
 	{
 	    obs_map[i] = new bool[obs_grid.info.height]; 
 	    for(int j=0; j<obs_grid.info.height; j++)
+<<<<<<< HEAD:src/Test.cpp
 	        obs_map[i][j] = (obs_grid.data[i*obs_grid.info.width+j]>= 120);  
+=======
+	        obs_map[i][j] = (obs_grid.data[i*obs_grid.info.width+j]>= 90); 
+>>>>>>> 4e1ae5cf44076d7051dc3614b4d5dc90f08e2575:src/Test.cpp
 	}
 }
 
@@ -105,27 +109,42 @@ Quaternion toQuaternion(double pitch, double roll, double yaw)
 
 int main(int argc,char **argv)
 { 
+<<<<<<< HEAD:src/Test.cpp
 	start.x=5;
 	start.y=4;
 	start.theta=0;
+=======
+	State start(13,14,M_PI/2);
+    State target(13,74,M_PI/2);
+
+>>>>>>> 4e1ae5cf44076d7051dc3614b4d5dc90f08e2575:src/Test.cpp
     ros::init(argc,argv,"hybrid_astar");
     ros::NodeHandle nh;
 
     // ros::Subscriber sub1  = nh.subscribe("odometry/filtered",10,&odomCallback);
     ros::Subscriber sub2  = nh.subscribe("/map",10,&mapCallback);
+<<<<<<< HEAD:src/Test.cpp
     ros::Subscriber goal  = nh.subscribe("/move_base_simple/goal",10,&goalCallback);
     ros::Subscriber obstacles = nh.subscribe("/costmap_converter/costmap_obstacles",10,&obstacleCallback);
 
     // ros::Publisher  pub = nh.advertise<geometry_msgs::PoseArray>("", 1000);
+=======
+    // ros::Subscriber goal  = nh.subscribe("/move_base_simple/goal",10,&goalCallback);
+    // ros::Subscriber obstacles = nh.subscribe("/costmap_converter/costmap_obstacles",10,&obstacleCallback);
+
+    ros::Publisher  pub = nh.advertise<geometry_msgs::PoseArray>("/waypoint", 1000);
+>>>>>>> 4e1ae5cf44076d7051dc3614b4d5dc90f08e2575:src/Test.cpp
 
     geometry_msgs::PoseArray poseArray; 
     poseArray.header.frame_id = "/map";
 
+<<<<<<< HEAD:src/Test.cpp
     cout<<"Started "<<obs_grid.info.width<<" "<<obs_grid.info.height<<endl;
 
 
+=======
+>>>>>>> 4e1ae5cf44076d7051dc3614b4d5dc90f08e2575:src/Test.cpp
     Vehicle car;
-    Planner astar;
     Quaternion myQuaternion;
     
     ros::Rate rate(2);
@@ -134,14 +153,30 @@ int main(int argc,char **argv)
         poseArray.poses.clear(); 
         poseArray.header.stamp = ros::Time::now();
 
+<<<<<<< HEAD:src/Test.cpp
         while(!obs_grid.info.width || obs.empty())
         	ros::spinOnce();
 
 	    cout<<"Started "<<obs_grid.info.width<<" "<<obs_grid.info.height<<endl;
 
         cout<<obs.size()<<endl;
+=======
+        while(!obs_grid.info.width)
+        	ros::spinOnce();
+
+	    cout<<"Started "<<obs_grid.info.width<<" "<<obs_grid.info.height<<endl;
+        float scale=1000.0/obs_grid.info.width;
+        
+        cout<<"Scale "<<scale<<endl;
+        // GUI display(1000, 1000);
+        // display.draw_obstacles(obs_map,scale);
+        // display.draw_car(start,car,scale);
+        // display.draw_car(target,car,scale);
+        // display.show();
+        Planner astar;
+>>>>>>> 4e1ae5cf44076d7051dc3614b4d5dc90f08e2575:src/Test.cpp
         clock_t start_time=clock();
-        vector<State> path = astar.plan(start, target, obs_map, car ,obs);
+        vector<State> path = astar.plan(start, target, obs_map, car ,obs, scale);
         clock_t end_time=clock();
 
         vector<State>::iterator ptr;
@@ -164,17 +199,25 @@ int main(int argc,char **argv)
         cout<<"Total time taken: "<<(double)(end_time-start_time)/CLOCKS_PER_SEC<<endl;
         cout<<"Got path of length "<<path.size()<<endl;
 
+<<<<<<< HEAD:src/Test.cpp
         // pub.publish(poseArray);
         // ROS_INFO("poseArray size: %i", poseArray.poses.size()); 
+=======
+        pub.publish(poseArray);
+>>>>>>> 4e1ae5cf44076d7051dc3614b4d5dc90f08e2575:src/Test.cpp
 
-        GUI display(1000, 1000);
-        display.draw_obstacles(obs_map);
-        for(int i=0;i<=path.size();i++)
-        {
-            display.draw_car(path[i], car);
-            display.show(1);
-        } 
-        display.show();
+        // ROS_INFO("poseArray size: %i", poseArray.poses.size()); 
+        // GUI display(1000, 1000);
+        // display.draw_obstacles(obs_map,scale);
+        // display.draw_car(start,car,scale);
+
+        // for(int i=0;i<=path.size();i++)
+        // {
+        //     display.draw_car(path[i], car,scale);
+        //     display.show(1);
+        // } 
+        // display.show();
+        
         ros::spinOnce();
         rate.sleep();
     }

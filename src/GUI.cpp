@@ -25,19 +25,6 @@ void GUI::draw_car(State state, Vehicle car,float map_resolution){
 	return;
 }
 
-void GUI::draw_tree(State state,State next)
-{
-	Point root,child;
-	root.x=state.y;
-	root.y=state.x;
-	child.x=next.y; 
-	child.y=next.x;
-	cout<<root.y<<" "<<root.x<<" "<<child.y<<" "<<child.x<<endl;
-	line(display, root, child, Scalar(0,0,255), 1);
-
-	return;
-}
-
 void GUI::show(){
 	imshow("Display", display);
 	waitKey(0);
