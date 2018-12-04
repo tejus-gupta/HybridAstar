@@ -15,8 +15,8 @@ bool Planner::operator()(State a,State b)
 	int new_bx = b.gx-x_shift,new_by = b.gy-y_shift, new_bth = (theta_b - th_shift + THETA)%THETA;
 	
 	// Calculating max of Dubin's and Djikstra's
-	double temp_a=max(H[a.gx][a.gy],D[new_ax*DX/X][new_ay*DY/Y][new_ath]);
-	double temp_b=max(H[b.gx][b.gy],D[new_bx*DX/X][new_by*DY/Y][new_bth]);
+	double temp_a=max(H[a.gx][a.gy],D[new_ay*DX/Y][new_ax*DY/X][new_ath]);
+	double temp_b=max(H[b.gx][b.gy],D[new_by*DX/Y][new_bx*DY/X][new_bth]);
 
 	return (a.cost2d+temp_a/scale_up > b.cost2d+temp_b/scale_up);
 }
@@ -39,7 +39,7 @@ vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,
     display.draw_obstacles(obs_map,scale);
     display.draw_car(start, car,scale);
     display.draw_car(end, car,scale);
-	display.show(0);
+	// display.show(0);
 
 	// Djikstra
 	clock_t time_begin= clock();

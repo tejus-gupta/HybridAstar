@@ -37,8 +37,8 @@ vector <State> Vehicle::nextStates(State* n, float scale_up)//vector<Vehicle::St
 			t.theta=n->theta;
 		}
 
-		t.gx=(int)(t.y*scale_up);
-		t.gy=(int)(t.x*scale_up);
+		t.gx=(int)(t.x*scale_up);
+		t.gy=(int)(t.y*scale_up);
 		t.steer_angle=alpha;
 		// cout<<t.gx<<" "<<t.gy<<" "<<t.steer_angle<<endl;
 		//t.cost2d=n->cost2d+1;
