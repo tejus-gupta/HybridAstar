@@ -22,5 +22,6 @@ class Heuristic
 		Heuristic (){}
 		void Dijkstra(Map map,State target);
 		void Dubins(double min_radius);
+		double Dubin_cost(State,State,double);
 };
 #endif

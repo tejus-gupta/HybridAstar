@@ -397,3 +397,9 @@ void Heuristic::Dubins(double min_radius)
     }
 }
 
+double Heuristic::Dubin_cost(State start, State end, double min_radius)
+{
+    Dubins_Path temp;
+    temp.change(start,end,min_radius);
+    return temp.ret_cost();
+}

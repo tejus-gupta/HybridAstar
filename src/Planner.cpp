@@ -1,22 +1,24 @@
 #include "../include/Planner.hpp"
 // #include "../include/GUI.hpp"
 
-double **H,***D;
+double **H;
 float scale_up;
-int x_shift,y_shift,th_shift,X,Y,THETA;
+// int x_shift,y_shift,th_shift,X,Y,THETA;
+State target;
+Vehicle veh;
 
 bool Planner::operator()(State a,State b)
 {
 	// Calculating theta index
-	int theta_a = (int)(a.theta*THETA/(2*PI))%THETA, theta_b = (int)(b.theta*THETA/(2*PI))%THETA;
+	// int theta_a = (int)(a.theta*THETA/(2*PI))%THETA, theta_b = (int)(b.theta*THETA/(2*PI))%THETA;
 
 	// Shifting with respect to the fixed destination of the Dubins
-	int new_ax = a.gx-x_shift,new_ay = a.gy-y_shift, new_ath = (theta_a - th_shift + THETA)%THETA;
-	int new_bx = b.gx-x_shift,new_by = b.gy-y_shift, new_bth = (theta_b - th_shift + THETA)%THETA;
+	// int new_ax = a.gx-x_shift,new_ay = a.gy-y_shift, new_ath = (theta_a - th_shift + THETA)%THETA;
+	// int new_bx = b.gx-x_shift,new_by = b.gy-y_shift, new_bth = (theta_b - th_shift + THETA)%THETA;
 	
 	// Calculating max of Dubin's and Djikstra's
-	double temp_a=max(H[a.gx][a.gy],D[new_ay*DX/Y][new_ax*DY/X][new_ath]);
-	double temp_b=max(H[b.gx][b.gy],D[new_by*DX/Y][new_bx*DY/X][new_bth]);
+	double temp_a=max(H[a.gx][a.gy],h_obj.Dubin_cost(a,target,veh.min_radius));
+	double temp_b=max(H[b.gx][b.gy],h_obj.Dubin_cost(b,target,veh.min_radius));
 
 	return (a.cost2d+temp_a/scale_up > b.cost2d+temp_b/scale_up);
 }
@@ -33,7 +35,9 @@ vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,
 	scale_up = scale;
 	Map map(obs_map, end , obs, scale);                          //Object of Map class
 
-	X=map.MAPX, Y=map.MAPY, THETA= map.MAP_THETA;                         
+	// X=map.MAPX, Y=map.MAPY, THETA= map.MAP_THETA;
+	veh = car;
+	target = end;                         
 	
 	GUI display(1000, 1000);
     display.draw_obstacles(obs_map,scale);
@@ -56,9 +60,9 @@ vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,
 	}
 	
 	// Dubins
-	D = h_obj.dub_cost;
-	x_shift = end.gx - map.MAPX, y_shift = end.gy - map.MAPY;
-	th_shift = ((int)round((end.theta*map.MAP_THETA/(2*PI))))%map.MAP_THETA;
+	// D = h_obj.dub_cost;
+	// x_shift = end.gx - map.MAPX, y_shift = end.gy - map.MAPY;
+	// th_shift = ((int)round((end.theta*map.MAP_THETA/(2*PI))))%map.MAP_THETA;
 
 	// Array of states
 	State*** visited_state=new State**[map.VISX];
