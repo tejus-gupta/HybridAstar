@@ -284,25 +284,25 @@ class Dubins_Path{
 
         //LSL
         temp = LSL(alpha,beta,d,flag);
-        temp_c = c*fabs(temp[0]) + fabs(temp[1]) + c*fabs(temp[2]);
+        temp_c = c*fabs(temp[0]) + c*fabs(temp[1]) + c*fabs(temp[2]);
         if(cost>temp_c && flag)
             cost=temp_c,s="LSL";
             
         //RSR
         temp = RSR(alpha,beta,d,flag);
-        temp_c = c*fabs(temp[0]) + fabs(temp[1]) + c*fabs(temp[2]);
+        temp_c = c*fabs(temp[0]) + c*fabs(temp[1]) + c*fabs(temp[2]);
         if(cost>temp_c && flag)
             cost=temp_c,s="RSR";
         
         //LSR
         temp = LSR(alpha,beta,d,flag);
-        temp_c = c*fabs(temp[0]) + fabs(temp[1]) + c*fabs(temp[2]);
+        temp_c = c*fabs(temp[0]) + c*fabs(temp[1]) + c*fabs(temp[2]);
         if(cost>temp_c && flag)
             cost=temp_c,s="LSR";
             
         //RSL
         temp = RSL(alpha,beta,d,flag);
-        temp_c = c*fabs(temp[0]) + fabs(temp[1]) + c*fabs(temp[2]);
+        temp_c = c*fabs(temp[0]) + c*fabs(temp[1]) + c*fabs(temp[2]);
         if(cost>temp_c && flag)
             cost=temp_c,s="RSL";
             
@@ -325,7 +325,7 @@ class Dubins_Path{
     {
         double dx=ex,dy=ey;
         double D=sqrt(dx*dx + dy*dy);
-        double d = D*c;
+        double d = D/c;
 
         double theta = fmod(atan2(dy,dx),2*Pi);
         double alpha = fmod(-theta,2*Pi);
@@ -396,3 +396,4 @@ void Heuristic::Dubins(double min_radius)
         }
     }
 }
+
