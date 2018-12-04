@@ -4,6 +4,7 @@
 double **H;
 float scale_up;
 // int x_shift,y_shift,th_shift,X,Y,THETA;
+double t=0;
 State target;
 Vehicle veh;
 
@@ -17,8 +18,11 @@ bool Planner::operator()(State a,State b)
 	// int new_bx = b.gx-x_shift,new_by = b.gy-y_shift, new_bth = (theta_b - th_shift + THETA)%THETA;
 	
 	// Calculating max of Dubin's and Djikstra's
+	clock_t start_time=clock();
 	double temp_a=max(H[a.gx][a.gy],h_obj.Dubin_cost(a,target,veh.min_radius));
 	double temp_b=max(H[b.gx][b.gy],h_obj.Dubin_cost(b,target,veh.min_radius));
+	clock_t end_time=clock();
+	t+=(double)(end_time-start_time)/CLOCKS_PER_SEC;
 
 	return (a.cost2d+temp_a/scale_up > b.cost2d+temp_b/scale_up);
 }
@@ -115,6 +119,7 @@ vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,
 		{
 			cout<<"Time :CollisionChecker= "<<checkCollisionTime<<endl;
 			cout<<"Time :nextStates= "<<nextStatesTime<<endl;
+			cout<<"Time :Dubins on spot = "<<t<<endl;
 			cout<<"REACHED!"<<endl;
 			
 			State temp=current;
