@@ -18,6 +18,7 @@ public:
 	float BOT_L=2.5;
 	float BOT_W=1.5;
 	float BOT_MAX_ALPHA=30;
-	vector<State> nextStates(State*);
+	double min_radius = abs(BOT_L/tan(BOT_MAX_ALPHA*PI/180));
+	vector<State> nextStates(State*, float);
 };
 #endif

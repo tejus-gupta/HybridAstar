@@ -3,8 +3,8 @@
 
 double Pi=M_PI;
 
-#define D_X 200
-#define D_Y 200
+// #define D_X 200
+// #define D_Y 200
 
 class compareHeuristic{
  public:
@@ -35,15 +35,16 @@ void Heuristic::Dijkstra(Map map,State target)
 	{
 		grid_map[i]=new int[DY];
 	}
-	
+
 	for(int i=0;i<map.MAPX;i++)
 	{
 		for(int j=0;j<map.MAPY;j++)
 		{
-			if(map.obs_map[i][j])
+			if(map.obs_map[(int)(i/map.map_resolution)][(int)(j/map.map_resolution)])
 			grid_map[i*DX/map.MAPX][j*DY/map.MAPY]=1;
 		}
 	}
+
 	h_vals=new smallestcost_2d*[DX];
 	for(int i=0;i<DX;i++)
 	{
@@ -283,25 +284,25 @@ class Dubins_Path{
 
         //LSL
         temp = LSL(alpha,beta,d,flag);
-        temp_c = c*fabs(temp[0]) + fabs(temp[1]) + c*fabs(temp[2]);
+        temp_c = c*fabs(temp[0]) + c*fabs(temp[1]) + c*fabs(temp[2]);
         if(cost>temp_c && flag)
             cost=temp_c,s="LSL";
             
         //RSR
         temp = RSR(alpha,beta,d,flag);
-        temp_c = c*fabs(temp[0]) + fabs(temp[1]) + c*fabs(temp[2]);
+        temp_c = c*fabs(temp[0]) + c*fabs(temp[1]) + c*fabs(temp[2]);
         if(cost>temp_c && flag)
             cost=temp_c,s="RSR";
         
         //LSR
         temp = LSR(alpha,beta,d,flag);
-        temp_c = c*fabs(temp[0]) + fabs(temp[1]) + c*fabs(temp[2]);
+        temp_c = c*fabs(temp[0]) + c*fabs(temp[1]) + c*fabs(temp[2]);
         if(cost>temp_c && flag)
             cost=temp_c,s="LSR";
             
         //RSL
         temp = RSL(alpha,beta,d,flag);
-        temp_c = c*fabs(temp[0]) + fabs(temp[1]) + c*fabs(temp[2]);
+        temp_c = c*fabs(temp[0]) + c*fabs(temp[1]) + c*fabs(temp[2]);
         if(cost>temp_c && flag)
             cost=temp_c,s="RSL";
             
@@ -324,7 +325,7 @@ class Dubins_Path{
     {
         double dx=ex,dy=ey;
         double D=sqrt(dx*dx + dy*dy);
-        double d = D*c;
+        double d = D/c;
 
         double theta = fmod(atan2(dy,dx),2*Pi);
         double alpha = fmod(-theta,2*Pi);
@@ -355,7 +356,7 @@ class Dubins_Path{
             return path;
         } 
 
-        Dubins_Path(State x,State y,double z)
+        void change(State x,State y,double z)
         {
             start=x;
             end=y;
@@ -364,55 +365,41 @@ class Dubins_Path{
         }
 };
 
-void Heuristic::Dubins_write(char *file)
+void Heuristic::Dubins(double min_radius)
 {
+    State target(DX,DY,0);
+    dub_cost = new double**[2*DX];
     int DT = 360/D_S;
-    ofstream dubin;
-    dubin.open(file);
-
-    if(min_radius < 1e-6)
-        min_radius=1.0;
-    State target(DX/2,DY/2,0);
-    for(int i=0;i<DX;i++)
+    
+    for(int i=0;i<2*DX;i++)
     {
-        for(int j=0;j<DY;j++)
+        dub_cost[i] = new double*[2*DY];
+        for(int j=0;j<2*DY;j++)
+            dub_cost[i][j] = new double[DT];
+    }
+
+    Dubins_Path temp;
+    for(int i=0;i<2*DX;i++)
+    {
+        for(int j=0;j<2*DY;j++)
         {
             for(int k=0;k<DT;k++)
             {
                 double theta = k*D_S*Pi/180;
                 State start(i,j,theta);
-                Dubins_Path temp(start,target,min_radius);
-                dubin<<temp.ret_cost()<<" ";
+                
+                temp.change(start,target,min_radius);
+                double *val=&dub_cost[i][j][k];
+
+                *val=temp.ret_cost();
             }
         }
     }
 }
 
-void Heuristic::Dubins_read(char *file)
+double Heuristic::Dubin_cost(State start, State end, double min_radius)
 {
-    dub_cost = new smallestcost_3d**[DX];
-    int DT = 360/D_S;
-    ifstream dubin;
-    dubin.open(file);
-
-    for(int i=0;i<DX;i++)
-    {
-        dub_cost[i] = new smallestcost_3d*[DY];
-        for(int j=0;j<DY;j++)
-            dub_cost[i][j] = new smallestcost_3d[DT];
-    }
-
-    for(int i=0;i<DX;i++)
-    {
-        for(int j=0;j<DY;j++)
-        {
-            for(int k=0;k<DT;k++)
-            {
-                double theta = k*D_S*Pi/180;
-                smallestcost_3d *val=&dub_cost[i][j][k];
-                val->x=i,val->y=j,val->z=k,val->theta=theta;
-                dubin>>val->cost;
-            }
-        }
-    }
+    Dubins_Path temp;
+    temp.change(start,end,min_radius);
+    return temp.ret_cost();
 }

@@ -108,7 +108,6 @@ int main(int argc,char **argv)
 	start.x=5;
 	start.y=4;
 	start.theta=0;
-	// cout<<"Inside Main"<<endl;
     ros::init(argc,argv,"hybrid_astar");
     ros::NodeHandle nh;
 
