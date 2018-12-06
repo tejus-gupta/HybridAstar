@@ -20,12 +20,12 @@ public:
 	State* parent;
 	State* next;
 
-	State(float X,float Y,float THETA,float scale=1)
+	State(float X,float Y,float THETA)
 	{
 		x=X;
 		y=Y;
-		gx=x*scale;
-		gy=y*scale;
+		gx=x;
+		gy=y;
 		theta=THETA;
 		parent=NULL;
 		cost2d=0;

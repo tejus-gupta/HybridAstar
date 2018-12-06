@@ -37,16 +37,12 @@ vector <State> Vehicle::nextStates(State* n, float scale_up)//vector<Vehicle::St
 			t.theta=n->theta;
 		}
 
-		t.gx=(int)(t.x*scale_up);
-		t.gy=(int)(t.y*scale_up);
+		t.gx=t.x;
+		t.gy=t.y;
 		t.steer_angle=alpha;
-		// cout<<t.gx<<" "<<t.gy<<" "<<t.steer_angle<<endl;
-		//t.cost2d=n->cost2d+1;
 
-		if(t.gx>=0&&t.gx<1000&&t.gy>=0&&t.gy<1000)//change upperbound according to the map size
-		{	
+		if(t.gx >= 0 && t.gx < 1000/scale_up && t.gy >= 0 && t.gy < 1000/scale_up)//change upperbound according to the map size
 			next.push_back(t);
-		}
 	}
 	return next;		
 }

@@ -27,7 +27,7 @@ bool Map::isReached(State current)
  	/* In this we could have int in place of bool which tells distance between them so 
  	thst we could act accordingly && fabs(Curr.theta-End.theta)<5*/
 
-	if( abs(current.x - end.x) < 2 && abs(current.y - end.y) < 2 && (abs(current.theta - end.theta) < 3.14/9 || abs(current.theta - 72 + end.theta) < 3.14/9))
+	if( abs(current.x - end.x) < 2 && abs(current.y - end.y) < 2 && (abs(current.theta - end.theta) < M_PI/9 || abs(current.theta - 72 + end.theta) < 3.14/9))
 		return true;
  	else return false;
 }
@@ -104,7 +104,6 @@ void Map::initCollisionCheckerSat()
 			if( obs[i][j].y>temp.Ymax )
 				temp.Ymax=obs[i][j].y;
 		}
-		// cout<<temp.Xmin<<" "<<temp.Xmax<<" "<<temp.Ymin<<" "<<temp.Ymax<<endl;
 		bPoints.push_back(temp);
 	}
 }
@@ -113,30 +112,30 @@ void Map::initCollisionCheckerSat()
 bool Map::checkCollisionSat(State pos)
 {
 
-	if(pos.x*map_resolution>=MAPX || pos.x*map_resolution<0 || pos.y*map_resolution>=MAPY || pos.y*map_resolution<0 )
+	if(pos.x >= VISX || pos.x<0 || pos.y >= VISY || pos.y<0 )
 		return true;
 
 	vector<Point> v1;
 
 	// We are trying to find the four corner points of our bot 
 	Point p1;
-	p1.x = map_resolution * (pos.x-car.BOT_L*abs(cos(pos.theta))/2-car.BOT_W*abs(sin(pos.theta))/2) ;
-	p1.y = map_resolution * (pos.y-car.BOT_L*abs(sin(pos.theta))/2+car.BOT_W*abs(cos(pos.theta))/2) ;
+	p1.x = pos.x-car.BOT_L*abs(cos(pos.theta))/2-car.BOT_W*abs(sin(pos.theta))/2 ;
+	p1.y = pos.y-car.BOT_L*abs(sin(pos.theta))/2+car.BOT_W*abs(cos(pos.theta))/2 ;
 	v1.push_back(p1);
 
 	Point p2;
-	p2.x = map_resolution * (pos.x+car.BOT_L*abs(cos(pos.theta))/2-car.BOT_W*abs(sin(pos.theta))/2) ;
-	p2.y = map_resolution * (pos.y+car.BOT_L*abs(sin(pos.theta))/2+car.BOT_W*abs(cos(pos.theta))/2) ;
+	p2.x = pos.x+car.BOT_L*abs(cos(pos.theta))/2-car.BOT_W*abs(sin(pos.theta))/2 ;
+	p2.y = pos.y+car.BOT_L*abs(sin(pos.theta))/2+car.BOT_W*abs(cos(pos.theta))/2 ;
 	v1.push_back(p2);
 
 	Point p3;
-	p3.x = map_resolution * (pos.x+car.BOT_L*abs(cos(pos.theta))/2+car.BOT_W*abs(sin(pos.theta))/2) ;
-	p3.y = map_resolution * (pos.y+car.BOT_L*abs(sin(pos.theta))/2-car.BOT_W*abs(cos(pos.theta))/2) ;
+	p3.x = pos.x+car.BOT_L*abs(cos(pos.theta))/2+car.BOT_W*abs(sin(pos.theta))/2 ;
+	p3.y = pos.y+car.BOT_L*abs(sin(pos.theta))/2-car.BOT_W*abs(cos(pos.theta))/2 ;
 	v1.push_back(p3);
 
 	Point p4;
-	p4.x = map_resolution * (pos.x-car.BOT_L*abs(cos(pos.theta))/2+car.BOT_W*abs(sin(pos.theta))/2) ;
-	p4.y = map_resolution * (pos.y-car.BOT_L*abs(sin(pos.theta))/2-car.BOT_W*abs(cos(pos.theta))/2) ;
+	p4.x = pos.x-car.BOT_L*abs(cos(pos.theta))/2+car.BOT_W*abs(sin(pos.theta))/2 ;
+	p4.y = pos.y-car.BOT_L*abs(sin(pos.theta))/2-car.BOT_W*abs(cos(pos.theta))/2 ;
 	v1.push_back(p4);
 
 	int Xmax,Xmin,Ymax,Ymin;
@@ -144,20 +143,18 @@ bool Map::checkCollisionSat(State pos)
 	Ymax=Ymin=v1[0].y;
 	for (int j = 1; j < v1.size(); ++j)
 	{
-		if( v1[j].x<Xmin )
+		if( v1[j].x < Xmin )
 			Xmin=v1[j].x;
-		if( v1[j].x>Xmax )
+		if( v1[j].x > Xmax )
 			Xmax=v1[j].x;
-		if( v1[j].y<Ymin )
+		if( v1[j].y < Ymin )
 			Ymin=v1[j].y;
-		if( v1[j].y>Ymax )
+		if( v1[j].y > Ymax )
 			Ymax=v1[j].y;
 	}
 
 	for (int i = 0; i < obs.size() ; ++i)
 	{
-		// cout<< Xmax<<" "<<Xmin<<" "<<Ymax<<" "<<Ymin<<endl;
-		// cout<<bPoints[i].Xmax<<" "<<bPoints[i].Xmin<<" "<<bPoints[i].Ymax<<" "<<bPoints[i].Ymin<<endl;
 		if( !(bPoints[i].Xmax<Xmin || bPoints[i].Xmin>Xmax || bPoints[i].Ymin>Ymax || bPoints[i].Ymax<Ymin ) ) 
 		{
 			// cout<<"Didn't Used This MF"<<endl;
