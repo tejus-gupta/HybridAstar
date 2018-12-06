@@ -18,15 +18,15 @@ bool Planner::operator()(State a,State b)
 	return (a.cost2d+temp_a > b.cost2d+temp_b);
 }
 
-// double dis (State a,State* b)
-// {
-// 	return (sqrt((b->gx-a.gx)*(b->gx-a.gx)+(b->gy-a.gy)*(b->gy-a.gy)));
-// }
+double dis (State a,State b)
+{
+	return (sqrt((b.gx-a.gx)*(b.gx-a.gx)+(b.gy-a.gy)*(b.gy-a.gy)));
+}
 
 vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,vector<vector<Point> > obs,float scale)
 {
 
-	bool DEBUG = false;
+	bool DEBUG = true;
 	Map map(obs_map, end , obs, scale);                          //Object of Map class
 
 	veh = car;
@@ -48,10 +48,11 @@ vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,
 	for(int i=0;i<map.VISX;i++)
 	{
 		H[i]=new double[map.VISY];
-	    for (int j=0;j<map.VISY;j++)
-			H[i][j]=h_obj.h_vals[i*DX/map.VISX][j*DY/map.VISY].dis;
+	    for(int j=0;j<map.VISY;j++)
+			H[i][j]=h_obj.h_vals[i][j].dis;
 	}
-
+	// cout<<H[end.gx-100][end.gy]<<" "<<H[end.gx][end.gy-100]<<" "<<H[end.gx-100][end.gy-100]<<endl;
+	// exit(0);
 	// Array of states
 	State*** visited_state=new State**[map.VISX];
 	for(int i=0;i<map.VISX;i++)
@@ -134,10 +135,10 @@ vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,
 			{
 				time_end=clock();
 				it->parent = &(visited_state[(int)current.x][(int)current.y][grid_theta]);
-				it->cost2d = current.cost2d+1;
+				// it->cost2d = current.cost2d+1;
 				
 				if(DEBUG)
-					display.draw_tree(current,nextS);
+					display.draw_tree(current, nextS, scale);
 				
 				pq.push(*it);
 			}

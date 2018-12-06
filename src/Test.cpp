@@ -50,7 +50,7 @@ int main()
 
     float scale = 1000.0/obs_img.rows;
 	State start(12, 13, 0);
-	State target(604,804, 0);
+	State target(64,104, 0);
     
 	clock_t start_time=clock();
     vector<State> path = astar.plan(start, target, obs_map, car, fin_obs, scale);

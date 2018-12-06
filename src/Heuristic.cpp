@@ -2,6 +2,7 @@
 #include <limits.h>
 
 double Pi=M_PI;
+int xlimit,ylimit;
 
 // #define D_X 200
 // #define D_Y 200
@@ -16,7 +17,7 @@ class compareHeuristic{
 
 bool isvalid (Heuristic::smallestcost_2d neighbor)
 {
-	if (neighbor.x<0||neighbor.y<0||neighbor.x>=DX||neighbor.y>=DY)
+	if (neighbor.x<0||neighbor.y<0||neighbor.x>=xlimit||neighbor.y>=ylimit)
 		return false;
 	return true;
 }
@@ -28,48 +29,33 @@ float distance (Heuristic::smallestcost_2d source,Heuristic::smallestcost_2d nei
 
 void Heuristic::Dijkstra(Map map,State target)
 {
+    xlimit = map.VISX, ylimit = map.VISY;
 	priority_queue <smallestcost_2d,vector<smallestcost_2d>,compareHeuristic> pq;
 
-	int** grid_map=new int*[DX];
-	for(int i=0;i<DX;i++)
+	h_vals=new smallestcost_2d*[map.VISX];
+	for(int i=0;i<map.VISX;i++)
 	{
-		grid_map[i]=new int[DY];
-	}
-
-	for(int i=0;i<map.MAPX;i++)
-	{
-		for(int j=0;j<map.MAPY;j++)
-		{
-			if(map.obs_map[(int)(i/map.map_resolution)][(int)(j/map.map_resolution)])
-			grid_map[i*DX/map.MAPX][j*DY/map.MAPY]=1;
-		}
-	}
-
-	h_vals=new smallestcost_2d*[DX];
-	for(int i=0;i<DX;i++)
-	{
-		h_vals[i]=new smallestcost_2d[DY];
-        for (int j=0;j<DY;j++)
+		h_vals[i]=new smallestcost_2d[map.VISY];
+        for (int j=0;j<map.VISY;j++)
 			h_vals[i][j].dis=FLT_MAX;
 	}
 
-	bool **is_visited=new bool*[DX];
-	for (int i=0;i<DX;i++)
+	bool **is_visited=new bool*[map.VISX];
+	for (int i=0;i<map.VISX;i++)
 	{
-		is_visited[i]=new bool[DY];
-		for (int j=0;j<DY;j++)
+		is_visited[i]=new bool[map.VISY];
+		for (int j=0;j<map.VISY;j++)
 		{
 			is_visited[i][j]=false;
 		}
 	}
 
-	is_visited[target.gx*DX/map.MAPX][target.gy*DY/map.MAPY]=true;
+	is_visited[target.gx][target.gy]=true;
 
-	h_vals[target.gx*DX/map.MAPX][target.gy*DY/map.MAPY].dis=0;
-	h_vals[target.gx*DX/map.MAPX][target.gy*DY/map.MAPY].x=target.gx*DX/map.MAPX;
-	h_vals[target.gx*DX/map.MAPX][target.gy*DY/map.MAPY].y=target.gy*DY/map.MAPY;
-	pq.push(h_vals[target.gx*DX/map.MAPX][target.gy*DY/map.MAPY]);
-
+	h_vals[target.gx][target.gy].dis=0;
+	h_vals[target.gx][target.gy].x=target.gx;
+	h_vals[target.gx][target.gy].y=target.gy;
+	pq.push(h_vals[target.gx][target.gy]);
 
 	while (pq.size()>0)
 	{
@@ -88,9 +74,9 @@ void Heuristic::Dijkstra(Map map,State target)
 
 				if(!isvalid(neighbor))
                     continue;				
-				if ( grid_map[i][j]!=1 &&is_visited[i][j]==false )
+				if (map.obs_map[i][j]!=1 && is_visited[i][j]==false )
 				{
-					if (h_vals[i][j].dis>h_vals[temp.x][temp.y].dis+distance(temp,neighbor))
+					if (h_vals[i][j].dis > h_vals[temp.x][temp.y].dis+distance(temp,neighbor))
 					{
 						h_vals[i][j].dis=h_vals[temp.x][temp.y].dis+distance(temp,neighbor);
 						h_vals[i][j].x=i;

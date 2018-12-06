@@ -25,13 +25,13 @@ void GUI::draw_car(State state, Vehicle car,float map_resolution){
 	return;
 }
 
-void GUI::draw_tree(State state,State next)
+void GUI::draw_tree(State state,State next,float scale)
 {
 	Point root,child;
-	root.x=state.y;
-	root.y=state.x;
-	child.x=next.y; 
-	child.y=next.x;
+	root.x=state.y*scale;
+	root.y=state.x*scale;
+	child.x=next.y*scale; 
+	child.y=next.x*scale;
 	cout<<root.y<<" "<<root.x<<" "<<child.y<<" "<<child.x<<endl;
 	line(display, root, child, Scalar(0,0,255), 1);
 
