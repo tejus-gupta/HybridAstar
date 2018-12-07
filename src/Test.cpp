@@ -35,20 +35,24 @@ void mapCallback(const nav_msgs::OccupancyGrid::ConstPtr& msg)
    	obs_grid=*msg;
    	obs_map = new bool*[obs_grid.info.width];
 	for(int i=0; i<obs_grid.info.width; i++)
-	{
-	    obs_map[i] = new bool[obs_grid.info.height]; 
-	    for(int j=0; j<obs_grid.info.height; j++)
-	        obs_map[i][j] = (obs_grid.data[i*obs_grid.info.width+j]>= 90); 
-	}
+	    obs_map[i] = new bool[obs_grid.info.height];
+    
+    for(int i=0; i<obs_grid.info.width; i++) 
+	    for(int j=0; j < obs_grid.info.height; j++)
+	        obs_map[obs_grid.info.width -1 -i][j] = (obs_grid.data[i*obs_grid.info.width+j]>= 90 || obs_grid.data[i*obs_grid.info.width+j]==-1); 
+
+    // cout<<"Map "<<obs_grid.info.width<<" "<<obs_grid.info.height<<endl;
     vector<vector<Point> > temp_obs;
     obs.clear();
 
     Mat A(obs_grid.info.height, obs_grid.info.width, CV_8UC1, Scalar(0));
     for(int i=0;i<A.rows;i++)
-        for(int j=0;A.cols;j++)
+        for(int j=0;j<A.cols;j++)
             if(obs_map[i][j])
                 A.at<uchar>(i,j) = 255;
     
+    // cout<<"Before Canny"<<endl;
+
     int threshold=100;
     Canny(A,A,threshold,3*threshold,3);
 
@@ -57,6 +61,8 @@ void mapCallback(const nav_msgs::OccupancyGrid::ConstPtr& msg)
     
     for(int i=0;i<temp_obs.size();i++)
         convexHull(temp_obs[i],obs[i]);
+    
+    cout<<"Found Hull"<<endl;
 }
 
 void odomCallback(const nav_msgs::Odometry::ConstPtr& odom_msg) 
@@ -114,7 +120,6 @@ int main(int argc,char **argv)
     // ros::Subscriber sub1  = nh.subscribe("odometry/filtered",10,&odomCallback);
     ros::Subscriber sub2  = nh.subscribe("/map",10,&mapCallback);
     // ros::Subscriber goal  = nh.subscribe("/move_base_simple/goal",10,&goalCallback);
-    // ros::Subscriber obstacles = nh.subscribe("/costmap_converter/costmap_obstacles",10,&obstacleCallback);
 
     ros::Publisher  pub = nh.advertise<geometry_msgs::PoseArray>("/waypoint", 1000);
 
@@ -139,7 +144,7 @@ int main(int argc,char **argv)
         float scale=1000.0/obs_grid.info.width;
         
         State start(13,14,M_PI/2);
-        State target(13,74,M_PI/2);
+        State target(123,174,M_PI/2);
 
         // GUI display(1000, 1000);
         // display.draw_obstacles(obs_map,scale);
@@ -174,16 +179,17 @@ int main(int argc,char **argv)
         pub.publish(poseArray);
 
         // ROS_INFO("poseArray size: %i", poseArray.poses.size()); 
-        // GUI display(1000, 1000);
-        // display.draw_obstacles(obs_map,scale);
-        // display.draw_car(start,car,scale);
+        GUI display(1000, 1000);
+        display.draw_obstacles(obs_map,scale);
+        display.draw_car(start,car,scale);
 
-        // for(int i=0;i<=path.size();i++)
-        // {
-        //     display.draw_car(path[i], car,scale);
-        //     display.show(1);
-        // } 
-        // display.show();
+        for(int i=0;i<=path.size();i++)
+        {
+            display.draw_car(path[i], car,scale);
+            display.show(1);
+        } 
+        display.show();
+        exit(0);
         
         ros::spinOnce();
         rate.sleep();

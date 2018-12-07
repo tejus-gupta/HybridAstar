@@ -10,6 +10,8 @@ bool Planner::operator()(State a,State b)
 {
 	// Calculating max of Dubin's and Djikstra's
 	clock_t start_time=clock();
+	// double temp_a=H[a.gx][a.gy];
+	// double temp_b=H[b.gx][b.gy];
 	double temp_a=max(H[a.gx][a.gy],h_obj.Dubin_cost(a,target,veh.min_radius));
 	double temp_b=max(H[b.gx][b.gy],h_obj.Dubin_cost(b,target,veh.min_radius));
 	clock_t end_time=clock();
@@ -26,7 +28,7 @@ double dis (State a,State b)
 vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,vector<vector<Point> > obs,float scale)
 {
 
-	bool DEBUG = true;
+	bool DEBUG = false;
 	Map map(obs_map, end , obs, scale);                          //Object of Map class
 
 	veh = car;
@@ -36,7 +38,7 @@ vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,
     display.draw_obstacles(obs_map, scale);
     display.draw_car(start, car, scale);
     display.draw_car(end, car, scale);
-	display.show(0);
+	// display.show(0);
 
 	// Djikstra
 	clock_t time_begin= clock();
@@ -147,7 +149,8 @@ vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,
 
 			checkCollisionTime+=double(time_end-time_begin)/CLOCKS_PER_SEC;
 		}
-        display.show(1);
+		if(DEBUG)
+        	display.show(1);
 	}
 	cout<<"Goal cannot be reached"<<endl;
 	exit(0);
