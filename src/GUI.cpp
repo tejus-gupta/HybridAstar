@@ -25,6 +25,14 @@ void GUI::draw_car(State state, Vehicle car,float map_resolution){
 	return;
 }
 
+void GUI::draw_dubins( vector<State> Path,float scale )
+{
+	for(vector<State>::iterator next= Path.begin(); next!=Path.end();next++)
+		display.at<Vec3b>(next->x*scale,next->y*scale) ={ 128, 128, 128 };		
+
+	return ;
+}
+
 void GUI::draw_tree(State state,State next,float scale)
 {
 	Point root,child;

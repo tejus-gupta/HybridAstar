@@ -5,7 +5,7 @@ vector <State> Vehicle::nextStates(State* n, float scale_up)//vector<Vehicle::St
 	vector<State> next;
 	State t;
 	//alpha=steering angle, beta=turning angle, r=turning radius, d=distanced travelled
-	float alpha,beta,r,d=2; 
+	float alpha,beta,r,d=10; 
 
 	for(alpha=-BOT_MAX_ALPHA; alpha<=BOT_MAX_ALPHA+0.01; alpha+=BOT_MAX_ALPHA/2)
 	{
