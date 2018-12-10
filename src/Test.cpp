@@ -27,15 +27,15 @@ using namespace cv;
 
 State start,dest;
 nav_msgs::OccupancyGrid obs_grid;
-vector<vector<Point> > obs;
-bool** obs_map;
+vector< vector<Point> > obs;
+vector< vector< bool > > obs_map;
 
 void mapCallback(const nav_msgs::OccupancyGrid::ConstPtr& msg)
 {
    	obs_grid=*msg;
-   	obs_map = new bool*[obs_grid.info.width];
+   	obs_map.resize(obs_grid.info.width);
 	for(int i=0; i<obs_grid.info.width; i++)
-	    obs_map[i] = new bool[obs_grid.info.height];
+	    obs_map[i].resize(obs_grid.info.height);
     
     for(int i=0; i<obs_grid.info.width; i++) 
 	    for(int j=0; j < obs_grid.info.height; j++)
@@ -121,36 +121,26 @@ int main(int argc,char **argv)
     ros::Subscriber sub2  = nh.subscribe("/map",10,&mapCallback);
     // ros::Subscriber goal  = nh.subscribe("/move_base_simple/goal",10,&goalCallback);
 
-    ros::Publisher  pub = nh.advertise<geometry_msgs::PoseArray>("/waypoint", 1000);
-
-    geometry_msgs::PoseArray poseArray; 
-    poseArray.header.frame_id = "/map";
-
-    Vehicle car;
-    Planner astar;
-    Quaternion myQuaternion;
+    ros::Publisher  pub = nh.advertise<geometry_msgs::PoseArray>("/waypoint", 10);
     
-    ros::Rate rate(2);
+    // ros::Rate rate(1);
     while(ros::ok())
     {
-        poseArray.poses.clear();
-        astar.path.clear(); 
-        poseArray.header.stamp = ros::Time::now();
-
-        while(!obs_grid.info.width)
-        	ros::spinOnce();
-
-	    cout<<"Started "<<obs_grid.info.width<<" "<<obs_grid.info.height<<endl;
-        float scale=1000.0/obs_grid.info.width;
+        Planner astar;
+        Vehicle car;
+        geometry_msgs::PoseArray poseArray; 
+        
+        poseArray.header.frame_id = "/map";
         
         State start(13,14,M_PI/2);
-        State target(123,174,M_PI/2);
+        State target(23,174,M_PI/2); 
 
-        // GUI display(1000, 1000);
-        // display.draw_obstacles(obs_map,scale);
-        // display.draw_car(start,car,scale);
-        // display.draw_car(target,car,scale);
-        // display.show();
+        ros::spinOnce();
+        while(obs_map.empty())
+            ros::spinOnce();
+
+	    // cout<<"Started "<<obs_grid.info.width<<" "<<obs_grid.info.height<<endl;
+        float scale=1000.0/obs_grid.info.width;
 
         clock_t start_time=clock();
         vector<State> path = astar.plan(start, target, obs_map, car ,obs, scale);
@@ -164,7 +154,7 @@ int main(int argc,char **argv)
             pose.pose.position.y = (*ptr).y;
             pose.pose.position.z = 0;
 
-            myQuaternion=toQuaternion(0,0,(*ptr).theta);
+            Quaternion myQuaternion=toQuaternion(0,0,(*ptr).theta);
 
             pose.pose.orientation.x = myQuaternion.x;
             pose.pose.orientation.y = myQuaternion.y;
@@ -174,25 +164,24 @@ int main(int argc,char **argv)
             poseArray.poses.push_back(pose.pose);
         }
         cout<<"Total time taken: "<<(double)(end_time-start_time)/CLOCKS_PER_SEC<<endl;
-        cout<<"Got path of length "<<path.size()<<endl;
+        cout<<"Got path of length "<<path.size()<<endl<<endl;
 
+        poseArray.header.stamp = ros::Time::now();
         pub.publish(poseArray);
 
         // ROS_INFO("poseArray size: %i", poseArray.poses.size()); 
-        GUI display(1000, 1000);
-        display.draw_obstacles(obs_map,scale);
-        display.draw_car(start,car,scale);
+        // GUI display(1000, 1000);
+        // display.draw_obstacles(obs_map,scale);
+        // display.draw_car(start,car,scale);
 
-        for(int i=0;i<=path.size();i++)
-        {
-            display.draw_car(path[i], car,scale);
-            display.show(1);
-        } 
-        display.show();
-        exit(0);
-        
-        ros::spinOnce();
-        rate.sleep();
+        // for(int i=0;i<=path.size();i++)
+        // {
+        //     display.draw_car(path[i], car,scale);
+        //     display.show(1);
+        // } 
+        // display.show();
+        // ros::spinOnce();
+        // rate.sleep();
     }
 
 }

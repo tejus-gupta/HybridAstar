@@ -25,26 +25,33 @@ double dis (State a,State b)
 	return (sqrt((b.gx-a.gx)*(b.gx-a.gx)+(b.gy-a.gy)*(b.gy-a.gy)));
 }
 
-vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,vector<vector<Point> > obs,float scale)
+vector<State> Planner::plan(State start, State end, vector< vector< bool> > obs_map, Vehicle car,vector<vector<Point> > obs,float scale)
 {
 
 	bool DEBUG = false;
 	Map map(obs_map, end , obs, scale);                          //Object of Map class
 
 	veh = car;
-	target = end;                         
+	target = end;
+	t=0;                         
 	
 	GUI display(1000, 1000);
-    display.draw_obstacles(obs_map, scale);
-    display.draw_car(start, car, scale);
-    display.draw_car(end, car, scale);
-	// display.show(0);
+
+	if(DEBUG)
+	{
+		display.draw_obstacles(obs_map, scale);
+		display.draw_car(start, car, scale);
+		display.draw_car(end, car, scale);
+		display.show(1);
+	}
 
 	// Djikstra
 	clock_t time_begin= clock();
 	h_obj.Dijkstra(map,end);
 	clock_t time_end= clock();
-	cout<<"Time: Dijkstra= "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
+	
+	if(DEBUG)
+		cout<<"Time: Dijkstra= "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
 	
 	H=new double*[map.VISX];
 	for(int i=0;i<map.VISX;i++)
@@ -53,8 +60,7 @@ vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,
 	    for(int j=0;j<map.VISY;j++)
 			H[i][j]=h_obj.h_vals[i][j].dis;
 	}
-	// cout<<H[end.gx-100][end.gy]<<" "<<H[end.gx][end.gy-100]<<" "<<H[end.gx-100][end.gy-100]<<endl;
-	// exit(0);
+	
 	// Array of states
 	State*** visited_state=new State**[map.VISX];
 	for(int i=0;i<map.VISX;i++)
@@ -104,9 +110,12 @@ vector<State> Planner::plan(State start, State end, bool** obs_map, Vehicle car,
 		// Checks if it has reached the goal
 		if(map.isReached(current))
 		{
-			cout<<"Time :CollisionChecker= "<<checkCollisionTime<<endl;
-			cout<<"Time :nextStates= "<<nextStatesTime<<endl;
-			cout<<"Time :Dubins on spot = "<<t<<endl;
+			if(DEBUG)
+			{
+				cout<<"Time :CollisionChecker= "<<checkCollisionTime<<endl;
+				cout<<"Time :nextStates= "<<nextStatesTime<<endl;
+				cout<<"Time :Dubins on spot = "<<t<<endl;
+			}
 			cout<<"REACHED!"<<endl;
 			
 			State temp=current;

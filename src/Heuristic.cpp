@@ -56,7 +56,7 @@ void Heuristic::Dijkstra(Map map,State target)
 	h_vals[target.gx][target.gy].x=target.gx;
 	h_vals[target.gx][target.gy].y=target.gy;
 	pq.push(h_vals[target.gx][target.gy]);
-
+    
 	while (pq.size()>0)
 	{
 		smallestcost_2d temp;

@@ -3,7 +3,7 @@
 
 #include "../include/Map.hpp"
 
-Map::Map( bool **obs_map, State end,vector<vector<Point>> obs,float scale)
+Map::Map( vector< vector< bool> > obs_map, State end,vector<vector<Point>> obs,float scale)
 {
 	MAP_THETA=72;
     MAPX=1000;
