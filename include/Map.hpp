@@ -14,7 +14,7 @@ class Map{
 public:
     
     State end;
-    vector< vector< bool> > obs_map;
+    vector< vector <bool> > obs_map;
     int** acc_obs_map;
     float map_resolution;
     vector<border> bPoints; 
@@ -32,7 +32,7 @@ public:
     {
         
     }
-    Map(vector< vector< bool> >,State,vector<vector<Point>>,float);
+    Map(vector< vector<bool> >,State,vector<vector<Point>>,float);
     bool checkCollisionSat(State pos);
     bool helperSAT(vector <Point> v1,vector <Point> v2);
     void initCollisionChecker();

@@ -3,7 +3,7 @@
 
 #include "../include/Map.hpp"
 
-Map::Map( vector< vector< bool> > obs_map, State end,vector<vector<Point>> obs,float scale)
+Map::Map( vector< vector<bool> > obs_map, State end,vector<vector<Point>> obs,float scale)
 {
 	MAP_THETA=72;
     MAPX=1000;
@@ -27,7 +27,7 @@ bool Map::isReached(State current)
  	/* In this we could have int in place of bool which tells distance between them so 
  	thst we could act accordingly && fabs(Curr.theta-End.theta)<5*/
 
-	if( abs(current.x - end.x) < 5 && abs(current.y - end.y) < 5 && (abs(current.theta - end.theta) < M_PI/9 || abs(current.theta - 72 + end.theta) < 3.14/9))
+	if( abs(current.x - end.x) < 15 && abs(current.y - end.y) < 15 && (abs(current.theta - end.theta) < M_PI/6 || abs(current.theta - 72 + end.theta) < 3.14/6))
 		return true;
  	else return false;
 }
