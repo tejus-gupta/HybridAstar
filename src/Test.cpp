@@ -16,10 +16,10 @@
  
 typedef struct _Quaternion
 {
-	float x;
-	float y;
-	float z;
-	float w;
+    float x;
+    float y;
+    float z;
+    float w;
 }Quaternion;
 
 
@@ -29,37 +29,117 @@ State start,dest;
 nav_msgs::OccupancyGrid obs_grid;
 vector< vector<Point> > obs;
 vector< vector< bool > > obs_map;
+vector< vector<Point> > obs_copy;
+
 
 void mapCallback(const nav_msgs::OccupancyGrid::ConstPtr& msg)
 {
-   	obs_grid=*msg;
-   	obs_map.resize(obs_grid.info.width);
-	for(int i=0; i<obs_grid.info.width; i++)
-	    obs_map[i].resize(obs_grid.info.height);
+    obs_grid=*msg;
+    obs_map.resize(obs_grid.info.width);
+    for(int i=0; i<obs_grid.info.width; i++)
+        obs_map[i].resize(obs_grid.info.height);
     
     for(int i=0; i<obs_grid.info.width; i++) 
-	    for(int j=0; j < obs_grid.info.height; j++)
-	        obs_map[obs_grid.info.width -1 -i][j] = (obs_grid.data[i*obs_grid.info.width+j]>= 90 || obs_grid.data[i*obs_grid.info.width+j]==-1); 
+        for(int j=0; j < obs_grid.info.height; j++)
+            obs_map[obs_grid.info.width -1 -i][j] = (obs_grid.data[i*obs_grid.info.width+j]>= 90 || obs_grid.data[i*obs_grid.info.width+j]==-1); 
 
     // cout<<"Map "<<obs_grid.info.width<<" "<<obs_grid.info.height<<endl;
-    // CANNNNY
+    obs.clear();
+
     Mat A(obs_grid.info.height, obs_grid.info.width, CV_8UC1, Scalar(0));
     for(int i=0;i<A.rows;i++)
         for(int j=0;j<A.cols;j++)
             if(obs_map[i][j])
                 A.at<uchar>(i,j) = 255;
-      
-    // cout<<"Before Canny"<<endl;
 
+
+    // vector <Point> a;
+    // vector <Point> b;
+    // vector <Point> c;
+    // a.push_back(Point(64,105));
+    // a.push_back(Point(64,185));
+    // a.push_back(Point(280,185));
+    // a.push_back(Point(280,105));
+    // obs.push_back(a);
+    // b.push_back(Point(64,225));
+    // b.push_back(Point(64,310));
+    // b.push_back(Point(280,310));
+    // b.push_back(Point(280,225));
+    // obs.push_back(b);
+    // c.push_back(Point(64,335));
+    // c.push_back(Point(64,430));
+    // c.push_back(Point(280,430));
+    // c.push_back(Point(280,335));
+    // obs.push_back(c );
+
+
+    // cout<<"Before Canny"<<endl;
     int threshold=100;
     Canny(A,A,threshold,3*threshold,3);
 
     vector< vector< Point > > temp_obs;
     findContours(A, temp_obs, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
     obs.resize(temp_obs.size());
-    
+  
+/*
+	For printing the output of Contour Detection
+*/    
+
+ //    vector<Vec4i> hierarchy;
+ //    Mat drawing = Mat::zeros( A.size(), CV_8UC3 );
+ //	   for( int i = 0; i< temp_obs.size(); i++ )
+ //    {
+ //       Scalar color = Scalar( 0,255,255);
+ //       drawContours( drawing, temp_obs, i, color, 2, 8, hierarchy, 0, Point() );
+ //    }
+
+ //    imshow("Contours ",drawing);
+ //    waitKey(0);
+
     for(int i=0;i<temp_obs.size();i++)
         convexHull(temp_obs[i],obs[i]);
+
+/*
+	For printing the output of Convex Hull
+*/    
+ //    Mat drawing = Mat::zeros( A.size(), CV_8UC3 );
+ //    for( int i = 0; i< temp_obs.size(); i++ )
+ //    {
+ //        Scalar color = Scalar( 0, 0, 255 );
+ //        Scalar color1 = Scalar( 0, 255, 255 );
+ //        drawContours( drawing, temp_obs, i, color, 1, 8, vector<Vec4i>(), 0, Point() );
+ //        drawContours( drawing, obs, i, color1, 1, 8, vector<Vec4i>(), 0, Point() );
+ //    }
+ //    imshow("Contours ",drawing);
+ //    waitKey(0);
+
+/*
+	For printing the points of Convex Hull
+*/
+    obs_copy.resize(obs.size());
+    for (int i = 0; i < obs.size(); ++i)
+    {
+        obs_copy[i].resize(obs[i].size());
+    	for (int j = 0; j < obs[i].size(); ++j)
+    	{
+    		obs_copy[i][j].x=obs[i][j].y;
+    		obs_copy[i][j].y=obs[i][j].x;
+    	}
+    }
+    // Mat drawing = Mat::zeros( A.size(), CV_8UC3 );
+    // for( int i = 0; i< temp_obs.size(); i++ )
+    // {
+    //     Scalar color = Scalar( 0, 0, 255 );
+    //     Scalar color1 = Scalar( 0, 255, 255 );
+    //     // drawContours( drawing, temp_obs, i, color, 1, 8, vector<Vec4i>(), 0, Point() );
+    //     drawContours( drawing, obs_copy, i, color1, 1, 8, vector<Vec4i>(), 0, Point() );
+    // }
+    // imshow("Contours ",drawing);
+    // waitKey(0);
+    // exit(0);
+
+    // cout<<"Found Hull"<<endl;
+
     
     // cout<<"THE Found Hull"<<endl;
     // Mat imgp(obs_grid.info.height*5,obs_grid.info.width*5, CV_8UC1,Scalar(0));
@@ -102,26 +182,26 @@ void goalCallback(const nav_msgs::Odometry::ConstPtr&  goal)
 
 Quaternion toQuaternion(double pitch, double roll, double yaw)
 {
-	Quaternion q;
+    Quaternion q;
     // Abbreviations for the various angular functions
-	double cy = cos(yaw * 0.5);
-	double sy = sin(yaw * 0.5);
-	double cr = cos(roll * 0.5);
-	double sr = sin(roll * 0.5);
-	double cp = cos(pitch * 0.5);
-	double sp = sin(pitch * 0.5);
+    double cy = cos(yaw * 0.5);
+    double sy = sin(yaw * 0.5);
+    double cr = cos(roll * 0.5);
+    double sr = sin(roll * 0.5);
+    double cp = cos(pitch * 0.5);
+    double sp = sin(pitch * 0.5);
 
-	q.w = cy * cr * cp + sy * sr * sp;
-	q.x = cy * sr * cp - sy * cr * sp;
-	q.y = cy * cr * sp + sy * sr * cp;
-	q.z = sy * cr * cp - cy * sr * sp;
-	return q;
+    q.w = cy * cr * cp + sy * sr * sp;
+    q.x = cy * sr * cp - sy * cr * sp;
+    q.y = cy * cr * sp + sy * sr * cp;
+    q.z = sy * cr * cp - cy * sr * sp;
+    return q;
 }
 
 
 int main(int argc,char **argv)
 { 
-	 
+
     ros::init(argc,argv,"hybrid_astar");
     ros::NodeHandle nh;
 
@@ -131,7 +211,8 @@ int main(int argc,char **argv)
 
     ros::Publisher  pub = nh.advertise<geometry_msgs::PoseArray>("/waypoint", 10);
     
-    // ros::Rate rate(1);
+    ros::Rate rate(1);
+    int count=1;
     while(ros::ok())
     {
         Planner astar;
@@ -139,19 +220,19 @@ int main(int argc,char **argv)
         geometry_msgs::PoseArray poseArray; 
         
         poseArray.header.frame_id = "/map";
-         
-        State start(5,7,M_PI/2);
-        State target(25,154,M_PI/2);  
+        
+        State start(10,10,CV_PI/2);
+        State target(10,204,CV_PI/2); 
 
         ros::spinOnce();
         while(obs_map.empty())
             ros::spinOnce();
 
-	    // cout<<"Started "<<obs_grid.info.width<<" "<<obs_grid.info.height<<endl;
+        // cout<<"Started "<<obs_grid.info.width<<" "<<obs_grid.info.height<<endl;
         float scale=1000.0/obs_grid.info.width;
 
         clock_t start_time=clock();
-        vector<State> path = astar.plan(start, target, obs_map, car ,obs, scale);
+        vector<State> path = astar.plan(start, target, obs_map, car ,obs_copy, scale);
         clock_t end_time=clock();
 
         vector<State>::iterator ptr;
@@ -188,9 +269,16 @@ int main(int argc,char **argv)
         //     display.show(1);
         // } 
         // display.show();
+
+        ros::spinOnce();
         // exit(0);
         // ros::spinOnce();
         // rate.sleep();
+
+        cout<<count<<endl;
+        if( count==10 ) exit(0);
+        count++;
     }
 
 }
+

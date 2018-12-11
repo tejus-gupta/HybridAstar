@@ -17,7 +17,7 @@ bool Planner::operator()(State a,State b)
 	return (a.cost2d+temp_a > b.cost2d+temp_b);
 }
 
-vector<State> Planner::plan(State start, State end, vector< vector<bool> > obs_map, Vehicle car,vector<vector<Point> > obs,float scale)
+vector<State> Planner::plan(State start, State end, vector<vector<bool> >  obs_map, Vehicle car,vector<vector<Point> > obs,float scale)
 {
 
 	bool DEBUG = false;
@@ -26,21 +26,28 @@ vector<State> Planner::plan(State start, State end, vector< vector<bool> > obs_m
 
 	veh = car;
 	target = end;                         
+	
 	if(DEBUG)
 	{
 	    display.draw_obstacles(obs_map, scale);
 	    display.draw_car(start, car, scale);
 	    display.draw_car(end, car, scale);
-		display.show(1000);
+	    display.show();
 	}   
 
-	/* Djikstra Starts */
+	// State temp(150,400,0);
+	// display.draw_obstacles(obs_map, scale);
+	// display.draw_car(temp, car, scale);
+	// cout<<map.checkCollisionSat(temp)<<endl; 
+	// display.show();
+
+	// exit(0);
+
 	// Djikstra Calculation
 	clock_t time_begin= clock();
 	h_obj.Dijkstra(map,end);
 	clock_t time_end= clock();
-	if(DEBUG)
-		cout<<"Time: Dijkstra= "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
+	cout<<"Time: Dijkstra= "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
 
 	// Djikstra Copying
 	time_begin= clock();
@@ -48,28 +55,28 @@ vector<State> Planner::plan(State start, State end, vector< vector<bool> > obs_m
 	for(int i=0;i<map.VISX;i++)
 	    for(int j=0;j<map.VISY;j++)
 			H[i][j]=h_obj.h_vals[i][j].dis;
+	time_end= clock();
+	cout<<"Time: Dijkstra Copying= "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
 			
 	// Memory freeing
 	for(int i=0;i<map.VISX;i++)
 		delete[] h_obj.h_vals[i];
 	delete[] h_obj.h_vals;	
 
-	time_end= clock();
-	if(DEBUG)
-		cout<<"Time: Dijkstra Copying= "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
-	/* Djikstra Ends */
 
 	// Array of states allocation
 	time_begin= clock();
 	vector< vector< vector< State > > > visited_state(map.VISX,vector< vector< State > >(map.VISY,vector< State >(map.MAP_THETA)));	
+	time_end= clock();
+	cout<<"Time: Array of States Allocation = "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
+
 
 	// To mark the visited states MAPX, MAPY and MAP_THETA are to be imported from the Map class
 	time_begin= clock();
 	vector< vector< vector< bool > > > visited(map.VISX,vector< vector< bool > >(map.VISY,vector< bool >(map.MAP_THETA,false)));
-	
 	time_end= clock();
-	if(DEBUG)
-		cout<<"Time: Visited & Array of States Allocation = "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
+	cout<<"Time: Visited Array of States Allocation = "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
+
 
 	priority_queue <State, vector<State>, Planner> pq;
 	pq.push(start);
@@ -89,7 +96,6 @@ vector<State> Planner::plan(State start, State end, vector< vector<bool> > obs_m
 		int grid_theta=((int)(current.theta*map.MAP_THETA/(2*PI)))%map.MAP_THETA; 
 		if( visited[(int)current.x][(int)current.y][grid_theta] )
 			continue;
-		
 		visited[(int)current.x][(int)current.y][grid_theta] = true;
 		visited_state[(int)current.x][(int)current.y][grid_theta] = current;
 
@@ -99,12 +105,9 @@ vector<State> Planner::plan(State start, State end, vector< vector<bool> > obs_m
 		// Checks if it has reached the goal
 		if(map.isReached(current))
 		{
-			if(DEBUG)
-			{
-				cout<<"Time :CollisionChecker= "<<checkCollisionTime<<endl;
-				cout<<"Time :nextStates= "<<nextStatesTime<<endl;
-				cout<<"Time :Dubins on spot = "<<t<<endl;
-			}
+			cout<<"Time :CollisionChecker= "<<checkCollisionTime<<endl;
+			cout<<"Time :nextStates= "<<nextStatesTime<<endl;
+			cout<<"Time :Dubins on Spot = "<<t<<endl;
 			cout<<"REACHED!"<<endl;
 			
 			State temp=current;
@@ -114,12 +117,13 @@ vector<State> Planner::plan(State start, State end, vector< vector<bool> > obs_m
 				path.push_back(temp);
 				temp=*(temp.parent);
 			}
-			reverse(path.begin(), path.end());
+			reverse(path.begin(), path.end());			
 			return path;
 		}
-		
-		if(count%4)
+
+		if( count%4!=0 )
 		{
+
 			time_begin=clock();
 			vector<State> next=car.nextStates(&current,scale);
 			time_end=clock();
@@ -143,8 +147,9 @@ vector<State> Planner::plan(State start, State end, vector< vector<bool> > obs_m
 					if(DEBUG)
 				    {
 						display.draw_tree(current,nextS,1);
-			        	display.show(1);
+			        	display.show();
 				    }
+					
 					pq.push(*it);
 				}
 				else
@@ -152,19 +157,14 @@ vector<State> Planner::plan(State start, State end, vector< vector<bool> > obs_m
 
 				checkCollisionTime+=double(time_end-time_begin)/CLOCKS_PER_SEC;
 			}
+
 		}
-		else
-		{	
+		else{
+			
 			time_begin=clock();
 			vector<State> Path = h_obj.DubinShot(current,end,car.min_radius);
 			time_end=clock();
 			nextStatesTime+=double(time_end-time_begin)/CLOCKS_PER_SEC;
-
-			if(DEBUG)
-			{
-				display.draw_dubins(Path, scale);
-			    display.show(10);
-			}
 
 			State prev=current,check=current;
 			
@@ -173,12 +173,9 @@ vector<State> Planner::plan(State start, State end, vector< vector<bool> > obs_m
 				State nextS = *it;
 				if(map.isReached(nextS))
 				{
-					if(DEBUG)
-					{
-						cout<<"Time :CollisionChecker= "<<checkCollisionTime<<endl;
-						cout<<"Time :nextStates= "<<nextStatesTime<<endl;
-						cout<<"Time :Dubins on spot = "<<t<<endl;
-					}
+					cout<<"Time :CollisionChecker= "<<checkCollisionTime<<endl;
+					cout<<"Time :nextStates= "<<nextStatesTime<<endl;
+					cout<<"Time :Dubins on Spot = "<<t<<endl;
 					cout<<"REACHED!"<<endl;
 
 					State temp=check;
@@ -229,7 +226,12 @@ vector<State> Planner::plan(State start, State end, vector< vector<bool> > obs_m
 				else
 				{
 				    if(DEBUG)
+					{
 						cout<<"Collided "<<endl;
+						Path.erase(it,Path.end());
+						display.draw_dubins( Path,scale );
+					    display.show();
+					}
 
 					time_end=clock();
 					checkCollisionTime+=double(time_end-time_begin)/CLOCKS_PER_SEC;

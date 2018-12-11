@@ -104,6 +104,7 @@ bool Map::checkCollision(State pos){
 */
 void Map::initCollisionCheckerSat()
 {
+	bool DEBUG=false;
 	for (int i = 0; i < obs.size(); ++i)
 	{
 		border temp;
@@ -120,6 +121,8 @@ void Map::initCollisionCheckerSat()
 			if( obs[i][j].y>temp.Ymax )
 				temp.Ymax=obs[i][j].y;
 		}
+		if(DEBUG)
+			cout<<temp.Xmax<<" "<<temp.Xmin<<" "<<temp.Ymax<<" "<<temp.Ymin<<endl;
 		bPoints.push_back(temp);
 	}
 }
@@ -128,6 +131,9 @@ void Map::initCollisionCheckerSat()
 bool Map::checkCollisionSat(State pos)
 {
 	bool DEBUG=false;
+
+	if(DEBUG)
+		cout<<"Inside checkCollisionSat "<<endl;
 
 	if(pos.x >= VISX || pos.x<0 || pos.y >= VISY || pos.y<0 )
 		return true;
@@ -186,12 +192,24 @@ bool Map::checkCollisionSat(State pos)
 	if(DEBUG)
 		cout<<Xmax<<" "<<Xmin<<" "<<Ymax<<" "<<Ymin<<endl;
 
+	// cout<<"obs.size() "<<obs.size()<<endl;
 	for (int i = 0; i < obs.size() ; ++i)
 	{
+		if(DEBUG)
+		{
+			cout<<(bPoints[i].Xmax<Xmin )<<" "<<( bPoints[i].Xmin>Xmax )<<" "<<( bPoints[i].Ymin>Ymax )<<" "<<(bPoints[i].Ymax<Ymin ) <<endl; 
+			cout<<bPoints[i].Xmax<<" "<<Xmin<<" "<< bPoints[i].Xmin<<" "<<Xmax <<" "<< bPoints[i].Ymin<<" "<<Ymax <<" "<<bPoints[i].Ymax<<" "<<Ymin  <<endl; 
+		}
+		
 		if( !(bPoints[i].Xmax<Xmin || bPoints[i].Xmin>Xmax || bPoints[i].Ymin>Ymax || bPoints[i].Ymax<Ymin ) ) 
 		{
 			if( helperSAT( v1 , obs[i] ) )
 				return true;
+		}
+		else
+		{
+			if(DEBUG) 
+				cout<<"Used This MF"<<endl;
 		}
 	}
 
@@ -204,6 +222,10 @@ bool Map::checkCollisionSat(State pos)
 bool Map::helperSAT(vector <Point> v1,vector <Point> v2)
 {
 	bool DEBUG=false;
+	
+	if(DEBUG)
+		cout<<"Inside Helper SAT "<<endl;
+	
 	double slope,theta,alpha;
 	double dis;
 	double rmin1,rmax1,rmin2,rmax2;

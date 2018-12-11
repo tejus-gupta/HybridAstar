@@ -11,5 +11,5 @@ class Planner
 		Planner(){}
 		bool operator()(State a,State b);
 		vector<State> path;
-		vector<State> plan(State,State,vector< vector<bool> >,Vehicle, vector<vector<Point>> obs, float scale);
+		vector<State> plan(State,State,vector<vector<bool> > ,Vehicle, vector<vector<Point>> obs, float scale);
 };
