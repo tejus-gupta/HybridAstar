@@ -1,0 +1,893 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"thet",
+				"theta_thresh"
+			],
+			[
+				"h",
+				"h_vals"
+			],
+			[
+				"g",
+				"grid_theta"
+			],
+			[
+				"cu",
+				"current"
+			],
+			[
+				"c",
+				"current"
+			],
+			[
+				"cut",
+				"cout"
+			],
+			[
+				"ne",
+				"next_theta"
+			],
+			[
+				"n",
+				"next"
+			],
+			[
+				"nex",
+				"next_state"
+			],
+			[
+				"i",
+				"i"
+			],
+			[
+				"right",
+				"right-left"
+			],
+			[
+				"bu",
+				"bucket"
+			],
+			[
+				"b",
+				"bucket"
+			],
+			[
+				"bucket",
+				"bucket_size"
+			],
+			[
+				"left",
+				"left_2"
+			],
+			[
+				"lef",
+				"left_2"
+			],
+			[
+				"j",
+				"j-1"
+			],
+			[
+				"In",
+				"InsertionSort"
+			],
+			[
+				"a",
+				"ary_idx2"
+			],
+			[
+				"ha",
+				"hashFunction"
+			],
+			[
+				"pr",
+				"prst"
+			],
+			[
+				"re",
+				"recursiveMax"
+			],
+			[
+				"p",
+				"pMax"
+			],
+			[
+				"N",
+				"NODEPTR"
+			],
+			[
+				"Node",
+				"NODEPTR"
+			],
+			[
+				"obs",
+				"obsmap"
+			],
+			[
+				"end",
+				"End"
+			],
+			[
+				"l",
+				"leftchild"
+			],
+			[
+				"snt",
+				"sent_rigt"
+			],
+			[
+				"sen",
+				"sent_left"
+			],
+			[
+				"Inse",
+				"Insertion"
+			],
+			[
+				"righ",
+				"rightchild"
+			],
+			[
+				"ri",
+				"rightchild"
+			],
+			[
+				"se",
+				"sent_left"
+			],
+			[
+				"r",
+				"rightchild"
+			],
+			[
+				"I",
+				"Insertion"
+			],
+			[
+				"lfe",
+				"left_rotation"
+			],
+			[
+				"is",
+				"isLeft"
+			],
+			[
+				"out",
+				"out_data"
+			],
+			[
+				"me",
+				"mean_y"
+			],
+			[
+				"mean",
+				"mean_x"
+			],
+			[
+				"cl",
+				"cluster"
+			],
+			[
+				"Matr",
+				"MatrixXd"
+			],
+			[
+				"C",
+				"Cluster_Data"
+			],
+			[
+				"dst_clus",
+				"dst_clustering2"
+			],
+			[
+				"dst",
+				"dst_clustering2"
+			],
+			[
+				"CV",
+				"CV_8UC3"
+			],
+			[
+				"dst_",
+				"dst_grad"
+			],
+			[
+				"ds",
+				"dst_clustering"
+			],
+			[
+				"cv",
+				"CV_8UC3"
+			],
+			[
+				"P",
+				"Points"
+			],
+			[
+				"S",
+				"STOPLINE"
+			],
+			[
+				"E",
+				"EUCLIDEAN"
+			],
+			[
+				"thresh",
+				"threshold2"
+			],
+			[
+				"thres",
+				"thres1"
+			],
+			[
+				"thre",
+				"thres"
+			],
+			[
+				"line",
+				"lines"
+			],
+			[
+				"st",
+				"start"
+			],
+			[
+				"q",
+				"qp"
+			],
+			[
+				"de",
+				"dequeue"
+			],
+			[
+				"v",
+				"vInd"
+			],
+			[
+				"en",
+				"enqueue"
+			],
+			[
+				"vi",
+				"visited"
+			],
+			[
+				"sr",
+				"start"
+			],
+			[
+				"in",
+				"init"
+			],
+			[
+				"Sta",
+				"STACK"
+			],
+			[
+				"str",
+				"string"
+			],
+			[
+				"cost",
+				"cost_max"
+			],
+			[
+				"sum",
+				"sum_global"
+			],
+			[
+				"sum_",
+				"sum_global"
+			],
+			[
+				"su",
+				"sum_global"
+			],
+			[
+				"sl",
+				"slope_curr"
+			],
+			[
+				"slo",
+				"slope_next"
+			],
+			[
+				"m",
+				"moments"
+			],
+			[
+				"la",
+				"last_y"
+			],
+			[
+				"x",
+				"x_1"
+			],
+			[
+				"y",
+				"y_2"
+			],
+			[
+				"s",
+				"shape"
+			],
+			[
+				"ran",
+				"randn"
+			],
+			[
+				"b_1",
+				"b_1"
+			],
+			[
+				"tra",
+				"train_set_y"
+			],
+			[
+				"tr",
+				"train_set_x"
+			],
+			[
+				"train_set_x_",
+				"train_set_x_1"
+			],
+			[
+				"train",
+				"train_set_x"
+			],
+			[
+				"trai",
+				"train_set_y"
+			],
+			[
+				"dim",
+				"dim_test"
+			],
+			[
+				"tes",
+				"test_set_x_orig"
+			],
+			[
+				"ou",
+				"output1"
+			],
+			[
+				"co",
+				"count"
+			],
+			[
+				"d",
+				"diff_0"
+			],
+			[
+				"cla",
+				"classes"
+			],
+			[
+				"ar",
+				"argc"
+			],
+			[
+				"top_",
+				"top_view_rgb"
+			],
+			[
+				"lm",
+				"lm_2"
+			],
+			[
+				"dest",
+				"destination"
+			],
+			[
+				"video",
+				"VideoWriter"
+			],
+			[
+				"f",
+				"f"
+			],
+			[
+				"des",
+				"destination"
+			],
+			[
+				"IM",
+				"Img"
+			],
+			[
+				"CENT",
+				"centroid"
+			],
+			[
+				"K",
+				"K"
+			],
+			[
+				"Dist",
+				"Distance"
+			],
+			[
+				"pu",
+				"push_back"
+			],
+			[
+				"min",
+				"Min_Index"
+			],
+			[
+				"Mi",
+				"Min_Index"
+			],
+			[
+				"Poin",
+				"Points"
+			],
+			[
+				"Poi",
+				"Points"
+			],
+			[
+				"be",
+				"bettermodel"
+			],
+			[
+				"ma",
+				"maybeinliner"
+			],
+			[
+				"best",
+				"besterr"
+			],
+			[
+				"Q",
+				"Quadratic_Regression"
+			],
+			[
+				"X",
+				"X_data"
+			],
+			[
+				"Y",
+				"Y_data"
+			],
+			[
+				"Dat",
+				"Data"
+			],
+			[
+				"Data",
+				"Data_size"
+			],
+			[
+				"da",
+				"data_size"
+			],
+			[
+				"data",
+				"datapoints"
+			],
+			[
+				"M",
+				"MatrixXd"
+			],
+			[
+				"th",
+				"threshold"
+			],
+			[
+				"V",
+				"Vec3f"
+			],
+			[
+				"Path",
+				"PathPlanner"
+			],
+			[
+				"img",
+				"img1"
+			],
+			[
+				"PK",
+				"Pk"
+			],
+			[
+				"le",
+				"letters_guessed"
+			],
+			[
+				"secret",
+				"secret_word"
+			],
+			[
+				"t",
+				"templ"
+			],
+			[
+				"e",
+				"enlarged"
+			],
+			[
+				"arae",
+				"area1"
+			]
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 372.0,
+		"last_filter": "Package Control: ",
+		"selected_items":
+		[
+			[
+				"Package Control: ",
+				"Package Control: Install Package"
+			],
+			[
+				"",
+				"Install Package Control"
+			]
+		],
+		"width": 449.0
+	},
+	"console":
+	{
+		"height": 174.0,
+		"history":
+		[
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/home/shrey/NSSC/Astar_bfsincluded.cpp",
+		"/home/shrey/NSSC/ImgCapture.cpp",
+		"/home/shrey/CP/ConceptsOfSorting",
+		"/home/shrey/HybridAstar/src/Changes",
+		"/home/shrey/HybridAstar/src/Test.cpp",
+		"/home/shrey/HybridAstar/src/GUI.cpp",
+		"/home/shrey/HybridAstar/include/GUI.hpp",
+		"/home/shrey/HybridAstar/src/Heuristic.cpp",
+		"/home/shrey/HybridAstar/include/Heuristic.hpp",
+		"/home/shrey/HybridAstar/include/Planner.hpp",
+		"/home/shrey/HybridAstar/src/Planner.cpp",
+		"/home/shrey/HybridAstar/src/Map.cpp",
+		"/home/shrey/HybridAstar/include/Map.hpp",
+		"/home/shrey/HybridAstar/include/Vehicle.hpp",
+		"/home/shrey/HybridAstar/src/Vehicle.cpp",
+		"/home/shrey/HybridAstar/include/State.hpp",
+		"/home/shrey/Desktop/HybridAstarnew/src/Heuristic.cpp",
+		"/home/shrey/AGV/AGV-TASK/Lane_Detection/Makefile",
+		"/home/shrey/AGV/Code/IGVC/Makefile",
+		"/home/shrey/HybridAstar/Makefile",
+		"/home/shrey/HybridAstar/src/Makefile",
+		"/home/shrey/HybridAstar/src/test.cpp",
+		"/home/shrey/CP/Algorithms Lab/Sorting/MyQuickSort.cpp",
+		"/home/shrey/CP/Algorithms Lab/Sorting/QuickSort.cpp",
+		"/home/shrey/CP/Algorithms Lab/Sorting/BucketSort.cpp",
+		"/home/shrey/CP/Algorithms Lab/Sorting/CountingSort.cpp",
+		"/home/shrey/CP/Algorithms Lab/Sorting/RadixSort.cpp",
+		"/home/shrey/CP/Algorithms Lab/Sorting/Time.cpp",
+		"/home/shrey/CP/Resources/ConceptsOfSTLFunctions",
+		"/home/shrey/CP/Resources/ConceptsOfContainers",
+		"/home/shrey/AGV/Code/Hybrid Astar/ConceptsOfContainers",
+		"/home/shrey/AGV/Code/Hybrid Astar/ConceptsOfSTLFunctions.cpp",
+		"/home/shrey/CP/ALGO Lab/Sorting/QuickSort.cpp",
+		"/home/shrey/Husky.cpp",
+		"/home/shrey/AGV/Code/StopLine/WithLane.cpp",
+		"/home/shrey/AGV/Code/StopLine/BasicThresholding.cpp",
+		"/home/shrey/Winter_Workshop/Day2_7.cpp",
+		"/home/shrey/AGV/Code/StopLine/Dataset/output.txt",
+		"/home/shrey/AGV/Code/StopLine/Dataset/Tester.cpp",
+		"/home/shrey/Winter_Workshop/Day2_8.cpp",
+		"/home/shrey/AGV/Code/Hybrid Astar/Thinking",
+		"/home/shrey/Sem_3/ALGO Lab/Sorting/DutchNationalFlagProblem.cpp",
+		"/home/shrey/Sem_3/ALGO Lab/Sorting/InsertionSort.cpp",
+		"/home/shrey/Sem_3/ALGO Lab/Sorting/CountingSort.cpp",
+		"/home/shrey/Sem_3/ALGO Lab/Sorting/Time.cpp",
+		"/home/shrey/CP/LIMITS.cpp",
+		"/home/shrey/CP/CheckInputLimit.cpp",
+		"/home/shrey/AGV/Code/Hybrid Astar/ConceptsOfMap",
+		"/home/shrey/Algorithms/Code/QuickSort.cpp",
+		"/home/shrey/Sem_3/ALGO Lab/Sorting/QuickSort.cpp",
+		"/home/shrey/Sem_3/ALGO Lab/Sorting/MergeSort.cpp",
+		"/home/shrey/Sem_3/ALGO Lab/Sorting/BubbleSort.cpp",
+		"/home/shrey/.config/sublime-text-3/Packages/User/Preferences.sublime-settings",
+		"/home/shrey/Algorithms/Classes/ Concept of Classes ",
+		"/home/shrey/Downloads/Planner.cpp",
+		"/home/shrey/AGV/Code/StopLine/Makefile",
+		"/home/shrey/Sem_3/ALGO Lab/HashTableBasicChaining.cpp",
+		"/home/shrey/Sem_3/ALGO Lab/PuntoAndQunto.cpp",
+		"/home/shrey/Sem_3/ALGO Lab/RedBlackTrees.cpp",
+		"/home/shrey/Sem_3/ALGO Lab/CheckLongInt.cpp",
+		"/home/shrey/Code_Chef/LIMITS.cpp",
+		"/home/shrey/HybridAstar/CMakeLists.txt",
+		"/home/shrey/HybridAstar/build/CMakeList",
+		"/home/shrey/AGV/Code/CheckBoolInitialization.cpp",
+		"/home/shrey/AGV/Code/Hybrid Astar/map.cpp",
+		"/home/shrey/AGV/Code/Hybrid Astar/include/map.hpp",
+		"/home/shrey/AGV/Code/StopLine/ConnectedComponents1.cpp",
+		"/home/shrey/AGV/Code/StopLine/Stopline_Update.cpp",
+		"/home/shrey/AGV/Code/StopLine/IPM_Angle.cpp",
+		"/home/shrey/AGV/Code/StopLine/int cnt_bucket[20];",
+		"/home/shrey/AGV/Code/StopLine/ConnectedComponents1",
+		"/home/shrey/AGV/Code/Hybrid Astar/CheckBitset.cpp",
+		"/home/shrey/Sem_3/ALGO Lab/BinaryTrees.cpp",
+		"/home/shrey/.config/sublime-text-3/Packages/Default/Preferences.sublime-settings",
+		"/home/shrey/AGV/Code/StopLine/AfterClustering.cpp",
+		"/home/shrey/AGV/Code/StopLine/IntensityThresholding.cpp",
+		"/home/shrey/AGV/Code/StopLine/try2.cpp",
+		"/home/shrey/AGV/Code/K_Means.cpp",
+		"/home/shrey/AGV/Code/StopLineDetection.cpp",
+		"/home/shrey/AGV/AGV-TASK/Kalman_Code/Kalman.cpp",
+		"/home/shrey/AGV/Code/try2.cpp",
+		"/home/shrey/AGV/Code/CheckRandomGenerator.cpp",
+		"/home/shrey/Sem_3/ALGO Lab/Assingment2_Late.cpp",
+		"/home/shrey/Winter_Workshop/Day2_5Trackbar.cpp",
+		"/home/shrey/opencv/modules/core/src/kmeans.cpp",
+		"/home/shrey/Code_Chef/SummryPower.cpp",
+		"/home/shrey/Sem_3/ALGO Lab/MemsetCheck.cpp",
+		"/home/shrey/Sem_3/ALGO Lab/Assingment2.cpp",
+		"/home/shrey/Downloads/Assingment2.cpp",
+		"/home/shrey/Sem_3/ALGO Lab/input.txt",
+		"/home/shrey/Desktop/settings.json",
+		"/home/shrey/Code_Chef/CountingPrettyNumbers.cpp",
+		"/home/shrey/Algorithms/Code/Cut_Rod_DP.cpp",
+		"/home/shrey/Algorithms/Code/HeapSort.cpp",
+		"/home/shrey/Algorithms/Code/CountingSort.cpp",
+		"/home/shrey/Algorithms/Code/KadaneAlgorithm.cpp",
+		"/home/shrey/Code_Chef/TaxiTurn.cpp",
+		"/home/shrey/DL/test.py",
+		"/home/shrey/DL/OneLayerNeuralNetwork.py",
+		"/home/shrey/DL/Logistic_Regression.py",
+		"/home/shrey/Desktop/Launch_Files.txt",
+		"/home/shrey/AGV-X1-castor-devel/eklavya4_roboteq/src/joy.cpp",
+		"/home/shrey/DL/test_random.cpp",
+		"/home/shrey/mario/igvc_ws/src/lane_detector/src/lanes.cpp",
+		"/home/shrey/mario/igvc_ws/lanes_ransac_new.cpp",
+		"/home/shrey/AGV/Code/Ransac.cpp",
+		"/home/shrey/DL/logistic_regression.py",
+		"/home/shrey/catkin_ws1/src/slam_gmapping/gmapping/src/main.cpp",
+		"/home/shrey/HOG_SVM/lanes.cpp",
+		"/home/shrey/catkin_ws1/src/slam_gmapping/gmapping/src/slam_gmapping.cpp",
+		"/home/shrey/catkin_ws1/src/slam_gmapping/gmapping/src/nodelet.cpp",
+		"/home/shrey/catkin_ws1/src/hector_slam/hector_mapping/launch/mapping_default.launch",
+		"/home/shrey/catkin_ws1/src/robot_localization/launch/dual_ekf_navsat.launch",
+		"/home/shrey/catkin_ws1/src/lanes/CMakeLists.txt",
+		"/home/shrey/catkin_ws1/src/lanes/src/hier_clust.cpp",
+		"/home/shrey/catkin_ws1/src/lanes/src/clustering.cpp",
+		"/home/shrey/catkin_ws1/src/lanes/src/clustering.hpp",
+		"/home/shrey/catkin_ws1/src/lanes/src/laserScan2mat.cpp",
+		"/home/shrey/Downloads/laserScan2mat (2).cpp",
+		"/home/shrey/Downloads/laserScan2mat (1).cpp",
+		"/home/shrey/Desktop/synchronizer.cpp",
+		"/home/shrey/.config/sublime-text-3/Packages/Python PEP8 Autoformat/pep8_autoformat.sublime-settings",
+		"/home/shrey/.config/sublime-text-3/Packages/Python PEP8 Autoformat/Default (Linux).sublime-keymap",
+		"/home/shrey/.config/sublime-text-3/Packages/User/pep8_autoformat.sublime-settings",
+		"/home/shrey/catkin_ws1/src/test_1/src/turle_pub.cpp",
+		"/home/shrey/catkin_ws1/src/test2/src/turtle_sub.cpp",
+		"/home/shrey/catkin_ws1/src/timestamp/scan_buffer.cpp",
+		"/home/shrey/Open_CV/sobel.cpp"
+	],
+	"find":
+	{
+		"height": 34.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"waitk",
+			"waitkey",
+			"j",
+			"i",
+			"data()",
+			"isvalid",
+			"wi",
+			"10",
+			"high",
+			": ",
+			"Foo",
+			"THETA",
+			"Theta",
+			"BOT_L",
+			"// Inorder",
+			"Inorder",
+			"// Inoreder",
+			"Inorder",
+			"sentinel",
+			"#",
+			"data[i].size",
+			"data",
+			"].",
+			"point",
+			"0",
+			"cout \n",
+			"cout\n",
+			";\n",
+			"cout",
+			"gslic",
+			" parabola_param",
+			"parabola",
+			"parabola_para",
+			"isAll",
+			"parabola",
+			"for",
+			"gen_wa",
+			"p1_g",
+			"a_gl",
+			"Isallo",
+			"parabola",
+			"parabola_params",
+			"parabola",
+			"seed",
+			"parabola",
+			"laser_cou",
+			"iter",
+			"show",
+			"new_dot",
+			"imageconvert",
+			"imageconver",
+			"image_convertor",
+			"result",
+			"100",
+			"left_lane",
+			"class Ransac\n{\n  public:\n  \tRansac(struct datapoints* data)\n  \t{\n  \t   int data_size=sizeof(data)/sizeof(data.[0]);\t\n  \t   Data_size=data_size;\n\t   Data=(struct datapoints*)malloc(data_size*sizeof(struct datapoints));\n\t   auto it1=begin(Data);\n\t   for( auto it=begin(data);it != end(data);++it )\n\t   \t{\n\t        *it1 = *it;\n\t        it1++;\n\t   \t}\n  \t}\n   fl"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"data",
+			"isValid",
+			"width",
+			"right",
+			"HybridAstar",
+			"MAP_THETA",
+			"THETA",
+			"Inorder",
+			"// Inorder",
+			"Inorder",
+			"// Inoreder",
+			"NULL",
+			"// cout"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		},
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 28.0
+	},
+	"input":
+	{
+		"height": 0.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			],
+			[
+				1,
+				0,
+				2,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			0.963396778917,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "",
+	"replace":
+	{
+		"height": 62.0
+	},
+	"save_all_on_build": false,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": true,
+	"show_tabs": true,
+	"side_bar_visible": false,
+	"side_bar_width": 150.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

@@ -1,12 +1,12 @@
 #include "../include/GUI.hpp"
 
 GUI::GUI(int rows, int cols){
-	this.rows = rows;
-	this.cols = cols;
+	this->rows = rows;
+	this->cols = cols;
 	display=Mat(cv::Size(rows, cols), CV_8UC3, Scalar(220,220,220));
 }
 
-void GUI::draw_obstacles(int** obs_map){
+void GUI::draw_obstacles(bool** obs_map){
 	for(int i=0; i<cols; i++)
 		for(int j=0; j<rows; j++)
 			if(obs_map[i][j])
@@ -16,7 +16,7 @@ void GUI::draw_obstacles(int** obs_map){
 }
 
 void GUI::draw_car(State state, Vehicle car){
-	RotatedRect rotRect = RotatedRect(Point2f(state.x*10, state.y*10), Size2f(car.l*10, car.w*10), state.theta*5);
+	RotatedRect rotRect = RotatedRect(Point2f(state.x*10, 1000-state.y*10), Size2f(car.BOT_L*10, car.BOT_W*10), -state.theta*180/3.14);
 	Point2f vert[4];
 	rotRect.points(vert);
 	for(int i=0;i<4;i++)
@@ -30,4 +30,11 @@ void GUI::show(){
 	waitKey(0);
 	return;
 }
+
+void GUI::show(int t){
+	imshow("Display", display);
+	waitKey(t);
+	return;
+}
+
 
