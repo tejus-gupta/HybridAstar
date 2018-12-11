@@ -1,16 +1,17 @@
 #include "../include/Vehicle.hpp"
 
-vector <State> Vehicle::nextStates(State* n, float scale_up)//vector<Vehicle::State>
+vector <State> Vehicle::nextStates(State* n, float scale_up)
 {
 	vector<State> next;
 	State t;
+	
 	//alpha=steering angle, beta=turning angle, r=turning radius, d=distanced travelled
 	float alpha,beta,r,d=10; 
 
 	for(alpha=-BOT_MAX_ALPHA; alpha<=BOT_MAX_ALPHA+0.01; alpha+=BOT_MAX_ALPHA/2)
 	{
 		beta=abs(d*tan(alpha*PI/180)/BOT_L);
-		if(abs(beta)>0.001)
+		if(abs(beta) > 0.001)
 		{
 			r=abs(BOT_L/tan(alpha*PI/180));
 			if(alpha<0)
@@ -26,7 +27,7 @@ vector <State> Vehicle::nextStates(State* n, float scale_up)//vector<Vehicle::St
 				t.theta=fmod(n->theta-beta,2*PI);
 			}
 		
-			if(t.theta<0)
+			if(t.theta < 0)
 				t.theta+=2*PI;
 		}
 		else

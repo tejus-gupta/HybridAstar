@@ -13,7 +13,7 @@
 #include <tf/transform_datatypes.h>
 #include "nav_msgs/OccupancyGrid.h"
 #include "nav_msgs/Odometry.h"
-
+ 
 typedef struct _Quaternion
 {
     float x;
@@ -51,7 +51,7 @@ void mapCallback(const nav_msgs::OccupancyGrid::ConstPtr& msg)
         for(int j=0;j<A.cols;j++)
             if(obs_map[i][j])
                 A.at<uchar>(i,j) = 255;
-    
+
 
     // vector <Point> a;
     // vector <Point> b;
@@ -74,10 +74,10 @@ void mapCallback(const nav_msgs::OccupancyGrid::ConstPtr& msg)
 
 
     // cout<<"Before Canny"<<endl;
-    vector<vector<Point> > temp_obs;
     int threshold=100;
     Canny(A,A,threshold,3*threshold,3);
 
+    vector< vector< Point > > temp_obs;
     findContours(A, temp_obs, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
     obs.resize(temp_obs.size());
   
@@ -139,6 +139,18 @@ void mapCallback(const nav_msgs::OccupancyGrid::ConstPtr& msg)
     // exit(0);
 
     // cout<<"Found Hull"<<endl;
+
+    
+    // cout<<"THE Found Hull"<<endl;
+    // Mat imgp(obs_grid.info.height*5,obs_grid.info.width*5, CV_8UC1,Scalar(0));
+    // for(int i=0;i<obs.size();i++)
+    // {
+    //     for(int j=0;j<obs[i].size();j++)
+    //         imgp.at<uchar>(obs[i][j].y*5,obs[i][j].x*5)=255;
+    // }
+    // imshow("a",imgp);
+    // waitKey(0);
+    // exit(0);
 }
 
 void odomCallback(const nav_msgs::Odometry::ConstPtr& odom_msg) 
@@ -189,13 +201,13 @@ Quaternion toQuaternion(double pitch, double roll, double yaw)
 
 int main(int argc,char **argv)
 { 
-    
+
     ros::init(argc,argv,"hybrid_astar");
     ros::NodeHandle nh;
 
-    // ros::Subscriber sub1  = nh.subscribe("odometry/filtered",10,&odomCallback);
+    //ros::Subscriber sub1  = nh.subscribe("odometry/filtered",10,&odomCallback);
     ros::Subscriber sub2  = nh.subscribe("/map",10,&mapCallback);
-    // ros::Subscriber goal  = nh.subscribe("/move_base_simple/goal",10,&goalCallback);
+    //ros::Subscriber goal  = nh.subscribe("/move_base_simple/goal",10,&goalCallback);
 
     ros::Publisher  pub = nh.advertise<geometry_msgs::PoseArray>("/waypoint", 10);
     
@@ -259,7 +271,10 @@ int main(int argc,char **argv)
         // display.show();
 
         ros::spinOnce();
+        // exit(0);
+        // ros::spinOnce();
         // rate.sleep();
+
         cout<<count<<endl;
         if( count==10 ) exit(0);
         count++;

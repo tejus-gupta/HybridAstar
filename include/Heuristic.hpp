@@ -1,12 +1,12 @@
 #ifndef HEURISTIC_HPP
 #define HEURISTIC_HPP
 
-// #include "../src/Vehicle.cpp"
 #include "../src/Map.cpp"
 
-#define DX 1000
-#define DY 1000
+// #define DX 1000
+// #define DY 1000
 #define D_S 5.0
+
 class Heuristic
 {
 	public:

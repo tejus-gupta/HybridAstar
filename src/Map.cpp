@@ -23,11 +23,20 @@ Map::Map( vector<vector<bool> > obs_map, State end,vector<vector<Point>> obs,flo
 	initCollisionCheckerSat();
 }
 
+double cmod(double a, double b)
+{
+	a = fmod(a,b);
+	if(a<0)
+		a+=b;
+	return a;
+}
+
 bool Map::isReached(State current)
 { 	
-	if( abs(current.x - end.x) < 15 && abs(current.y - end.y) < 15 && (abs(current.theta - end.theta) < M_PI/6 || abs(current.theta - 72 + end.theta) < 3.14/6))
+	if( abs(current.x - end.x) < 1 && abs(current.y - end.y) < 1 && abs(cmod(current.theta,2*M_PI) - end.theta) < M_PI/6 )
 		return true;
- 	else return false;
+ 	else 
+ 		return false;
 }
 
 /*
@@ -122,6 +131,7 @@ void Map::initCollisionCheckerSat()
 bool Map::checkCollisionSat(State pos)
 {
 	bool DEBUG=false;
+
 	if(DEBUG)
 		cout<<"Inside checkCollisionSat "<<endl;
 
