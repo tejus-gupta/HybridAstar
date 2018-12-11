@@ -1,10 +1,17 @@
 #include "../include/Heuristic.hpp"
 #include <limits.h>
+#include <iostream>
 
-double Pi=M_PI;
+#include <ompl/base/ScopedState.h>
+#include <boost/program_options.hpp>
+#include <ompl/geometric/SimpleSetup.h>
+#include <ompl/base/spaces/DubinsStateSpace.h>
+#include <ompl/base/spaces/ReedsSheppStateSpace.h>
+ 
+using namespace std;
+namespace ob = ompl::base;
+namespace og = ompl::geometric;
 
-#define D_X 200
-#define D_Y 200
 
 class compareHeuristic{
  public:
@@ -144,9 +151,9 @@ class Dubins_Path{
         if(check < 0) return val;
         flag=1;
         double temp = atan2(cb-ca,var);
-        val[0]=fmod(-alpha+temp,2*Pi);
+        val[0]=fmod(-alpha+temp,2*M_PI);
         val[1]=sqrt(check);
-        val[2]=fmod(beta-temp,2*Pi);
+        val[2]=fmod(beta-temp,2*M_PI);
         return val;
     }
 
@@ -161,9 +168,9 @@ class Dubins_Path{
         if(check < 0) return val;
         flag=1;
         double temp = atan2(ca-cb,var);
-        val[0]=fmod(alpha-temp,2*Pi);
+        val[0]=fmod(alpha-temp,2*M_PI);
         val[1]=sqrt(check);
-        val[2]=fmod(-beta+temp,2*Pi);
+        val[2]=fmod(-beta+temp,2*M_PI);
         return val;
     }
 
@@ -179,9 +186,9 @@ class Dubins_Path{
         flag=1;
         double p=sqrt(check);
         double temp = atan2(-cb-ca,var) - atan2(-2.0,p);
-        val[0]=fmod(-alpha+temp,2*Pi);
+        val[0]=fmod(-alpha+temp,2*M_PI);
         val[1]=p;
-        val[2]=fmod(-beta+temp,2*Pi);
+        val[2]=fmod(-beta+temp,2*M_PI);
         return val;
     }
 
@@ -197,9 +204,9 @@ class Dubins_Path{
         flag=1;
         double p=sqrt(check);
         double temp = atan2(cb+ca,var) - atan2(2.0,p);
-        val[0]=fmod(alpha-temp,2*Pi);
+        val[0]=fmod(alpha-temp,2*M_PI);
         val[1]=p;
-        val[2]=fmod(beta-temp,2*Pi);
+        val[2]=fmod(beta-temp,2*M_PI);
         return val;
     }
 
@@ -214,11 +221,11 @@ class Dubins_Path{
         check/=8;
         if(fabs(check) > 1) return val;
         flag=1;
-        double p=fmod(2*Pi-acos(check),2*Pi);
+        double p=fmod(2*M_PI-acos(check),2*M_PI);
         double temp = atan2(-cb+ca,var) - p/2;
-        val[0]=fmod(alpha-temp,2*Pi);
+        val[0]=fmod(alpha-temp,2*M_PI);
         val[1]=p;
-        val[2]=fmod(alpha-beta-val[0]+p,2*Pi);
+        val[2]=fmod(alpha-beta-val[0]+p,2*M_PI);
         return val;
     }
 
@@ -233,11 +240,11 @@ class Dubins_Path{
         check/=8;
         if(fabs(check) > 1) return val;
         flag=1;
-        double p=fmod(2*Pi-acos(check),2*Pi);
+        double p=fmod(2*M_PI-acos(check),2*M_PI);
         double temp = atan2(-cb+ca,var) - p/2;
-        val[0]=fmod(-alpha-temp,2*Pi);
+        val[0]=fmod(-alpha-temp,2*M_PI);
         val[1]=p;
-        val[2]=fmod(beta-alpha-val[0]+p,2*Pi);
+        val[2]=fmod(beta-alpha-val[0]+p,2*M_PI);
         return val;
     }
 
@@ -250,7 +257,7 @@ class Dubins_Path{
         {
             double d,pd=0;
             if(type[i] == 'S') d=c;
-            else d=D_S*Pi/180;
+            else d=D_S*M_PI/180;
             while (pd < fabs(length[i]-d))
             {
                 State temp=path.back();
@@ -284,25 +291,25 @@ class Dubins_Path{
 
         //LSL
         temp = LSL(alpha,beta,d,flag);
-        temp_c = c*fabs(temp[0]) + fabs(temp[1]) + c*fabs(temp[2]);
+        temp_c = c*fabs(temp[0]) + c*fabs(temp[1]) + c*fabs(temp[2]);
         if(cost>temp_c && flag)
             cost=temp_c,s="LSL";
             
         //RSR
         temp = RSR(alpha,beta,d,flag);
-        temp_c = c*fabs(temp[0]) + fabs(temp[1]) + c*fabs(temp[2]);
+        temp_c = c*fabs(temp[0]) + c*fabs(temp[1]) + c*fabs(temp[2]);
         if(cost>temp_c && flag)
             cost=temp_c,s="RSR";
         
         //LSR
         temp = LSR(alpha,beta,d,flag);
-        temp_c = c*fabs(temp[0]) + fabs(temp[1]) + c*fabs(temp[2]);
+        temp_c = c*fabs(temp[0]) + c*fabs(temp[1]) + c*fabs(temp[2]);
         if(cost>temp_c && flag)
             cost=temp_c,s="LSR";
             
         //RSL
         temp = RSL(alpha,beta,d,flag);
-        temp_c = c*fabs(temp[0]) + fabs(temp[1]) + c*fabs(temp[2]);
+        temp_c = c*fabs(temp[0]) + c*fabs(temp[1]) + c*fabs(temp[2]);
         if(cost>temp_c && flag)
             cost=temp_c,s="RSL";
             
@@ -325,11 +332,11 @@ class Dubins_Path{
     {
         double dx=ex,dy=ey;
         double D=sqrt(dx*dx + dy*dy);
-        double d = D*c;
+        double d = D/c;
 
-        double theta = fmod(atan2(dy,dx),2*Pi);
-        double alpha = fmod(-theta,2*Pi);
-        double beta = fmod(eyaw-theta,2*Pi);
+        double theta = fmod(atan2(dy,dx),2*M_PI);
+        double alpha = fmod(-theta,2*M_PI);
+        double beta = fmod(eyaw-theta,2*M_PI);
 
         string type;
         cost=find_cost(alpha,beta,d,type);
@@ -356,8 +363,7 @@ class Dubins_Path{
             return path;
         } 
 
-        
-        Dubins_Path(State x,State y,double z)
+        void change(State x,State y,double z)
         {
             start=x;
             end=y;
@@ -366,55 +372,295 @@ class Dubins_Path{
         }
 };
 
-void Heuristic::Dubins_write(char *file)
-{
-    int DT = 360/D_S;
-    ofstream dubin;
-    dubin.open(file);
+// void Heuristic::Dubins(double radius)
+// {
+//     State target(DX,DY,0);
+//     dub_cost = new double**[2*DX];
+//     int DT = 360/D_S;
+    
+//     for(int i=0;i<2*DX;i++)
+//     {
+//         dub_cost[i] = new double*[2*DY];
+//         for(int j=0;j<2*DY;j++)
+//             dub_cost[i][j] = new double[DT];
+//     }
 
-    if(min_radius < 1e-6)
-        min_radius=1.0;
-    State target(DX/2,DY/2,0);
-    for(int i=0;i<DX;i++)
+//     Dubins_Path temp;
+//     for(int i=0;i<2*DX;i++)
+//     {
+//         for(int j=0;j<2*DY;j++)
+//         {
+//             for(int k=0;k<DT;k++)
+//             {
+//                 double theta = k*D_S*M_PI/180;
+//                 State start(i,j,theta);
+                
+//                 temp.change(start,target,radius);
+//                 double *val=&dub_cost[i][j][k];
+
+//                 *val=temp.ret_cost();
+//             }
+//         }
+//     }
+// }
+
+double Heuristic::Dubin_cost(State begin, State end, double radius)
+{
+	bool DEBUG=false;
+    vector<State> nextStates;
+
+    // Declaration of an OMPL Coordinate System  
+    ob::StateSpacePtr space(new ompl::base::SE2StateSpace());
+
+    // Declaration of two states in this Coordinate System  
+    ob::State *start = space->allocState();
+    ob::State *goal  = space->allocState();
+
+    // Declaration of variables that configures it for 2D motion
+    auto *s = start->as<ob::SE2StateSpace::StateType>();
+    auto *t = goal->as<ob::SE2StateSpace::StateType>();
+    
+    // Reference :
+    // http://docs.ros.org/diamondback/aM_PI/ompl/html/classompl_1_1base_1_1SE2StateSpace_1_1StateType.html
+    
+    s->setX(begin.x);
+    s->setY(begin.y);
+    s->setYaw(begin.theta);
+
+    t->setX(end.x);
+    t->setY(end.y);
+    t->setYaw(end.theta);
+    
+    if(DEBUG)
     {
-        for(int j=0;j<DY;j++)
-        {
-            for(int k=0;k<DT;k++)
-            {
-                double theta = k*D_S*Pi/180;
-                State start(i,j,theta);
-                Dubins_Path temp(start,target,min_radius);
-                dubin<<temp.ret_cost()<<" ";
-            }
-        }
+        double x1=s->getX(), y1=s->getY() ,theta1=s->getYaw();
+        double x2=t->getX(), y2=t->getY() ,theta2=t->getYaw();
+        cout<<x1<<" "<<y1<<" "<<theta1<<" "<<x2<<" "<<y2<<" "<<theta2<<endl;
     }
+    
+    // http://ompl.kavrakilab.org/classompl_1_1base_1_1DubinsStateSpace_1_1DubinsPath.html
+    ob::DubinsStateSpace DP(radius,true);
+    auto Path=DP.dubins(start,goal);
+    if(DEBUG)
+    	cout<<"Path Length : "<<Path.length()<<endl;
+    return Path.length()*radius;
 }
 
-void Heuristic::Dubins_read(char *file)
+vector<State> Heuristic::DubinShot(State begin, State end, double radius)
 {
-    dub_cost = new smallestcost_3d**[DX];
-    int DT = 360/D_S;
-    ifstream dubin;
-    dubin.open(file);
+    bool DEBUG=false;
+    vector<State> nextStates;
 
-    for(int i=0;i<DX;i++)
+    // Declaration of an OMPL Coordinate System  
+    ob::StateSpacePtr space(new ompl::base::SE2StateSpace());
+
+    // Declaration of two states in this Coordinate System  
+    ob::State *start = space->allocState();
+    ob::State *goal  = space->allocState();
+
+    // Declaration of variables that configures it for 2D motion
+    auto *s = start->as<ob::SE2StateSpace::StateType>();
+    auto *t = goal->as<ob::SE2StateSpace::StateType>();
+    
+    // Reference :
+    // http://docs.ros.org/diamondback/aM_PI/ompl/html/classompl_1_1base_1_1SE2StateSpace_1_1StateType.html
+    
+    s->setX(begin.x);
+    s->setY(begin.y);
+    s->setYaw(begin.theta);
+
+    t->setX(end.x);
+    t->setY(end.y);
+    t->setYaw(end.theta);
+    
+    if(DEBUG)
     {
-        dub_cost[i] = new smallestcost_3d*[DY];
-        for(int j=0;j<DY;j++)
-            dub_cost[i][j] = new smallestcost_3d[DT];
+        double x1=s->getX(), y1=s->getY() ,theta1=s->getYaw();
+        double x2=t->getX(), y2=t->getY() ,theta2=t->getYaw();
+        cout<<"Inside Dubins "<<x1<<" "<<y1<<" "<<theta1<<" "<<x2<<" "<<y2<<" "<<theta2<<endl;
+    }
+    
+    // http://ompl.kavrakilab.org/classompl_1_1base_1_1DubinsStateSpace_1_1DubinsPath.html
+    ob::DubinsStateSpace DP(radius,true);
+    auto Path=DP.dubins(start,goal);
+
+    if(DEBUG)
+    {
+        // This gives the total distance travelled along a curved path :DubinsCost
+        cout<<"Dubins Distance : "<<Path.length()*radius<<endl;
+
+        /*
+        The type of dubins curve possible are:
+        {DUBINS_LEFT, DUBINS_STRAIGHT, DUBINS_LEFT},
+        {DUBINS_RIGHT, DUBINS_STRAIGHT, DUBINS_RIGHT},
+        {DUBINS_RIGHT, DUBINS_STRAIGHT, DUBINS_LEFT},
+        {DUBINS_LEFT, DUBINS_STRAIGHT, DUBINS_RIGHT},
+        {DUBINS_RIGHT, DUBINS_LEFT, DUBINS_RIGHT},
+        {DUBINS_LEFT, DUBINS_RIGHT, DUBINS_LEFT}}
+
+        Here in OMPL implementation the following enum are used :
+        DUBINS_LEFT=0 , DUBINS_STRAIGHT=1, DUBINS_LEFT=2
+        */
+        cout<<"Dubins Type : "<<Path.type_[0]<<" "<<Path.type_[1]<<" "<<Path.type_[2]<<endl;
+
+        // It gives path length corresponding to each of the three component curves :
+        cout<<"Length_0 :"<<Path.length_[0]<<endl;
+        cout<<"Length_1 :"<<Path.length_[1]<<endl;
+        cout<<"Length_2 :"<<Path.length_[2]<<endl;
     }
 
-    for(int i=0;i<DX;i++)
+    int stride = 1;
+    State E1,E2,next;
+    if(DEBUG)
+	    cout<<"Inside First Loop"<<endl;
+    double alhpa1 = (Path.type_[0]==0)?1*Path.length_[0]:-1*Path.length_[0];
+    if( Path.length_[0]>0.1 )
     {
-        for(int j=0;j<DY;j++)
+        while( stride<Path.length_[0]*radius  )
         {
-            for(int k=0;k<DT;k++)
+            next.x = (begin.x - alhpa1/abs(alhpa1)*( radius*sin(begin.theta) - radius*sin( alhpa1*stride/(Path.length_[0]*radius) +begin.theta )));
+            next.y = (begin.y + alhpa1/abs(alhpa1)*( radius*cos(begin.theta) - radius*cos( alhpa1*stride/(Path.length_[0]*radius) +begin.theta )));
+            next.theta = begin.theta + (float)(alhpa1*stride/(Path.length_[0]*radius)) ;
+            nextStates.push_back(next);        
+            
+            if(DEBUG)            
+                cout<<next.x<<" "<< next.y <<" "<<next.theta<<endl;
+            
+            stride+=5;
+        }
+
+        E1.x = (begin.x - alhpa1/abs(alhpa1)*(radius*sin(begin.theta) - radius*sin( alhpa1+begin.theta )));
+        E1.y = (begin.y + alhpa1/abs(alhpa1)*(radius*cos(begin.theta) - radius*cos( alhpa1+begin.theta )));
+        E1.theta = begin.theta + alhpa1 ;
+	    if(DEBUG)
+			cout<<E1.x<<" "<< E1.y <<" "<<E1.theta<<endl;
+
+        nextStates.push_back(E1);        
+    }
+    else{
+        E1.x = begin.x;
+        E1.y = begin.y; 
+        E1.theta = begin.theta;
+    }    
+    if(DEBUG)
+    	cout<<"Inside Second Loop"<<endl;
+    stride = 1;
+    if( Path.length_[1]>0.1 )
+    {
+        while( stride<Path.length_[1]*radius )
+        {
+            next.x = (E1.x + stride*cos(E1.theta) );
+            next.y = (E1.y + stride*sin(E1.theta) );
+            next.theta = E1.theta ;
+            nextStates.push_back(next);
+
+            if(DEBUG)            
+                cout<<next.x<<" "<< next.y <<" "<<next.theta<<endl;
+            
+            stride+=5;
+        }
+        E2.x = (E1.x + Path.length_[1]*radius*cos(E1.theta) );
+        E2.y = (E1.y + Path.length_[1]*radius*sin(E1.theta) );
+        E2.theta = E1.theta ;
+        if(DEBUG)
+	        cout<<E2.x<<" "<< E2.y <<" "<<E2.theta<<endl;
+        nextStates.push_back(E2);
+
+    }
+    else{
+        E2.x = E1.x;
+        E2.y = E1.y;
+        E2.theta = E1.theta;
+    }
+    
+    if(DEBUG)
+    	cout<<"Inside Third Loop"<<endl;
+    
+    double alhpa2 = (Path.type_[2]==0)?1*Path.length_[2]:-1*Path.length_[2];
+    stride = 1;
+    if( Path.length_[2]>0.1 )
+    {
+        while( stride<Path.length_[2]*radius )
+        {
+           
+            next.x = (E2.x - alhpa2/abs(alhpa2)*(radius*sin(E2.theta) - radius*sin( alhpa2*stride/(Path.length_[2]*radius)+E2.theta )));
+            next.y = (E2.y + alhpa2/abs(alhpa2)*(radius*cos(E2.theta) - radius*cos( alhpa2*stride/(Path.length_[2]*radius)+E2.theta )));
+            next.theta = E2.theta + (float)(alhpa2*stride/(Path.length_[2]*radius)) ;
+            nextStates.push_back(next);
+
+            if(DEBUG)                       
+                cout<<next.x<<" "<< next.y <<" "<<next.theta<<endl;
+            
+            stride+=5;
+        }
+        next.x = (E2.x - alhpa2/abs(alhpa2)*(radius*sin(E2.theta) - radius*sin(alhpa2 + E2.theta )));
+        next.y = (E2.y + alhpa2/abs(alhpa2)*(radius*cos(E2.theta) - radius*cos(alhpa2 + E2.theta )));
+        next.theta = E2.theta + alhpa2 ;
+	    if(DEBUG)
+			cout<<next.x<<" "<< next.y <<" "<<next.theta<<endl;
+        nextStates.push_back(next);
+    }
+	if(DEBUG)
+    	cout<<"End of Dubins Shot"<<endl;
+
+    return nextStates;
+}
+void Heuristic::Dubins(double radius)
+{
+    bool DEBUG=false;
+    
+    // Declaration of an OMPL Coordinate System  
+    ob::StateSpacePtr space(new ompl::base::SE2StateSpace());
+
+    // Declaration of two states in this Coordinate System  
+    ob::State *start = space->allocState();
+    ob::State *goal  = space->allocState();
+
+    // Declaration of variables that configures it for 2D motion
+    auto *s = start->as<ob::SE2StateSpace::StateType>();
+    auto *t = goal->as<ob::SE2StateSpace::StateType>();
+    
+    // Reference :
+    // http://docs.ros.org/diamondback/aM_PI/ompl/html/classompl_1_1base_1_1SE2StateSpace_1_1StateType.html
+
+    t->setX(DX);
+    t->setY(DY);
+    t->setYaw(0);
+    
+    if(DEBUG)
+    {
+        double x1=s->getX(), y1=s->getY() ,theta1=s->getYaw();
+        double x2=t->getX(), y2=t->getY() ,theta2=t->getYaw();
+        cout<<x1<<" "<<y1<<" "<<theta1<<" "<<x2<<" "<<y2<<" "<<theta2<<endl;
+    }
+    
+    // http://ompl.kavrakilab.org/classompl_1_1base_1_1DubinsStateSpace_1_1DubinsPath.html
+    ob::DubinsStateSpace DP(radius,true);
+
+    dub_cost = new double**[2*DX];    
+    for(int i =0 ;i < 2*DX ;i++)
+    {
+        dub_cost[i] = new double*[2*DY];
+        for(int j = 0;j < 2*DY; j++)
+            dub_cost[i][j] = new double[(int)(360/D_S)];
+    }
+
+    for(int i = 0; i < 2*DX; i++)
+    {
+        for(int j = 0; j < 2*DY; j++)
+        {
+            for(int k = 0; k < 360/D_S; k++)
             {
-                double theta = k*D_S*Pi/180;
-                smallestcost_3d *val=&dub_cost[i][j][k];
-                val->x=i,val->y=j,val->z=k,val->theta=theta;
-                dubin>>val->cost;
+                double theta = k*D_S*M_PI/180;
+
+                s->setX(i);
+                s->setY(j);
+                s->setYaw(theta);
+                
+                auto Path=DP.dubins(start,goal);
+                dub_cost[i][j][k]=Path.length();
             }
         }
     }
+
 }

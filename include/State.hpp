@@ -24,8 +24,8 @@ public:
 	{
 		x=X;
 		y=Y;
-		gx=x*10;
-		gy=y*10;
+		gx=x;
+		gy=y;
 		theta=THETA;
 		parent=NULL;
 		cost2d=0;

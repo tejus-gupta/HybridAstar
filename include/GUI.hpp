@@ -12,10 +12,13 @@ public:
     int rows;
     int cols;
     Mat display;
+    Vehicle car;
 
     GUI(int rows, int cols);
-    void draw_obstacles(bool** obs_map,int res);
-    void draw_car(State src, Vehicle car);
+    void draw_obstacles(vector<vector<bool> > obs_map,float res);
+    void draw_tree( State state, State next, float scale);
+    void draw_dubins( vector<State> Path,float scale );
+    void draw_car(State src, Vehicle car,float map_resolution);
     void show();
     void show(int t);
 };
