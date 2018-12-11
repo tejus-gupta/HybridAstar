@@ -13,7 +13,7 @@
 #include <tf/transform_datatypes.h>
 #include "nav_msgs/OccupancyGrid.h"
 #include "nav_msgs/Odometry.h"
-
+ 
 typedef struct _Quaternion
 {
 	float x;
@@ -42,27 +42,35 @@ void mapCallback(const nav_msgs::OccupancyGrid::ConstPtr& msg)
 	        obs_map[obs_grid.info.width -1 -i][j] = (obs_grid.data[i*obs_grid.info.width+j]>= 90 || obs_grid.data[i*obs_grid.info.width+j]==-1); 
 
     // cout<<"Map "<<obs_grid.info.width<<" "<<obs_grid.info.height<<endl;
-    vector<vector<Point> > temp_obs;
-    obs.clear();
-
+    // CANNNNY
     Mat A(obs_grid.info.height, obs_grid.info.width, CV_8UC1, Scalar(0));
     for(int i=0;i<A.rows;i++)
         for(int j=0;j<A.cols;j++)
             if(obs_map[i][j])
                 A.at<uchar>(i,j) = 255;
-    
+      
     // cout<<"Before Canny"<<endl;
 
     int threshold=100;
     Canny(A,A,threshold,3*threshold,3);
 
+    vector< vector< Point > > temp_obs;
     findContours(A, temp_obs, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
     obs.resize(temp_obs.size());
     
     for(int i=0;i<temp_obs.size();i++)
         convexHull(temp_obs[i],obs[i]);
     
-    cout<<"Found Hull"<<endl;
+    // cout<<"THE Found Hull"<<endl;
+    // Mat imgp(obs_grid.info.height*5,obs_grid.info.width*5, CV_8UC1,Scalar(0));
+    // for(int i=0;i<obs.size();i++)
+    // {
+    //     for(int j=0;j<obs[i].size();j++)
+    //         imgp.at<uchar>(obs[i][j].y*5,obs[i][j].x*5)=255;
+    // }
+    // imshow("a",imgp);
+    // waitKey(0);
+    // exit(0);
 }
 
 void odomCallback(const nav_msgs::Odometry::ConstPtr& odom_msg) 
@@ -113,13 +121,13 @@ Quaternion toQuaternion(double pitch, double roll, double yaw)
 
 int main(int argc,char **argv)
 { 
-	
+	 
     ros::init(argc,argv,"hybrid_astar");
     ros::NodeHandle nh;
 
-    // ros::Subscriber sub1  = nh.subscribe("odometry/filtered",10,&odomCallback);
+    //ros::Subscriber sub1  = nh.subscribe("odometry/filtered",10,&odomCallback);
     ros::Subscriber sub2  = nh.subscribe("/map",10,&mapCallback);
-    // ros::Subscriber goal  = nh.subscribe("/move_base_simple/goal",10,&goalCallback);
+    //ros::Subscriber goal  = nh.subscribe("/move_base_simple/goal",10,&goalCallback);
 
     ros::Publisher  pub = nh.advertise<geometry_msgs::PoseArray>("/waypoint", 10);
     
@@ -131,9 +139,9 @@ int main(int argc,char **argv)
         geometry_msgs::PoseArray poseArray; 
         
         poseArray.header.frame_id = "/map";
-        
-        State start(13,14,M_PI/2);
-        State target(23,174,M_PI/2); 
+         
+        State start(5,7,M_PI/2);
+        State target(25,154,M_PI/2);  
 
         ros::spinOnce();
         while(obs_map.empty())
@@ -180,6 +188,7 @@ int main(int argc,char **argv)
         //     display.show(1);
         // } 
         // display.show();
+        // exit(0);
         // ros::spinOnce();
         // rate.sleep();
     }

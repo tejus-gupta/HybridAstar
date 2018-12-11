@@ -1,9 +1,12 @@
 #ifndef MAP_CPP
 #define MAP_CPP
 
+#include "opencv/cv.h"
+#include <opencv2/highgui/highgui.hpp>
 #include "../include/Map.hpp"
 
-Map::Map( vector< vector<bool> > obs_map, State end,vector<vector<Point>> obs,float scale)
+
+Map::Map( vector<vector<bool> > obs_map, State end,vector<vector<Point>> obs,float scale)
 {
 	MAP_THETA=72;
     MAPX=1000;
@@ -20,18 +23,26 @@ Map::Map( vector< vector<bool> > obs_map, State end,vector<vector<Point>> obs,fl
 	initCollisionCheckerSat();
 }
 
-
+double cmod(double a, double b)
+{
+	a = fmod(a,b);
+	if(a<0)
+		a+=b;
+	return a;
+}
 
 bool Map::isReached(State current)
 { 	
- 	/* In this we could have int in place of bool which tells distance between them so 
- 	thst we could act accordingly && fabs(Curr.theta-End.theta)<5*/
-
-	if( abs(current.x - end.x) < 15 && abs(current.y - end.y) < 15 && (abs(current.theta - end.theta) < M_PI/6 || abs(current.theta - 72 + end.theta) < 3.14/6))
+	if( abs(current.x - end.x) < 1 && abs(current.y - end.y) < 1 && abs(cmod(current.theta,2*M_PI) - end.theta) < M_PI/6 )
 		return true;
- 	else return false;
+ 	else 
+ 		return false;
 }
 
+/*
+	Here we keep on adding the bool value of individual states along X and then Y axis.Then we check if sum of 
+	these value on opposite corner is same which should the case if there was no obstacle between these points. 
+*/
 void Map::initCollisionChecker(){
 	acc_obs_map=new int*[MAPX];
 	for(int i=0;i<MAPX;i++)
@@ -86,6 +97,11 @@ bool Map::checkCollision(State pos){
 
 }
 
+/*
+	Here we are trying to create a preliminary check for SAT collision checker .We first find the
+	minimum and maximum projection of corner points on coordinate axis and then use coordinate axis
+	as our axis to check for collision as in SAT.  
+*/
 void Map::initCollisionCheckerSat()
 {
 	for (int i = 0; i < obs.size(); ++i)
@@ -111,33 +127,48 @@ void Map::initCollisionCheckerSat()
 
 bool Map::checkCollisionSat(State pos)
 {
+	bool DEBUG=false;
 
 	if(pos.x >= VISX || pos.x<0 || pos.y >= VISY || pos.y<0 )
 		return true;
 
+	// We are trying to find the four corner points of our Bot 
 	vector<Point> v1;
 
-	// We are trying to find the four corner points of our bot 
 	Point p1;
 	p1.x = pos.x-car.BOT_L*abs(cos(pos.theta))/2-car.BOT_W*abs(sin(pos.theta))/2 ;
 	p1.y = pos.y-car.BOT_L*abs(sin(pos.theta))/2+car.BOT_W*abs(cos(pos.theta))/2 ;
 	v1.push_back(p1);
+	if(DEBUG)
+		cout<<"Point : "<<p1.x<<" "<<p1.y<<endl;
 
 	Point p2;
 	p2.x = pos.x+car.BOT_L*abs(cos(pos.theta))/2-car.BOT_W*abs(sin(pos.theta))/2 ;
 	p2.y = pos.y+car.BOT_L*abs(sin(pos.theta))/2+car.BOT_W*abs(cos(pos.theta))/2 ;
 	v1.push_back(p2);
+	if(DEBUG)
+		cout<<"Point : "<<p2.x<<" "<<p2.y<<endl;
+	
 
 	Point p3;
 	p3.x = pos.x+car.BOT_L*abs(cos(pos.theta))/2+car.BOT_W*abs(sin(pos.theta))/2 ;
 	p3.y = pos.y+car.BOT_L*abs(sin(pos.theta))/2-car.BOT_W*abs(cos(pos.theta))/2 ;
 	v1.push_back(p3);
+	if(DEBUG)
+		cout<<"Point : "<<p3.x<<" "<<p3.y<<endl;
+	
 
 	Point p4;
 	p4.x = pos.x-car.BOT_L*abs(cos(pos.theta))/2+car.BOT_W*abs(sin(pos.theta))/2 ;
 	p4.y = pos.y-car.BOT_L*abs(sin(pos.theta))/2-car.BOT_W*abs(cos(pos.theta))/2 ;
 	v1.push_back(p4);
-
+	if(DEBUG)
+		cout<<"Point : "<<p4.x<<" "<<p4.y<<endl;
+	
+	/*
+	 We are trying to find the maximum and minimum corner points of our bot 
+	 corresponding to our coordinate axis(projection is on our coordinate axis).
+	*/
 	int Xmax,Xmin,Ymax,Ymin;
 	Xmax=Xmin=v1[0].x;
 	Ymax=Ymin=v1[0].y;
@@ -152,34 +183,33 @@ bool Map::checkCollisionSat(State pos)
 		if( v1[j].y > Ymax )
 			Ymax=v1[j].y;
 	}
+	if(DEBUG)
+		cout<<Xmax<<" "<<Xmin<<" "<<Ymax<<" "<<Ymin<<endl;
 
 	for (int i = 0; i < obs.size() ; ++i)
 	{
 		if( !(bPoints[i].Xmax<Xmin || bPoints[i].Xmin>Xmax || bPoints[i].Ymin>Ymax || bPoints[i].Ymax<Ymin ) ) 
 		{
-			// cout<<"Didn't Used This MF"<<endl;
 			if( helperSAT( v1 , obs[i] ) )
 				return true;
 		}
-		// else
-		// {
-		// 	// cout<<"Used This MF"<<endl;
-		// }
 	}
 
 	return false;
 }
+
+
 // v1 is bot and v2 is obstacle
 // we assume the line passes through origin and the slope is -1/slope
-
 bool Map::helperSAT(vector <Point> v1,vector <Point> v2)
 {
-
+	bool DEBUG=false;
 	double slope,theta,alpha;
 	double dis;
 	double rmin1,rmax1,rmin2,rmax2;
 
-	for (int i=0;i<v1.size()-2;i++)
+	// Covering all the axis of BOT 
+	for (int i=0;i<v1.size();i++)
 	{
 		rmin1=rmin2=INT_MAX;
 		rmax1=rmax2=INT_MIN;
@@ -203,8 +233,11 @@ bool Map::helperSAT(vector <Point> v1,vector <Point> v2)
 			else
 				alpha=atan(slope);
 		}
-
-		// cout<<"slope of the axis for this run : "<<slope<<" and corresponding angle is alpha : "<<alpha<<endl;
+		/*
+			If we take slope is zero and alpha also zero we get projection of points on "our" X-axis .
+		*/
+		if(DEBUG)
+			cout<<"Slope of the axis for this run : "<<slope<<" and corresponding angle is alpha : "<<alpha<<endl;
 
 		int count=0;
 		for (int j=0;j<v1.size();j++)
@@ -217,10 +250,13 @@ bool Map::helperSAT(vector <Point> v1,vector <Point> v2)
 				theta=atan((double)v1[j].y/(double)v1[j].x)-alpha+CV_PI;
 
 			dis=sqrt(v1[j].y*v1[j].y+v1[j].x*v1[j].x);
+			dis=( (v1[j].y-(-1/slope)*v1[j].x) >= 0 )? dis : -1*dis ;
 			
 			rmin1=min(rmin1,dis*cos(theta));
 			rmax1=max(rmax1,dis*cos(theta));
 		}
+		if(DEBUG)
+			cout<<"rmin1: "<<rmin1<<" rmax1: "<<rmax1<<endl;
 
 		for (int j=0;j<v2.size();j++)
 		{
@@ -232,19 +268,24 @@ bool Map::helperSAT(vector <Point> v1,vector <Point> v2)
 				theta=atan((double)v2[j].y/(double)v2[j].x)-alpha+CV_PI;
 
 			dis=sqrt(v2[j].y*v2[j].y+v2[j].x*v2[j].x);
+			dis=( (v2[j].y-(-1/slope)*v2[j].x) >= 0 )? dis : -1*dis ;
 
 			rmin2=min(rmin2,dis*cos(theta));
 			rmax2=max(rmax2,dis*cos(theta));
 
 		}
+		if(DEBUG)
+			cout<<"rmin2: "<<rmin2<<" rmax2: "<<rmax2<<endl;
 
 		if ( rmin1>rmax2 || rmin2>rmax1 ) 
 		{
 			return false;
 		}
+
 	}
 
-	for (int i=0;i<v2.size()-2;i++)
+	// Covering all the axis of the obstacle in this function call .
+	for (int i=0;i<v2.size();i++)
 	{
 		rmin1=rmin2=INT_MAX;
 		rmax1=rmax2=INT_MIN;
@@ -268,8 +309,8 @@ bool Map::helperSAT(vector <Point> v1,vector <Point> v2)
 			else
 				alpha=atan(slope);
 		}
-
-		// cout<<"slope of the axis for this run : "<<slope<<" and alpha : "<<alpha<<endl;
+		if(DEBUG)
+			cout<<"slope of the axis for this run : "<<slope<<" and alpha : "<<alpha<<endl;
 
 		int count=0;
 		for (int j=0;j<v1.size();j++)
@@ -282,10 +323,14 @@ bool Map::helperSAT(vector <Point> v1,vector <Point> v2)
 				theta=atan((double)v1[j].y/(double)v1[j].x)-alpha+CV_PI;
 
 			dis=sqrt(v1[j].y*v1[j].y+v1[j].x*v1[j].x);
+			dis=( (v1[j].y-(-1/slope)*v1[j].x) >= 0 )? dis : -1*dis ;
 
 			rmin1=min(rmin1,dis*cos(theta));
 			rmax1=max(rmax1,dis*cos(theta));
 		}
+		if(DEBUG)
+			cout<<"rmin1: "<<rmin1<<" rmax1: "<<rmax1<<endl;
+
 
 		for (int j=0;j<v2.size();j++)
 		{
@@ -297,11 +342,15 @@ bool Map::helperSAT(vector <Point> v1,vector <Point> v2)
 				theta=atan((double)v2[j].y/(double)v2[j].x)-alpha+CV_PI;
 
 			dis=sqrt(v2[j].y*v2[j].y+v2[j].x*v2[j].x);
+			dis=( (v2[j].y-(-1/slope)*v2[j].x) >= 0 )? dis : -1*dis ;
 
 			rmin2=min(rmin2,dis*cos(theta));
 			rmax2=max(rmax2,dis*cos(theta));
 
 		}
+		if(DEBUG)		
+			cout<<"rmin2: "<<rmin2<<" rmax2: "<<rmax2<<endl;
+
 
 		if ( rmin1>rmax2 || rmin2>rmax1 ) 
 		{
