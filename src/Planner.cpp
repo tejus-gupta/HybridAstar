@@ -1,5 +1,4 @@
 #include "../include/Planner.hpp"
-// #include "../include/GUI.hpp"
 
 vector< vector< double > > H;
 double t=0;
@@ -168,7 +167,7 @@ vector<State> Planner::plan(State start, State end, vector< vector<bool> > obs_m
 			}
 
 			State prev=current,check=current;
-			// cout<<map.isReached()
+			
 			for(vector<State>::iterator it= Path.begin(); it!=Path.end();it++)
 			{
 				State nextS = *it;
