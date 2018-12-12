@@ -26,6 +26,7 @@ typedef struct _Quaternion
 using namespace cv;
 
 State start,dest;
+bool dest_change = false;
 nav_msgs::OccupancyGrid obs_grid;
 vector< vector<Point> > obs;
 vector< vector< bool > > obs_map;
@@ -43,7 +44,7 @@ void mapCallback(const nav_msgs::OccupancyGrid::ConstPtr& msg)
         for(int j=0; j < obs_grid.info.height; j++)
             obs_map[obs_grid.info.width -1 -i][j] = (obs_grid.data[i*obs_grid.info.width+j]>= 90 || obs_grid.data[i*obs_grid.info.width+j]==-1); 
 
-    // cout<<"Map "<<obs_grid.info.width<<" "<<obs_grid.info.height<<endl;
+
     obs.clear();
 
     Mat A(obs_grid.info.height, obs_grid.info.width, CV_8UC1, Scalar(0));
@@ -52,28 +53,6 @@ void mapCallback(const nav_msgs::OccupancyGrid::ConstPtr& msg)
             if(obs_map[i][j])
                 A.at<uchar>(i,j) = 255;
 
-
-    // vector <Point> a;
-    // vector <Point> b;
-    // vector <Point> c;
-    // a.push_back(Point(64,105));
-    // a.push_back(Point(64,185));
-    // a.push_back(Point(280,185));
-    // a.push_back(Point(280,105));
-    // obs.push_back(a);
-    // b.push_back(Point(64,225));
-    // b.push_back(Point(64,310));
-    // b.push_back(Point(280,310));
-    // b.push_back(Point(280,225));
-    // obs.push_back(b);
-    // c.push_back(Point(64,335));
-    // c.push_back(Point(64,430));
-    // c.push_back(Point(280,430));
-    // c.push_back(Point(280,335));
-    // obs.push_back(c );
-
-
-    // cout<<"Before Canny"<<endl;
     int threshold=100;
     Canny(A,A,threshold,3*threshold,3);
 
@@ -113,9 +92,6 @@ void mapCallback(const nav_msgs::OccupancyGrid::ConstPtr& msg)
  //    imshow("Contours ",drawing);
  //    waitKey(0);
 
-/*
-	For printing the points of Convex Hull
-*/
     obs_copy.resize(obs.size());
     for (int i = 0; i < obs.size(); ++i)
     {
@@ -139,18 +115,6 @@ void mapCallback(const nav_msgs::OccupancyGrid::ConstPtr& msg)
     // exit(0);
 
     // cout<<"Found Hull"<<endl;
-
-    
-    // cout<<"THE Found Hull"<<endl;
-    // Mat imgp(obs_grid.info.height*5,obs_grid.info.width*5, CV_8UC1,Scalar(0));
-    // for(int i=0;i<obs.size();i++)
-    // {
-    //     for(int j=0;j<obs[i].size();j++)
-    //         imgp.at<uchar>(obs[i][j].y*5,obs[i][j].x*5)=255;
-    // }
-    // imshow("a",imgp);
-    // waitKey(0);
-    // exit(0);
 }
 
 void odomCallback(const nav_msgs::Odometry::ConstPtr& odom_msg) 
@@ -178,6 +142,7 @@ void goalCallback(const nav_msgs::Odometry::ConstPtr&  goal)
     m.getRPY(roll, pitch, yaw);
 
     dest.theta=yaw;
+    dest_change = true;
 }
 
 Quaternion toQuaternion(double pitch, double roll, double yaw)
@@ -207,7 +172,7 @@ int main(int argc,char **argv)
 
     //ros::Subscriber sub1  = nh.subscribe("odometry/filtered",10,&odomCallback);
     ros::Subscriber sub2  = nh.subscribe("/map",10,&mapCallback);
-    //ros::Subscriber goal  = nh.subscribe("/move_base_simple/goal",10,&goalCallback);
+    ros::Subscriber goal  = nh.subscribe("/move_base_simple/goal",10,&goalCallback);
 
     ros::Publisher  pub = nh.advertise<geometry_msgs::PoseArray>("/waypoint", 10);
     
@@ -228,7 +193,10 @@ int main(int argc,char **argv)
         while(obs_map.empty())
             ros::spinOnce();
 
-        // cout<<"Started "<<obs_grid.info.width<<" "<<obs_grid.info.height<<endl;
+        while(!dest_change)
+            ros::spinOnce();
+        
+        dest_change = false;
         float scale=1000.0/obs_grid.info.width;
 
         clock_t start_time=clock();
@@ -269,15 +237,6 @@ int main(int argc,char **argv)
         //     display.show(1);
         // } 
         // display.show();
-
-        ros::spinOnce();
-        // exit(0);
-        // ros::spinOnce();
-        // rate.sleep();
-
-        cout<<count<<endl;
-        if( count==10 ) exit(0);
-        count++;
     }
 
 }
