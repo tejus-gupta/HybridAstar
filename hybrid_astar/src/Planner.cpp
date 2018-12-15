@@ -21,41 +21,49 @@ bool Planner::operator()(State a,State b)
 vector<State> Planner::plan(State start, State end, vector<vector<bool> >  obs_map, Vehicle car,vector<vector<Point> > obs,float scale)
 {
 
-	bool DEBUG = false;
+	bool DEBUG = true;
 	GUI display(1000, 1000);
 	Map map(obs_map, end , obs, scale);                          //Object of Map class
 
 	veh = car;
 	target = end;                         
-	t=0;
-
+	
 	if(DEBUG)
 	{
-		cout<<"Start "<<start.x<<" "<<start.y<<endl;
 	    display.draw_obstacles(obs_map, scale);
 	    display.draw_car(start, car, scale);
 	    display.draw_car(end, car, scale);
-	    display.show(1000);
+	    // display.show();
 	}   
+
+	// State temp(150,400,0);
+	// display.draw_obstacles(obs_map, scale);
+	// display.draw_car(temp, car, scale);
+	// cout<<map.checkCollisionSat(temp)<<endl; 
+	// display.show();
+
+	// exit(0);
 
 	// Djikstra Calculation
 	clock_t time_begin= clock();
 	h_obj.Dijkstra(map,end);
-	
+	clock_t time_end= clock();
+	cout<<"Time: Dijkstra= "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
+
 	// Djikstra Copying
 	time_begin= clock();
 	H.resize(map.VISX,vector<double>(map.VISY));
 	for(int i=0;i<map.VISX;i++)
 	    for(int j=0;j<map.VISY;j++)
 			H[i][j]=h_obj.h_vals[i][j].dis;
-	
-
+	time_end= clock();
+	cout<<"Time: Dijkstra Copying= "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
+			
 	// Memory freeing
 	for(int i=0;i<map.VISX;i++)
 		delete[] h_obj.h_vals[i];
 	delete[] h_obj.h_vals;	
-	clock_t time_end= clock();
-	cout<<"Time: Dijkstra= "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
+
 
 	// Array of states allocation
 	time_begin= clock();
@@ -74,6 +82,8 @@ vector<State> Planner::plan(State start, State end, vector<vector<bool> >  obs_m
 	priority_queue <State, vector<State>, Planner> pq;
 	pq.push(start);
 
+	cout<<"Here"<<endl;
+
 	double checkCollisionTime=0;
 	double nextStatesTime=0;
 	
@@ -86,7 +96,7 @@ vector<State> Planner::plan(State start, State end, vector<vector<bool> >  obs_m
 		State current=pq.top();
 		pq.pop();
 
-		int grid_theta=((int)(current.theta*map.MAP_THETA/(2*PI))+map.MAP_THETA)%map.MAP_THETA; 
+		int grid_theta=((int)(current.theta*map.MAP_THETA/(2*PI)))%map.MAP_THETA; 
 		if( visited[(int)current.x][(int)current.y][grid_theta] )
 			continue;
 		visited[(int)current.x][(int)current.y][grid_theta] = true;
@@ -114,7 +124,7 @@ vector<State> Planner::plan(State start, State end, vector<vector<bool> >  obs_m
 			return path;
 		}
 
-		if(count%5 != 4)
+		if( count%4!=0 )
 		{
 
 			time_begin=clock();
@@ -125,7 +135,7 @@ vector<State> Planner::plan(State start, State end, vector<vector<bool> >  obs_m
 			for(vector<State>::iterator it= next.begin(); it!=next.end();it++)
 			{
 				State nextS = *it;
-				int next_theta=((int)(nextS.theta*map.MAP_THETA/(PI*2))+map.MAP_THETA)%+map.MAP_THETA;
+				int next_theta=((int)(nextS.theta*180/(PI*5)))%72;
 					
 				if( visited[(int)nextS.x][(int)nextS.y][next_theta] )
 					continue;
@@ -135,10 +145,11 @@ vector<State> Planner::plan(State start, State end, vector<vector<bool> >  obs_m
 				{
 					time_end=clock();
 					it->parent = &(visited_state[(int)current.x][(int)current.y][grid_theta]);
-					it->cost2d = current.cost2d +1;
+					it->cost2d = current.cost2d+1;
+					
 					if(DEBUG)
 				    {
-						display.draw_tree(current,nextS,scale);
+						display.draw_tree(current,nextS,1);
 			        	display.show(5);
 				    }
 					
@@ -151,14 +162,15 @@ vector<State> Planner::plan(State start, State end, vector<vector<bool> >  obs_m
 			}
 
 		}
-		else
-		{
+		else{
+			
 			time_begin=clock();
 			vector<State> Path = h_obj.DubinShot(current,end,car.min_radius);
 			time_end=clock();
 			nextStatesTime+=double(time_end-time_begin)/CLOCKS_PER_SEC;
 
 			State prev=current,check=current;
+			// cout<<map.isReached()
 			for(vector<State>::iterator it= Path.begin(); it!=Path.end();it++)
 			{
 				State nextS = *it;
@@ -192,13 +204,14 @@ vector<State> Planner::plan(State start, State end, vector<vector<bool> >  obs_m
 					
 					time_end=clock();
 
-					int prev_theta=((int)(prev.theta*map.MAP_THETA/(PI*2))+map.MAP_THETA)%map.MAP_THETA;
+					int prev_theta=((int)(prev.theta*map.MAP_THETA/(PI*2)))%map.MAP_THETA;
 					
 					it->parent = &(visited_state[(int)prev.x][(int)prev.y][(int)prev_theta]);
-					it->cost2d = prev.cost2d +1;					
+					it->cost2d = prev.cost2d+1;
+					
 					it->gx=it->x,it->gy=it->y;
 
-					int next_theta=((int)(nextS.theta*map.MAP_THETA/(PI*2))+map.MAP_THETA)%map.MAP_THETA;
+					int next_theta=((int)(nextS.theta*map.MAP_THETA/(PI*2)))%map.MAP_THETA;
 					visited_state[(int)nextS.x][(int)nextS.y][(int)next_theta] = *it;
 
 					if(DEBUG)
@@ -227,6 +240,7 @@ vector<State> Planner::plan(State start, State end, vector<vector<bool> >  obs_m
 					checkCollisionTime+=double(time_end-time_begin)/CLOCKS_PER_SEC;
 					break;
 				}
+
 			}
 		}
 		if(DEBUG)

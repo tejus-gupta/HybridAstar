@@ -6,7 +6,7 @@ vector <State> Vehicle::nextStates(State* n, float scale_up)
 	State t;
 	
 	//alpha=steering angle, beta=turning angle, r=turning radius, d=distanced travelled
-	float alpha,beta,r,d=2; 
+	float alpha,beta,r,d=10; 
 
 	for(alpha=-BOT_MAX_ALPHA; alpha<=BOT_MAX_ALPHA+0.01; alpha+=BOT_MAX_ALPHA/2)
 	{
@@ -43,7 +43,7 @@ vector <State> Vehicle::nextStates(State* n, float scale_up)
 		t.gy=t.y;
 		t.steer_angle=alpha;
 
-		if(t.gx >= 0 && t.gx < 1000/scale_up && t.gy >= 0 && t.gy < 1000/scale_up)
+		if(t.gx >= 0 && t.gx < 1000/scale_up && t.gy >= 0 && t.gy < 1000/scale_up)//change upperbound according to the map size
 			next.push_back(t);
 	}
 	return next;		

@@ -31,7 +31,7 @@ nav_msgs::OccupancyGrid obs_grid;
 vector< vector<Point> > obs;
 vector< vector< bool > > obs_map;
 vector< vector<Point> > obs_copy;
-bool dest_change=false;
+
 
 void mapCallback(const nav_msgs::OccupancyGrid::ConstPtr& msg)
 {
@@ -157,7 +157,7 @@ void mapCallback(const nav_msgs::OccupancyGrid::ConstPtr& msg)
 void odomCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& odom_msg) 
 {
     cout<<"Inside OdomCallback"<<endl;
-    start.x = obs_map.size() - odom_msg->pose.pose.position.y;
+    start.x = 1000 - odom_msg->pose.pose.position.y;
     start.y = odom_msg->pose.pose.position.x;
 
     tf::Quaternion q(odom_msg->pose.pose.orientation.x, odom_msg->pose.pose.orientation.y, odom_msg->pose.pose.orientation.z, odom_msg->pose.pose.orientation.w);
@@ -170,7 +170,7 @@ void odomCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& odom
 
 void goalCallback(const geometry_msgs::PoseStamped::ConstPtr&  goal)
 {
-    dest.x= obs_map.size()- goal->pose.position.y;
+    dest.x= 1000- goal->pose.position.y;
     dest.y= goal->pose.position.x;
     
     tf::Quaternion q(goal->pose.orientation.x, goal->pose.orientation.y, goal->pose.orientation.z, goal->pose.orientation.w);
@@ -179,7 +179,6 @@ void goalCallback(const geometry_msgs::PoseStamped::ConstPtr&  goal)
     m.getRPY(roll, pitch, yaw);
 
     dest.theta=yaw;
-    dest_change=true;
 }
 
 Quaternion toQuaternion(double pitch, double roll, double yaw)
@@ -213,6 +212,8 @@ int main(int argc,char **argv)
 
     ros::Publisher  pub = nh.advertise<geometry_msgs::PoseArray>("/waypoint", 10);
     
+    ros::Rate rate(1);
+    int count=1;
     while(ros::ok())
     {
         Planner astar;
@@ -221,8 +222,8 @@ int main(int argc,char **argv)
         
         poseArray.header.frame_id = "/map";
         
-        State start(10,10,CV_PI/2);
-        State target(341,460,CV_PI/2); 
+        // State start(10,10,CV_PI/2);
+        // State target(101,724,CV_PI/2); 
 
         ros::spinOnce();
         while(obs_map.empty())
@@ -231,13 +232,17 @@ int main(int argc,char **argv)
             ros::spinOnce();
     	}
 
-        while(dest_change)
+        while(dest.x == 0)
         {
             cout<<"Waiting for Goal "<<endl;
             ros::spinOnce();
         }
 
-        dest_change = false;
+        while(start.x == 0)
+        {
+            cout<<"Waiting for Start "<<endl;
+            ros::spinOnce();
+        }
         cout<<"Destination Received : "<<dest.x<<" "<<dest.y<<" "<<dest.theta<<endl;
         cout<<"Starting Received : "<<start.x<<" "<<start.y<<" "<<start.theta<<endl;
                 
@@ -272,17 +277,24 @@ int main(int argc,char **argv)
         pub.publish(poseArray);
 
         // ROS_INFO("poseArray size: %i", poseArray.poses.size()); 
-        // GUI display(1000, 1000);
-        // display.draw_obstacles(obs_map,scale);
-        // display.draw_car(start,car,scale);
+        GUI display(1000, 1000);
+        display.draw_obstacles(obs_map,scale);
+        display.draw_car(start,car,scale);
 
-        // for(int i=0;i<=path.size();i++)
-        // {
-        //     display.draw_car(path[i], car,scale);
-        //     display.show(1);
-        // } 
-        // display.show();
-        // exit(0);
+        for(int i=0;i<=path.size();i++)
+        {
+            display.draw_car(path[i], car,scale);
+            display.show(1);
+        } 
+        display.show();
+        exit(0);
+
+        // ros::spinOnce();
+        // ros::spinOnce();
+        // rate.sleep();
+
+        cout<<count<<endl;
+        count++;
     }
 
 }

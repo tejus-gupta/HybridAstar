@@ -98,6 +98,300 @@ void Heuristic::Dijkstra(Map map,State target)
 	}
 }
 
+// Dubin's Path
+
+// double fmod(double a, double b)
+// {
+//     return a - b*floor(a / b);
+// }
+
+// double distance(State x, State y)
+// {
+//     return sqrt(round(x.x-y.x)*round(x.x-y.x) + round(x.y-y.y)*round(x.y-y.y));
+// }
+
+// class Dubins_Path{
+
+//     State start,end,*path;
+//     double c,cost;
+
+//     void cost1()
+//     {
+//         cost=0;
+//         State *prev=path;
+//         State *head=path->next;
+//         while(head!=NULL)
+//         {
+//             cost+=distance(*prev,*head);
+//             prev=head;
+//             head=head->next;
+//         }
+//     } 
+
+//     vector<double> LSL(double alpha, double beta, double d, int& flag)
+//     {
+//         flag=0;
+//         vector<double> val(3);
+//         double sa=sin(alpha),sb=sin(beta),ca=cos(alpha),cb=cos(beta);
+//         double c_ab = cos(alpha-beta);
+//         double var = d + sa - sb;
+//         double check = 2 + d*d - 2*c_ab + 2*d*(sa-sb);
+//         if(check < 0) return val;
+//         flag=1;
+//         double temp = atan2(cb-ca,var);
+//         val[0]=fmod(-alpha+temp,2*M_PI);
+//         val[1]=sqrt(check);
+//         val[2]=fmod(beta-temp,2*M_PI);
+//         return val;
+//     }
+
+//     vector<double> RSR(double alpha, double beta, double d, int& flag)
+//     {
+//         flag=0;
+//         vector<double> val(3);
+//         double sa=sin(alpha),sb=sin(beta),ca=cos(alpha),cb=cos(beta);
+//         double c_ab = cos(alpha-beta);
+//         double var = d - sa + sb;
+//         double check = 2 + d*d - 2*c_ab + 2*d*(sb-sa);
+//         if(check < 0) return val;
+//         flag=1;
+//         double temp = atan2(ca-cb,var);
+//         val[0]=fmod(alpha-temp,2*M_PI);
+//         val[1]=sqrt(check);
+//         val[2]=fmod(-beta+temp,2*M_PI);
+//         return val;
+//     }
+
+//     vector<double> LSR(double alpha, double beta, double d, int& flag)
+//     {
+//         flag=0;
+//         vector<double> val(3);
+//         double sa=sin(alpha),sb=sin(beta),ca=cos(alpha),cb=cos(beta);
+//         double c_ab = cos(alpha-beta);
+//         double var = d + sa + sb;
+//         double check = -2 + d*d + 2*c_ab + 2*d*(sa+sb);
+//         if(check < 0) return val;
+//         flag=1;
+//         double p=sqrt(check);
+//         double temp = atan2(-cb-ca,var) - atan2(-2.0,p);
+//         val[0]=fmod(-alpha+temp,2*M_PI);
+//         val[1]=p;
+//         val[2]=fmod(-beta+temp,2*M_PI);
+//         return val;
+//     }
+
+//     vector<double> RSL(double alpha, double beta, double d, int& flag)
+//     {
+//         flag=0;
+//         vector<double> val(3);
+//         double sa=sin(alpha),sb=sin(beta),ca=cos(alpha),cb=cos(beta);
+//         double c_ab = cos(alpha-beta);
+//         double var = d - sa - sb;
+//         double check = -2 + d*d + 2*c_ab - 2*d*(sa+sb);
+//         if(check < 0) return val;
+//         flag=1;
+//         double p=sqrt(check);
+//         double temp = atan2(cb+ca,var) - atan2(2.0,p);
+//         val[0]=fmod(alpha-temp,2*M_PI);
+//         val[1]=p;
+//         val[2]=fmod(beta-temp,2*M_PI);
+//         return val;
+//     }
+
+//     vector<double> RLR(double alpha, double beta, double d, int& flag)
+//     {
+//         flag=0;
+//         vector<double> val(3);
+//         double sa=sin(alpha),sb=sin(beta),ca=cos(alpha),cb=cos(beta);
+//         double c_ab = cos(alpha-beta);
+//         double var = d - sa + sb;
+//         double check = 6 - d*d + 2*c_ab + 2*d*(sa-sb);
+//         check/=8;
+//         if(fabs(check) > 1) return val;
+//         flag=1;
+//         double p=fmod(2*M_PI-acos(check),2*M_PI);
+//         double temp = atan2(-cb+ca,var) - p/2;
+//         val[0]=fmod(alpha-temp,2*M_PI);
+//         val[1]=p;
+//         val[2]=fmod(alpha-beta-val[0]+p,2*M_PI);
+//         return val;
+//     }
+
+//     vector<double> LRL(double alpha, double beta, double d, int& flag)
+//     {
+//         flag=0;
+//         vector<double> val(3);
+//         double sa=sin(alpha),sb=sin(beta),ca=cos(alpha),cb=cos(beta);
+//         double c_ab = cos(alpha-beta);
+//         double var = d + sa - sb;
+//         double check = 6 - d*d + 2*c_ab + 2*d*(-sa+sb);
+//         check/=8;
+//         if(fabs(check) > 1) return val;
+//         flag=1;
+//         double p=fmod(2*M_PI-acos(check),2*M_PI);
+//         double temp = atan2(-cb+ca,var) - p/2;
+//         val[0]=fmod(-alpha-temp,2*M_PI);
+//         val[1]=p;
+//         val[2]=fmod(beta-alpha-val[0]+p,2*M_PI);
+//         return val;
+//     }
+
+//     vector<State> generate_path(vector<double> length, string type, double c)
+//     {
+//         vector<State> path;
+//         State tea(0.0,0.0,0.0);
+//         path.push_back(tea);
+//         for(int i=0;i<3;i++)
+//         {
+//             double d,pd=0;
+//             if(type[i] == 'S') d=c;
+//             else d=D_S*M_PI/180;
+//             while (pd < fabs(length[i]-d))
+//             {
+//                 State temp=path.back();
+//                 State new1;
+//                 new1.x = temp.x + d/c*cos(temp.theta);
+//                 new1.y = temp.y + d/c*sin(temp.theta);
+//                 new1.theta = type[i]=='L'? temp.theta + d : type[i]=='S'? temp.theta :temp.theta-d;
+//                 path.push_back(new1);
+//                 pd += d;
+//             }
+//             d=length[i] - pd;
+//             State temp=path.back();
+//             State new1;
+//             new1.x = temp.x + d/c*cos(temp.theta);
+//             new1.y = temp.y + d/c*sin(temp.theta);
+//             new1.theta = type[i]=='L'? temp.theta + d : type[i]=='S'? temp.theta :temp.theta-d;
+//             path.push_back(new1);
+//             pd += d;
+//         }
+//         return path;
+//     }
+
+//     double find_cost(double alpha, double beta, double d, string& s)
+//     {
+//         // LSL, RSR, LSR, RSL, RLR, LRL
+//         double cost=1e9;
+//         vector<double> fin;
+//         int flag;
+//         double temp_c;
+//         vector<double> temp;
+
+//         //LSL
+//         temp = LSL(alpha,beta,d,flag);
+//         temp_c = c*fabs(temp[0]) + c*fabs(temp[1]) + c*fabs(temp[2]);
+//         if(cost>temp_c && flag)
+//             cost=temp_c,s="LSL";
+            
+//         //RSR
+//         temp = RSR(alpha,beta,d,flag);
+//         temp_c = c*fabs(temp[0]) + c*fabs(temp[1]) + c*fabs(temp[2]);
+//         if(cost>temp_c && flag)
+//             cost=temp_c,s="RSR";
+        
+//         //LSR
+//         temp = LSR(alpha,beta,d,flag);
+//         temp_c = c*fabs(temp[0]) + c*fabs(temp[1]) + c*fabs(temp[2]);
+//         if(cost>temp_c && flag)
+//             cost=temp_c,s="LSR";
+            
+//         //RSL
+//         temp = RSL(alpha,beta,d,flag);
+//         temp_c = c*fabs(temp[0]) + c*fabs(temp[1]) + c*fabs(temp[2]);
+//         if(cost>temp_c && flag)
+//             cost=temp_c,s="RSL";
+            
+//         //LRL
+//         temp = LRL(alpha,beta,d,flag);
+//         temp_c = c*fabs(temp[0]) + c*fabs(temp[1]) + c*fabs(temp[2]);
+//         if(cost>temp_c && flag)
+//             cost=temp_c,s="LRL";
+            
+//         //RLR
+//         temp = RLR(alpha,beta,d,flag);
+//         temp_c = c*fabs(temp[0]) + c*fabs(temp[1]) + c*fabs(temp[2]);
+//         if(cost>temp_c && flag)
+//             cost=temp_c,s="RLR";
+            
+//         return cost;
+//     }
+    
+//     void dubins_path_origin(double ex, double ey, double eyaw, double c)
+//     {
+//         double dx=ex,dy=ey;
+//         double D=sqrt(dx*dx + dy*dy);
+//         double d = D/c;
+
+//         double theta = fmod(atan2(dy,dx),2*M_PI);
+//         double alpha = fmod(-theta,2*M_PI);
+//         double beta = fmod(eyaw-theta,2*M_PI);
+
+//         string type;
+//         cost=find_cost(alpha,beta,d,type);
+//     }
+
+//     public:
+//         void dubins_path()
+//         {
+//             double rel_ex = end.x-start.x, rel_ey = end.y-start.y;
+//             double lex = cos(start.theta)*rel_ex + sin(start.theta)*rel_ey;
+//             double ley = cos(start.theta)*rel_ey - sin(start.theta)*rel_ex;
+//             double leyaw = end.theta - start.theta;
+
+//             dubins_path_origin(lex,ley,leyaw,c);
+//         }
+
+//         double ret_cost()
+//         {
+//             return cost;
+//         }
+
+//         State * ret_path()
+//         {
+//             return path;
+//         } 
+
+//         void change(State x,State y,double z)
+//         {
+//             start=x;
+//             end=y;
+//             c=z;
+//             dubins_path();
+//         }
+// };
+
+// void Heuristic::Dubins(double radius)
+// {
+//     State target(DX,DY,0);
+//     dub_cost = new double**[2*DX];
+//     int DT = 360/D_S;
+    
+//     for(int i=0;i<2*DX;i++)
+//     {
+//         dub_cost[i] = new double*[2*DY];
+//         for(int j=0;j<2*DY;j++)
+//             dub_cost[i][j] = new double[DT];
+//     }
+
+//     Dubins_Path temp;
+//     for(int i=0;i<2*DX;i++)
+//     {
+//         for(int j=0;j<2*DY;j++)
+//         {
+//             for(int k=0;k<DT;k++)
+//             {
+//                 double theta = k*D_S*M_PI/180;
+//                 State start(i,j,theta);
+                
+//                 temp.change(start,target,radius);
+//                 double *val=&dub_cost[i][j][k];
+
+//                 *val=temp.ret_cost();
+//             }
+//         }
+//     }
+// }
+
 double Heuristic::Dubin_cost(State begin, State end, double radius)
 {
 	bool DEBUG=false;
@@ -203,7 +497,7 @@ vector<State> Heuristic::DubinShot(State begin, State end, double radius)
         cout<<"Length_2 :"<<Path.length_[2]<<endl;
     }
 
-    int stride = 1,d=2,temp;
+    int stride = 1,d=2;
     State E1,E2,next;
 
     if(DEBUG)
@@ -217,7 +511,6 @@ vector<State> Heuristic::DubinShot(State begin, State end, double radius)
             next.x = (begin.x - alhpa1/abs(alhpa1)*( radius*sin(begin.theta) - radius*sin( alhpa1*stride/(Path.length_[0]*radius) +begin.theta )));
             next.y = (begin.y + alhpa1/abs(alhpa1)*( radius*cos(begin.theta) - radius*cos( alhpa1*stride/(Path.length_[0]*radius) +begin.theta )));
             next.theta = begin.theta + (float)(alhpa1*stride/(Path.length_[0]*radius)) ;
-            next.cost2d = begin.cost2d+stride;
             nextStates.push_back(next);        
             
             if(DEBUG)            
@@ -243,8 +536,6 @@ vector<State> Heuristic::DubinShot(State begin, State end, double radius)
     
     if(DEBUG)
     	cout<<"Inside Second Loop"<<endl;
-
-    temp=stride;
     stride = 1;
     
     if( Path.length_[1]>0.1 )
@@ -254,7 +545,6 @@ vector<State> Heuristic::DubinShot(State begin, State end, double radius)
             next.x = (E1.x + stride*cos(E1.theta) );
             next.y = (E1.y + stride*sin(E1.theta) );
             next.theta = E1.theta ;
-            next.cost2d = begin.cost2d+stride+temp;
             nextStates.push_back(next);
 
             if(DEBUG)            
@@ -282,7 +572,6 @@ vector<State> Heuristic::DubinShot(State begin, State end, double radius)
     	cout<<"Inside Third Loop"<<endl;
     
     double alhpa2 = (Path.type_[2]==0)?1*Path.length_[2]:-1*Path.length_[2];
-    temp+=stride;
     stride = 1;
     if( Path.length_[2]>0.1 )
     {
@@ -292,7 +581,6 @@ vector<State> Heuristic::DubinShot(State begin, State end, double radius)
             next.x = (E2.x - alhpa2/abs(alhpa2)*(radius*sin(E2.theta) - radius*sin( alhpa2*stride/(Path.length_[2]*radius)+E2.theta )));
             next.y = (E2.y + alhpa2/abs(alhpa2)*(radius*cos(E2.theta) - radius*cos( alhpa2*stride/(Path.length_[2]*radius)+E2.theta )));
             next.theta = E2.theta + (float)(alhpa2*stride/(Path.length_[2]*radius)) ;
-            next.cost2d = begin.cost2d+stride+temp;
             nextStates.push_back(next);
 
             if(DEBUG)                       
