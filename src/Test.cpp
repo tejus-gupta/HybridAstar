@@ -31,7 +31,7 @@ nav_msgs::OccupancyGrid obs_grid;
 vector< vector<Point> > obs;
 vector< vector< bool > > obs_map;
 vector< vector<Point> > obs_copy;
-bool dest_change=false;
+bool dest_receive=false;
 
 void mapCallback(const nav_msgs::OccupancyGrid::ConstPtr& msg)
 {
@@ -231,13 +231,13 @@ int main(int argc,char **argv)
             ros::spinOnce();
     	}
 
-        while(dest_change)
+        while(!dest_receive)
         {
             cout<<"Waiting for Goal "<<endl;
             ros::spinOnce();
         }
 
-        dest_change = false;
+        dest_receive = false;
         cout<<"Destination Received : "<<dest.x<<" "<<dest.y<<" "<<dest.theta<<endl;
         cout<<"Starting Received : "<<start.x<<" "<<start.y<<" "<<start.theta<<endl;
                 
