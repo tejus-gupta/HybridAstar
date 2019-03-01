@@ -6,7 +6,7 @@ GUI::GUI(int rows, int cols){
 	display=Mat(cv::Size(rows, cols), CV_8UC3, Scalar(220,220,220));
 }
 
-void GUI::draw_obstacles(vector<vector<bool> >obs_map, float res){
+void GUI::draw_obstacles(vector<vector<Point> >polygon, float res){
 	for(int i=0; i<cols; i++)
 		for(int j=0; j<rows; j++)
 			if(obs_map[(int)(i/res)][(int)(j/res)])

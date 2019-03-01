@@ -1,20 +1,34 @@
 #include "opencv/cv.h"
+#include <opencv2/highgui/highgui.hpp>
+
 #include "../src/Planner.cpp"
 #include "../include/GUI.hpp"
-#include <vector>
-#include <opencv2/highgui/highgui.hpp>
 
 #include "ros/ros.h"
 #include "geometry_msgs/PoseArray.h" 
 #include "geometry_msgs/Pose.h" 
 #include "geometry_msgs/PoseStamped.h" 
 #include "geometry_msgs/PoseWithCovarianceStamped.h"
+#include "geometry_msgs/TransformStamped.h" 
 
-#include <tf2/LinearMath/Quaternion.h>
 #include <tf/transform_datatypes.h>
-#include "nav_msgs/OccupancyGrid.h"
+#include <tf/transform_listener.h>
+
+#include "tf2/convert.h" 
+#include <tf2/LinearMath/Quaternion.h>
+#include "tf2_ros/transform_listener.h"
+#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
+
+#include "nav_msgs/Path.h"
 #include "nav_msgs/Odometry.h"
- 
+#include "nav_msgs/OccupancyGrid.h"
+
+#include <cv_bridge/cv_bridge.h>
+#include <image_transport/image_transport.h>
+
+
+using namespace cv;
+
 typedef struct _Quaternion
 {
     float x;
@@ -23,64 +37,69 @@ typedef struct _Quaternion
     float w;
 }Quaternion;
 
+bool DEBUG = false;
 
-using namespace cv;
 
 State start,dest;
+tf2_ros::Buffer tfBuffer;
 nav_msgs::OccupancyGrid obs_grid;
+
 vector< vector<Point> > obs;
-vector< vector< bool > > obs_map;
 vector< vector<Point> > obs_copy;
-bool dest_receive=false;
+vector< vector< bool > > obs_map(200,vector<bool>(200,false));
 
-void mapCallback(const nav_msgs::OccupancyGrid::ConstPtr& msg)
+// tf::TransformListener tflistener;
+int flag=0;
+
+// void mapCallback(const nav_msgs::OccupancyGrid::ConstPtr& msg)
+void mapCallback(const geometry_msgs::PoseArray& msg)
 {
-    obs_grid=*msg;
-    obs_map.resize(obs_grid.info.width);
-    for(int i=0; i<obs_grid.info.width; i++)
-        obs_map[i].resize(obs_grid.info.height);
+    flag=1;
+    cout<<"Inside mapCallback"<<endl;    
     
-    for(int i=0; i<obs_grid.info.width; i++) 
-        for(int j=0; j < obs_grid.info.height; j++)
-            obs_map[obs_grid.info.width -1 -i][j] = (obs_grid.data[i*obs_grid.info.width+j]>= 90 || obs_grid.data[i*obs_grid.info.width+j]==-1); 
+    geometry_msgs::PoseStamped  goal,trans_goal;
+    geometry_msgs::TransformStamped trans_msg;
+    
+    try{
+        trans_msg = tfBuffer.lookupTransform("map", "odom",ros::Time(0));
+    }
+    catch (tf2::TransformException &ex) 
+    {
+        ROS_WARN("%s",ex.what());
+    }
+    obs.resize(msg.poses[i].orientation.x);
+    for (int i = 0; i < msg.poses.size(); ++i)
+    {
+        Point temp;
+        goal.pose = msg.poses[i];
+        tf2::doTransform(goal,trans_goal,trans_msg);
+        temp.x = trans_goal.pose.position.x;
+        temp.y = trans_goal.pose.position.y;
+        obs[msg.poses[i].position.z].push_back(temp);
+    }
 
-    // cout<<"Map "<<obs_grid.info.width<<" "<<obs_grid.info.height<<endl;
-    obs.clear();
+    // for(int i=0; i<obs_grid.info.width; i++)
+    //     obs_map[i].resize(# no. of clusters in this cluster);
+    
+    // for(int i=0; i<obs_grid.info.width; i++) 
+    //     for(int j=0; j < obs_grid.info.height; j++)
+    //         obs_map[obs_grid.info.width -1 -i][j] = (obs_grid.data[i*obs_grid.info.width+j]>= 90 || obs_grid.data[i*obs_grid.info.width+j]==-1); 
+    
+    // cout<<"Map size: "<<obs_grid.info.width<<" "<<obs_grid.info.height<<endl;
+    // obs.clear();
 
-    Mat A(obs_grid.info.height, obs_grid.info.width, CV_8UC1, Scalar(0));
-    for(int i=0;i<A.rows;i++)
-        for(int j=0;j<A.cols;j++)
-            if(obs_map[i][j])
-                A.at<uchar>(i,j) = 255;
+    // Mat A(obs_grid.info.height, obs_grid.info.width, CV_8UC1, Scalar(0));
+    // for(int i=0;i<A.rows;i++)
+    //     for(int j=0;j<A.cols;j++)
+    //         if(obs_map[i][j])
+    //             A.at<uchar>(i,j) = 255;
 
+    // int threshold=100;
+    // Canny(img1,img2,threshold,3*threshold,3);
 
-    // vector <Point> a;
-    // vector <Point> b;
-    // vector <Point> c;
-    // a.push_back(Point(64,105));
-    // a.push_back(Point(64,185));
-    // a.push_back(Point(280,185));
-    // a.push_back(Point(280,105));
-    // obs.push_back(a);
-    // b.push_back(Point(64,225));
-    // b.push_back(Point(64,310));
-    // b.push_back(Point(280,310));
-    // b.push_back(Point(280,225));
-    // obs.push_back(b);
-    // c.push_back(Point(64,335));
-    // c.push_back(Point(64,430));
-    // c.push_back(Point(280,430));
-    // c.push_back(Point(280,335));
-    // obs.push_back(c );
-
-
-    // cout<<"Before Canny"<<endl;
-    int threshold=100;
-    Canny(A,A,threshold,3*threshold,3);
-
-    vector< vector< Point > > temp_obs;
-    findContours(A, temp_obs, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
-    obs.resize(temp_obs.size());
+    // vector< vector< Point > > temp_obs;
+    // findContours(img2, temp_obs, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
+    // obs.resize(temp_obs.size());
   
 /*
 	For printing the output of Contour Detection
@@ -97,8 +116,8 @@ void mapCallback(const nav_msgs::OccupancyGrid::ConstPtr& msg)
  //    imshow("Contours ",drawing);
  //    waitKey(0);
 
-    for(int i=0;i<temp_obs.size();i++)
-        convexHull(temp_obs[i],obs[i]);
+    // for(int i=0;i<temp_obs.size();i++)
+    //     convexHull(temp_obs[i],obs[i]);
 
 /*
 	For printing the output of Convex Hull
@@ -127,6 +146,7 @@ void mapCallback(const nav_msgs::OccupancyGrid::ConstPtr& msg)
     		obs_copy[i][j].y=obs[i][j].x;
     	}
     }
+
     // Mat drawing = Mat::zeros( A.size(), CV_8UC3 );
     // for( int i = 0; i< temp_obs.size(); i++ )
     // {
@@ -142,7 +162,7 @@ void mapCallback(const nav_msgs::OccupancyGrid::ConstPtr& msg)
     // cout<<"Found Hull"<<endl;
 
     
-    // cout<<"THE Found Hull"<<endl;
+    // cout<<" Found Hull"<<endl;
     // Mat imgp(obs_grid.info.height*5,obs_grid.info.width*5, CV_8UC1,Scalar(0));
     // for(int i=0;i<obs.size();i++)
     // {
@@ -154,35 +174,58 @@ void mapCallback(const nav_msgs::OccupancyGrid::ConstPtr& msg)
     // exit(0);
 }
 
-void odomCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& odom_msg) 
+void odomCallback(const nav_msgs::Odometry& odom_msg) 
 {
     cout<<"Inside OdomCallback"<<endl;
-    start.x = obs_map.size() - odom_msg->pose.pose.position.y;
-    start.y = odom_msg->pose.pose.position.x;
+	
+    start.x = odom_msg.pose.pose.position.x ;
+    start.y = odom_msg.pose.pose.position.y ;
 
-    tf::Quaternion q(odom_msg->pose.pose.orientation.x, odom_msg->pose.pose.orientation.y, odom_msg->pose.pose.orientation.z, odom_msg->pose.pose.orientation.w);
+    tf::Quaternion q(odom_msg.pose.pose.orientation.x, odom_msg.pose.pose.orientation.y, odom_msg.pose.pose.orientation.z, odom_msg.pose.pose.orientation.w);
     tf::Matrix3x3 m(q);
-    double roll, pitch, yaw;
-    m.getRPY(roll, pitch, yaw);
-
-    start.theta = yaw;
-}
-
-void goalCallback(const geometry_msgs::PoseStamped::ConstPtr&  goal)
-{
-    dest.x= obs_map.size()- goal->pose.position.y;
-    dest.y= goal->pose.position.x;
     
-    tf::Quaternion q(goal->pose.orientation.x, goal->pose.orientation.y, goal->pose.orientation.z, goal->pose.orientation.w);
-    tf::Matrix3x3 m(q);
     double roll, pitch, yaw;
     m.getRPY(roll, pitch, yaw);
-
-    dest.theta=yaw;
-    dest_change=true;
+    start.theta = fmod(yaw+2*M_PI,2*M_PI);
+    
+    // cout<<"start.xK "<<start.x<<" start.y "<<start.y<<" start.theta "<<start.theta<<endl;
 }
 
-Quaternion toQuaternion(double pitch, double roll, double yaw)
+void goalCallback(const geometry_msgs::PoseStamped&  goal)
+{
+    cout<<"Inside goalCallback"<<endl;
+	
+    geometry_msgs::PoseStamped  trans_goal;
+	geometry_msgs::TransformStamped trans_msg;
+	
+	try{
+        trans_msg = tfBuffer.lookupTransform("map", "odom",ros::Time(0));
+        tf2::doTransform(goal,trans_goal,trans_msg);
+    }
+    catch (tf2::TransformException &ex) 
+    {
+        ROS_WARN("%s",ex.what());
+    }
+
+    if(DEBUG)
+    {
+        cout<<"goal.pose.position.x:"<<goal.pose.position.x<<" goal.pose.position.y: "<<goal.pose.position.y<<endl;
+        cout<<"trans_goal.pose.position.x:"<<trans_goal.pose.position.x<<" trans_goal.pose.position.y:"<<trans_goal.pose.position.y<<endl;
+    } 
+    
+    dest.x= trans_goal.pose.position.x ;
+    dest.y= trans_goal.pose.position.y ;
+        
+    tf::Quaternion q(trans_goal.pose.orientation.x, trans_goal.pose.orientation.y, trans_goal.pose.orientation.z, trans_goal.pose.orientation.w);
+    tf::Matrix3x3 m(q);
+    
+    double roll, M_PItch, yaw;
+    m.getRPY(roll, M_PItch, yaw);
+
+    dest.theta=fmod(yaw+2*M_PI,2*M_PI);
+}
+
+Quaternion toQuaternion(double M_PItch, double roll, double yaw)
 {
     Quaternion q;
     // Abbreviations for the various angular functions
@@ -190,8 +233,8 @@ Quaternion toQuaternion(double pitch, double roll, double yaw)
     double sy = sin(yaw * 0.5);
     double cr = cos(roll * 0.5);
     double sr = sin(roll * 0.5);
-    double cp = cos(pitch * 0.5);
-    double sp = sin(pitch * 0.5);
+    double cp = cos(M_PItch * 0.5);
+    double sp = sin(M_PItch * 0.5);
 
     q.w = cy * cr * cp + sy * sr * sp;
     q.x = cy * sr * cp - sy * cr * sp;
@@ -203,49 +246,53 @@ Quaternion toQuaternion(double pitch, double roll, double yaw)
 
 int main(int argc,char **argv)
 { 
-
     ros::init(argc,argv,"hybrid_astar");
     ros::NodeHandle nh;
 
-    ros::Subscriber sub1  = nh.subscribe("/initialpose",10,&odomCallback);
-    ros::Subscriber sub2  = nh.subscribe("/map",10,&mapCallback);
+    ros::Subscriber map  = nh.subscribe("/obstacles",10,&mapCallback);   
+    ros::Subscriber odom  = nh.subscribe("/base_pose_ground_truth",10,&odomCallback);
     ros::Subscriber goal  = nh.subscribe("/move_base_simple/goal",10,&goalCallback);
 
-    ros::Publisher  pub = nh.advertise<geometry_msgs::PoseArray>("/waypoint", 10);
-    
+    ros::Publisher  pub = nh.advertise<nav_msgs::Path>("/astroid_path", 10);
+    tf2_ros::TransformListener listener(tfBuffer);
+
+    ros::Rate rate(1);
     while(ros::ok())
     {
         Planner astar;
         Vehicle car;
-        geometry_msgs::PoseArray poseArray; 
-        
-        poseArray.header.frame_id = "/map";
-        
-        State start(10,10,CV_PI/2);
-        State target(341,460,CV_PI/2); 
 
-        ros::spinOnce();
-        while(obs_map.empty())
-    	{
-    		cout<<"Waiting for Map "<<endl;
+        nav_msgs::Path path_pub; 
+        path_pub.header.frame_id = "/map";
+        
+        while( flag==0 )
+        {
+          	cout<<"Waiting for Map "<<endl;
             ros::spinOnce();
-    	}
+        }
+        cout<<"Map Size: "<<obs_map.size()<<" "<<obs_map[0].size()<<endl;
+        flag=0;
 
-        while(!dest_receive)
+        start.x=0;
+        while(start.x == 0)
+        {
+            cout<<"Waiting for Start "<<endl;
+            ros::spinOnce();
+        }
+        cout<<"Starting Received : "<<start.x<<" "<<start.y<<" "<<start.theta<<endl;
+
+        dest.x=0;
+        while(dest.x == 0)
         {
             cout<<"Waiting for Goal "<<endl;
             ros::spinOnce();
         }
-
-        dest_receive = false;
         cout<<"Destination Received : "<<dest.x<<" "<<dest.y<<" "<<dest.theta<<endl;
-        cout<<"Starting Received : "<<start.x<<" "<<start.y<<" "<<start.theta<<endl;
-                
-        cout<<"Started "<<obs_grid.info.width<<" "<<obs_grid.info.height<<endl;
-        float scale=1000.0/obs_grid.info.width;
+
+        float scale=1000.0/200;
 
         clock_t start_time=clock();
-        vector<State> path = astar.plan(start, dest, obs_map, car ,obs_copy, scale);
+        vector<State> path = astar.plan(start, dest, obs_map, car, obs_copy, scale);
         clock_t end_time=clock();
 
         vector<State>::iterator ptr;
@@ -256,34 +303,38 @@ int main(int argc,char **argv)
             pose.pose.position.y = (*ptr).y;
             pose.pose.position.z = 0;
 
-            Quaternion myQuaternion=toQuaternion(0,0,(*ptr).theta);
+            Quaternion myQuaternion = toQuaternion(0,0,(*ptr).theta);
 
             pose.pose.orientation.x = myQuaternion.x;
             pose.pose.orientation.y = myQuaternion.y;
             pose.pose.orientation.z = myQuaternion.z;
             pose.pose.orientation.w = myQuaternion.w;
-
-            poseArray.poses.push_back(pose.pose);
+           
+            pose.header.frame_id = "map";
+            pose.header.stamp = ros::Time::now();
+            path_pub.poses.push_back(pose);
         }
         cout<<"Total time taken: "<<(double)(end_time-start_time)/CLOCKS_PER_SEC<<endl;
         cout<<"Got path of length "<<path.size()<<endl<<endl;
 
-        poseArray.header.stamp = ros::Time::now();
-        pub.publish(poseArray);
+        path_pub.header.stamp = ros::Time::now();
+        
+        if(DEBUG)
+        {
+            GUI display(1000, 1000);
+            display.draw_obstacles(obs_map,scale);
+            display.draw_car(start,car,scale);
+            for(int i=0;i<=path.size();i++)
+            {
+                display.draw_car(path[i], car,scale);
+                display.show(1);
+            } 
+            display.show(2000);
+        }
+           
+    	pub.publish(path_pub);
+        rate.sleep();
 
-        // ROS_INFO("poseArray size: %i", poseArray.poses.size()); 
-        // GUI display(1000, 1000);
-        // display.draw_obstacles(obs_map,scale);
-        // display.draw_car(start,car,scale);
-
-        // for(int i=0;i<=path.size();i++)
-        // {
-        //     display.draw_car(path[i], car,scale);
-        //     display.show(1);
-        // } 
-        // display.show();
-        // exit(0);
     }
 
 }
-

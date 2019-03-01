@@ -6,29 +6,29 @@ vector <State> Vehicle::nextStates(State* n, float scale_up)
 	State t;
 	
 	//alpha=steering angle, beta=turning angle, r=turning radius, d=distanced travelled
-	float alpha,beta,r,d=2; 
+	float alpha,beta,r,d=1; 
 
 	for(alpha=-BOT_MAX_ALPHA; alpha<=BOT_MAX_ALPHA+0.01; alpha+=BOT_MAX_ALPHA/2)
 	{
-		beta=abs(d*tan(alpha*PI/180)/BOT_L);
+		beta=abs(d*tan(alpha*M_PI/180)/BOT_L);
 		if(abs(beta) > 0.001)
 		{
-			r=abs(BOT_L/tan(alpha*PI/180));
+			r=abs(BOT_L/tan(alpha*M_PI/180));
 			if(alpha<0)
 			{
 				t.x=n->x + sin(n->theta)*r - sin(n->theta-beta)*r;
 				t.y=n->y - cos(n->theta)*r + cos(n->theta-beta)*r;
-				t.theta=fmod(n->theta+beta,2*PI);
+				t.theta=fmod(n->theta+beta,2*M_PI);
 			}
 			else
 			{
 				t.x=n->x - sin(n->theta)*r + sin(n->theta+beta)*r;
 				t.y=n->y + cos(n->theta)*r - cos(n->theta+beta)*r;
-				t.theta=fmod(n->theta-beta,2*PI);
+				t.theta=fmod(n->theta-beta,2*M_PI);
 			}
 		
 			if(t.theta < 0)
-				t.theta+=2*PI;
+				t.theta+=2*M_PI;
 		}
 		else
 		{
@@ -43,7 +43,7 @@ vector <State> Vehicle::nextStates(State* n, float scale_up)
 		t.gy=t.y;
 		t.steer_angle=alpha;
 
-		if(t.gx >= 0 && t.gx < 1000/scale_up && t.gy >= 0 && t.gy < 1000/scale_up)
+		if(t.gx >= 0 && t.gx < 1000/scale_up && t.gy >= 0 && t.gy < 1000/scale_up)//change upperbound according to the map size
 			next.push_back(t);
 	}
 	return next;		

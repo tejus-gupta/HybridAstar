@@ -4,6 +4,15 @@
 
 using namespace std;
 
+
+typedef struct _dubins
+{
+	State initial;
+	State final;
+	double radius;
+	double dubins_cost;
+}Dubins;
+
 class Planner
 {
 	public:	
