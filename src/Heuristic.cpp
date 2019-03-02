@@ -12,8 +12,6 @@ using namespace std;
 namespace ob = ompl::base;
 namespace og = ompl::geometric;
 
-int xlimit,ylimit;
-
 class compareHeuristic{
  public:
 	bool operator ()(Heuristic::smallestcost_2d a,Heuristic::smallestcost_2d b)
@@ -22,13 +20,6 @@ class compareHeuristic{
 	}
 };
 
-bool isvalid (Heuristic::smallestcost_2d neighbor)
-{
-	if (neighbor.x<0||neighbor.y<0||neighbor.x>=xlimit||neighbor.y>=ylimit)
-		return false;
-	return true;
-}
-
 float distance (Heuristic::smallestcost_2d source,Heuristic::smallestcost_2d neighbor)
 {
 	return (sqrt((source.x-neighbor.x)*(source.x-neighbor.x)+(source.y-neighbor.y)*(source.y-neighbor.y)));
@@ -36,20 +27,16 @@ float distance (Heuristic::smallestcost_2d source,Heuristic::smallestcost_2d nei
 
 void Heuristic::Dijkstra(Map map,State target)
 {
-    xlimit = map.VISX, ylimit = map.VISY;
-	priority_queue <smallestcost_2d,vector<smallestcost_2d>,compareHeuristic> pq;
+ 	priority_queue <smallestcost_2d,vector<smallestcost_2d>,compareHeuristic> pq;
 
-	int grid_map[map.VISX][map.VISY];
-	for(int i=0;i<map.VISX;i++)
-		for(int j=0;j<map.VISY;j++)
-			if(map.obs_map[i][j])
-			    grid_map[i][j]=1;
+	cv::Mat grid(map.VISX, map.VISY, CV_8UC1, Scalar(255));
+	cv::drawContours(grid, map.obs, -1, Scalar(0), -1);
 
 	h_vals=new smallestcost_2d*[map.VISX];
 	for(int i=0;i<map.VISX;i++)
 	{
 		h_vals[i]=new smallestcost_2d[map.VISY];
-        for (int j=0;j<map.VISY;j++)
+        	for (int j=0;j<map.VISY;j++)
 			h_vals[i][j].dis=FLT_MAX;
 	}
 
@@ -81,9 +68,9 @@ void Heuristic::Dijkstra(Map map,State target)
 				neighbor.x=i;
 				neighbor.y=j;
 
-				if(!isvalid(neighbor))
-                    continue;				
-				if ( grid_map[i][j]!=1 && is_visited[i][j]==false )
+				if(!map.isValid({neighbor.x, neighbor.y}))
+                    			continue;				
+				if ( grid.at<uchar>(i,j)!=0 && is_visited[i][j]==false )
 				{
 					if (h_vals[i][j].dis>h_vals[temp.x][temp.y].dis+distance(temp,neighbor))
 					{

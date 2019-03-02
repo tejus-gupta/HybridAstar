@@ -6,20 +6,15 @@
 #include "../include/Map.hpp"
 
 
-Map::Map( vector<vector<bool> > obs_map, State end,vector<vector<Point>> obs,float scale)
+Map::Map( vector< vector<Point> > obs, State end, int rows, int cols)
 {
 	MAP_THETA=72;
-    MAPX=1000;
-    MAPY=1000;
-    VISX=MAPX/scale;
-    VISY=MAPY/scale;
+    VISX = rows;
+    VISY = cols;
 
-	this->obs=obs;
-	this->obs_map = obs_map;
+	this->obs = obs;
 	this->end = end;
-	this->map_resolution = scale;
 	
-	// initCollisionChecker();
 	initCollisionCheckerSat();
 }
 
@@ -31,70 +26,19 @@ double cmod(double a, double b)
 	return a;
 }
 
+bool Map::isValid(Point p)
+{
+	if(p.x < 0 || p.y < 0 || p.x >= VISX || p.y >= VISY)
+		return false;
+	return true; 
+}
+
 bool Map::isReached(State current)
 { 	
 	if( abs(current.x - end.x) < 1 && abs(current.y - end.y) < 1 && abs(cmod(current.theta,2*M_PI) - end.theta) < M_PI/6 )
 		return true;
  	else 
  		return false;
-}
-
-/*
-	Here we keep on adding the bool value of individual states along X and then Y axis.Then we check if sum of 
-	these value on opposite corner is same which should the case if there was no obstacle between these points. 
-*/
-void Map::initCollisionChecker(){
-	acc_obs_map=new int*[MAPX];
-	for(int i=0;i<MAPX;i++)
-	{
-		acc_obs_map[i]=new int[MAPY];
-		for(int j=0;j<MAPY;j++)
-			acc_obs_map[i][j]=obs_map[(int)(i/map_resolution)][(int)(j/map_resolution)];
-	}
-
-	for(int i=0;i<MAPX;i++)
-		for(int j=1;j<MAPY;j++)
-			acc_obs_map[i][j]=acc_obs_map[i][j-1]+acc_obs_map[i][j];
-
-	for(int j=0;j<MAPY;j++)
-		for(int i=1;i<MAPX;i++)
-			acc_obs_map[i][j]=acc_obs_map[i-1][j]+acc_obs_map[i][j];
-
-	return;
-}
-
-bool Map::checkCollision(State pos){
-
-	if(pos.x*map_resolution>=MAPX || pos.x*map_resolution<0 || pos.y*map_resolution>=MAPY || pos.y*map_resolution<0 )
-		return true;
-	
-
-	//first use a bounding box around car to check for collision in O(1) time
-	int max_x, min_x, max_y, min_y;
-	max_x = map_resolution * (pos.x+car.BOT_L*abs(cos(pos.theta))/2+car.BOT_W*abs(sin(pos.theta))/2) + 1;
-	min_x = map_resolution * (pos.x-car.BOT_L*abs(cos(pos.theta))/2-car.BOT_W*abs(sin(pos.theta))/2) - 1;
-
-	max_y= map_resolution * (pos.y+car.BOT_L*abs(sin(pos.theta))/2+car.BOT_W*abs(cos(pos.theta))/2) + 1;
-	min_y= map_resolution * (pos.y-car.BOT_L*abs(sin(pos.theta))/2-car.BOT_W*abs(cos(pos.theta))/2) - 1;
-	
-	if(max_x>=MAPX || min_x<0 || max_y>=MAPY || min_y<0)
-		return true;
-
-	if(acc_obs_map[max_x][max_y]+acc_obs_map[min_x][min_y]==acc_obs_map[max_x][min_y]+acc_obs_map[min_x][max_y])
-		return false;
-
-	// brute force check through the car
-	for(float i=-car.BOT_L/2.0;i<=car.BOT_L/2.0+0.001;i+=0.25)
-		for(float j=-car.BOT_W/2.0;j<=car.BOT_W/2.0+0.001;j+=0.25)
-		{
-			int s = pos.x+i*cos(pos.theta)+j*sin(pos.theta) + 0.001;
-			int t = pos.y+i*sin(pos.theta)+j*cos(pos.theta) + 0.001;
-
-     		if(obs_map[s][t])
-				return true;
-		}
-	return false;
-
 }
 
 /*

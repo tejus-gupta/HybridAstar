@@ -1,6 +1,6 @@
 #include "../include/Vehicle.hpp"
 
-vector <State> Vehicle::nextStates(State* n, float scale_up)
+vector <State> Vehicle::nextStates(State* n)
 {
 	vector<State> next;
 	State t;
@@ -43,8 +43,8 @@ vector <State> Vehicle::nextStates(State* n, float scale_up)
 		t.gy=t.y;
 		t.steer_angle=alpha;
 
-		if(t.gx >= 0 && t.gx < 1000/scale_up && t.gy >= 0 && t.gy < 1000/scale_up)//change upperbound according to the map size
-			next.push_back(t);
+//		if(t.gx >= 0 && t.gx < 1000/scale_up && t.gy >= 0 && t.gy < 1000/scale_up)//change upperbound according to the map size
+//			next.push_back(t);
 	}
 	return next;		
 }

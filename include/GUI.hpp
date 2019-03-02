@@ -11,15 +11,15 @@ class GUI{
 public:
     int rows;
     int cols;
+    float scale;
     Mat display;
     Vehicle car;
 
-    GUI(int rows, int cols);
-    void draw_obstacles(vector<vector<bool> > obs_map,float res);
-    void draw_tree( State state, State next, float scale);
-    void draw_dubins( vector<State> Path,float scale );
-    void draw_car(State src, Vehicle car,float map_resolution);
-    void show();
+    GUI(int rows, int cols, float scale);
+    void draw_obstacles(vector< vector<Point> > polygon);
+    void draw_tree( State state, State next);
+    void draw_dubins( vector<State> Path);
+    void draw_car(State src, Vehicle car);
     void show(int t);
 };
 
