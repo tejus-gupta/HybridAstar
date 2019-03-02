@@ -26,6 +26,7 @@
 #include <cv_bridge/cv_bridge.h>
 #include <image_transport/image_transport.h>
 
+#include <hybrid_astar/polygonArray.h>
 
 using namespace cv;
 
@@ -42,96 +43,38 @@ bool DEBUG = false;
 
 State start,dest;
 tf2_ros::Buffer tfBuffer;
-nav_msgs::OccupancyGrid obs_grid;
 
 vector< vector<Point> > obs;
 vector< vector<Point> > obs_copy;
-vector< vector< bool > > obs_map(200,vector<bool>(200,false));
 
 // tf::TransformListener tflistener;
-int flag=0;
+bool map_ch = false;
+bool dest_ch = false;
+bool start_ch = false;
 
-// void mapCallback(const nav_msgs::OccupancyGrid::ConstPtr& msg)
-void mapCallback(const geometry_msgs::PoseArray& msg)
+void mapCallback(const hybrid_astar::polygonArray& msg)
 {
-    flag=1;
-    cout<<"Inside mapCallback"<<endl;    
+    map_ch = true;
+    cout<<"Inside mapCallback\n"<<endl;    
     
-    geometry_msgs::PoseStamped  goal,trans_goal;
     geometry_msgs::TransformStamped trans_msg;
-    
     try{
         trans_msg = tfBuffer.lookupTransform("map", "odom",ros::Time(0));
-    }
-    catch (tf2::TransformException &ex) 
-    {
+    }catch (tf2::TransformException &ex){
         ROS_WARN("%s",ex.what());
     }
-    obs.resize(msg.poses[i].orientation.x);
-    for (int i = 0; i < msg.poses.size(); ++i)
+    
+    obs.resize(msg.obstacles.size());
+    for (int i = 0; i < msg.obstacles.size(); ++i)
     {
-        Point temp;
-        goal.pose = msg.poses[i];
-        tf2::doTransform(goal,trans_goal,trans_msg);
-        temp.x = trans_goal.pose.position.x;
-        temp.y = trans_goal.pose.position.y;
-        obs[msg.poses[i].position.z].push_back(temp);
+        for(int j = 0; j < msg.obstacles[i].polygon.size(); j++)
+        {
+            geometry_msgs::PointStamped trans,temp;
+	    temp = msg.obstacles[i].polygon[j];
+            tf2::doTransform(temp,trans,trans_msg);
+            obs[i].push_back(Point {trans.point.x,trans.point.y});
+        }
     }
-
-    // for(int i=0; i<obs_grid.info.width; i++)
-    //     obs_map[i].resize(# no. of clusters in this cluster);
-    
-    // for(int i=0; i<obs_grid.info.width; i++) 
-    //     for(int j=0; j < obs_grid.info.height; j++)
-    //         obs_map[obs_grid.info.width -1 -i][j] = (obs_grid.data[i*obs_grid.info.width+j]>= 90 || obs_grid.data[i*obs_grid.info.width+j]==-1); 
-    
-    // cout<<"Map size: "<<obs_grid.info.width<<" "<<obs_grid.info.height<<endl;
-    // obs.clear();
-
-    // Mat A(obs_grid.info.height, obs_grid.info.width, CV_8UC1, Scalar(0));
-    // for(int i=0;i<A.rows;i++)
-    //     for(int j=0;j<A.cols;j++)
-    //         if(obs_map[i][j])
-    //             A.at<uchar>(i,j) = 255;
-
-    // int threshold=100;
-    // Canny(img1,img2,threshold,3*threshold,3);
-
-    // vector< vector< Point > > temp_obs;
-    // findContours(img2, temp_obs, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
-    // obs.resize(temp_obs.size());
-  
-/*
-	For printing the output of Contour Detection
-*/    
-
- //    vector<Vec4i> hierarchy;
- //    Mat drawing = Mat::zeros( A.size(), CV_8UC3 );
- //	   for( int i = 0; i< temp_obs.size(); i++ )
- //    {
- //       Scalar color = Scalar( 0,255,255);
- //       drawContours( drawing, temp_obs, i, color, 2, 8, hierarchy, 0, Point() );
- //    }
-
- //    imshow("Contours ",drawing);
- //    waitKey(0);
-
-    // for(int i=0;i<temp_obs.size();i++)
-    //     convexHull(temp_obs[i],obs[i]);
-
-/*
-	For printing the output of Convex Hull
-*/    
- //    Mat drawing = Mat::zeros( A.size(), CV_8UC3 );
- //    for( int i = 0; i< temp_obs.size(); i++ )
- //    {
- //        Scalar color = Scalar( 0, 0, 255 );
- //        Scalar color1 = Scalar( 0, 255, 255 );
- //        drawContours( drawing, temp_obs, i, color, 1, 8, vector<Vec4i>(), 0, Point() );
- //        drawContours( drawing, obs, i, color1, 1, 8, vector<Vec4i>(), 0, Point() );
- //    }
- //    imshow("Contours ",drawing);
- //    waitKey(0);
 
 /*
 	For printing the points of Convex Hull
@@ -147,22 +90,6 @@ void mapCallback(const geometry_msgs::PoseArray& msg)
     	}
     }
 
-    // Mat drawing = Mat::zeros( A.size(), CV_8UC3 );
-    // for( int i = 0; i< temp_obs.size(); i++ )
-    // {
-    //     Scalar color = Scalar( 0, 0, 255 );
-    //     Scalar color1 = Scalar( 0, 255, 255 );
-    //     // drawContours( drawing, temp_obs, i, color, 1, 8, vector<Vec4i>(), 0, Point() );
-    //     drawContours( drawing, obs_copy, i, color1, 1, 8, vector<Vec4i>(), 0, Point() );
-    // }
-    // imshow("Contours ",drawing);
-    // waitKey(0);
-    // exit(0);
-
-    // cout<<"Found Hull"<<endl;
-
-    
-    // cout<<" Found Hull"<<endl;
     // Mat imgp(obs_grid.info.height*5,obs_grid.info.width*5, CV_8UC1,Scalar(0));
     // for(int i=0;i<obs.size();i++)
     // {
@@ -178,6 +105,7 @@ void odomCallback(const nav_msgs::Odometry& odom_msg)
 {
     cout<<"Inside OdomCallback"<<endl;
 	
+    start_ch = true;
     start.x = odom_msg.pose.pose.position.x ;
     start.y = odom_msg.pose.pose.position.y ;
 
@@ -188,11 +116,11 @@ void odomCallback(const nav_msgs::Odometry& odom_msg)
     m.getRPY(roll, pitch, yaw);
     start.theta = fmod(yaw+2*M_PI,2*M_PI);
     
-    // cout<<"start.xK "<<start.x<<" start.y "<<start.y<<" start.theta "<<start.theta<<endl;
 }
 
 void goalCallback(const geometry_msgs::PoseStamped&  goal)
 {
+    dest_ch = true;
     cout<<"Inside goalCallback"<<endl;
 	
     geometry_msgs::PoseStamped  trans_goal;
@@ -246,6 +174,10 @@ Quaternion toQuaternion(double M_PItch, double roll, double yaw)
 
 int main(int argc,char **argv)
 { 
+
+    int rows = 200, cols = 200;
+    float scale = 5;
+
     ros::init(argc,argv,"hybrid_astar");
     ros::NodeHandle nh;
 
@@ -261,38 +193,36 @@ int main(int argc,char **argv)
     {
         Planner astar;
         Vehicle car;
+        GUI display(rows,cols,scale);
 
         nav_msgs::Path path_pub; 
         path_pub.header.frame_id = "/map";
         
-        while( flag==0 )
+        while( !map_ch )
         {
           	cout<<"Waiting for Map "<<endl;
             ros::spinOnce();
         }
-        cout<<"Map Size: "<<obs_map.size()<<" "<<obs_map[0].size()<<endl;
-        flag=0;
+        map_ch = false;
 
-        start.x=0;
-        while(start.x == 0)
+        start_ch = false;
+        while( !start_ch )
         {
             cout<<"Waiting for Start "<<endl;
             ros::spinOnce();
         }
         cout<<"Starting Received : "<<start.x<<" "<<start.y<<" "<<start.theta<<endl;
 
-        dest.x=0;
-        while(dest.x == 0)
+        dest_ch = false;
+        while(!dest_ch)
         {
             cout<<"Waiting for Goal "<<endl;
             ros::spinOnce();
         }
         cout<<"Destination Received : "<<dest.x<<" "<<dest.y<<" "<<dest.theta<<endl;
 
-        float scale=1000.0/200;
-
         clock_t start_time=clock();
-        vector<State> path = astar.plan(start, dest, obs_map, car, obs_copy, scale);
+        vector<State> path = astar.plan(start, dest, car, obs_copy, display, rows, cols);
         clock_t end_time=clock();
 
         vector<State>::iterator ptr;
@@ -321,15 +251,15 @@ int main(int argc,char **argv)
         
         if(DEBUG)
         {
-            GUI display(1000, 1000);
-            display.draw_obstacles(obs_map,scale);
-            display.draw_car(start,car,scale);
+            GUI dis(rows, cols, scale);
+            dis.draw_obstacles(obs_copy);
+            dis.draw_car(start,car);
             for(int i=0;i<=path.size();i++)
             {
-                display.draw_car(path[i], car,scale);
-                display.show(1);
+                dis.draw_car(path[i], car);
+                dis.show(1);
             } 
-            display.show(2000);
+            dis.show(2000);
         }
            
     	pub.publish(path_pub);

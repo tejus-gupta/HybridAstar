@@ -5,8 +5,6 @@
 #include "../include/GUI.hpp"
 #include <opencv2/highgui/highgui.hpp>
 
-// #include "../include/GUI.hpp"
-
 typedef void * (*THREADFUNCPTR)(void *);
 
 vector< vector< double > > H;
@@ -56,30 +54,22 @@ bool Planner::operator()(State a,State b)
 
 }
 
-vector<State> Planner::plan(State start, State end, vector<vector<bool> >  obs_map, Vehicle car,vector<vector<Point> > obs,float scale)
+vector<State> Planner::plan(State start, State end, Vehicle car, vector<vector<Point> > obs, GUI display, int rows, int cols)
 {
 
 	bool DEBUG = false;
-	GUI display(1000, 1000);
-	Map map(obs_map, end , obs, scale);                          //Object of Map class
+	Map map(obs, end, rows, cols);                          //Object of Map class
 
 	veh = car;
 	target = end;                         
 	
 	if(DEBUG)
 	{
-	    display.draw_obstacles(obs_map, scale);
-	    display.draw_car(start, car, scale);
-	    display.draw_car(end, car, scale);
+	    display.draw_obstacles(obs);
+	    display.draw_car(start, car);
+	    display.draw_car(end, car);
 	    display.show();
 	}   
-
-	// State temp(150,400,0);
-	// display.draw_obstacles(obs_map, scale);
-	// display.draw_car(temp, car, scale);
-	// cout<<map.checkCollisionSat(temp)<<endl; 
-	// display.show();
-
 
 
 	// Djikstra Calculation
@@ -88,15 +78,17 @@ vector<State> Planner::plan(State start, State end, vector<vector<bool> >  obs_m
 	clock_t time_end= clock();
 	cout<<"Time: Dijkstra= "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
 
+	
 	// Djikstra Copying
 	time_begin= clock();
-	H.resize(map.VISX,vector<double>(map.VISY));
+	H.resize(map.VISX, vector<double>(map.VISY));
 	for(int i=0;i<map.VISX;i++)
 	    for(int j=0;j<map.VISY;j++)
 			H[i][j]=h_obj.h_vals[i][j].dis;
 	time_end= clock();
 	cout<<"Time: Dijkstra Copying= "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
 			
+
 	// Memory freeing
 	for(int i=0;i<map.VISX;i++)
 		delete[] h_obj.h_vals[i];
@@ -110,7 +102,7 @@ vector<State> Planner::plan(State start, State end, vector<vector<bool> >  obs_m
 	cout<<"Time: Array of States Allocation = "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
 
 
-	// To mark the visited states MAPX, MAPY and MAP_THETA are to be imported from the Map class
+	// To mark the visited states VISX, VISY and MAP_THETA are to be imported from the Map class
 	time_begin= clock();
 	vector< vector< vector< bool > > > visited(map.VISX,vector< vector< bool > >(map.VISY,vector< bool >(map.MAP_THETA,false)));
 	time_end= clock();
@@ -120,7 +112,7 @@ vector<State> Planner::plan(State start, State end, vector<vector<bool> >  obs_m
 	priority_queue <State, vector<State>, Planner> pq;
 	pq.push(start);
 
-	cout<<"Here"<<endl;
+	// cout<<"Here"<<endl;
 
 	double checkCollisionTime=0;
 	double nextStatesTime=0;
@@ -162,11 +154,11 @@ vector<State> Planner::plan(State start, State end, vector<vector<bool> >  obs_m
 			return path;
 		}
 
-		if( count%4!=0 )
+		if( count%4 != 3 )
 		{
 
 			time_begin=clock();
-			vector<State> next=car.nextStates(&current,scale);
+			vector<State> next=car.nextStates(&current);
 			time_end=clock();
 			nextStatesTime+=double(time_end-time_begin)/CLOCKS_PER_SEC;
 
@@ -187,7 +179,7 @@ vector<State> Planner::plan(State start, State end, vector<vector<bool> >  obs_m
 					
 					if(DEBUG)
 				    {
-						display.draw_tree(current,nextS,1);
+						display.draw_tree(current,nextS);
 			        	display.show(5);
 				    }
 					
@@ -200,7 +192,8 @@ vector<State> Planner::plan(State start, State end, vector<vector<bool> >  obs_m
 			}
 
 		}
-		else{
+		else
+		{
 			
 			time_begin=clock();
 			vector<State> Path = h_obj.DubinShot(current,end,car.min_radius);
@@ -270,7 +263,7 @@ vector<State> Planner::plan(State start, State end, vector<vector<bool> >  obs_m
 					{
 						cout<<"Collided "<<endl;
 						Path.erase(it,Path.end());
-						display.draw_dubins( Path,scale );
+						display.draw_dubins( Path);
 					    display.show(5);
 					}
 
