@@ -74,7 +74,7 @@ void Map::initCollisionCheckerSat()
 
 bool Map::checkCollisionSat(State pos)
 {
-	bool DEBUG=false;
+	bool DEBUG=true;
 
 	if(DEBUG)
 		cout<<"Inside checkCollisionSat "<<endl;

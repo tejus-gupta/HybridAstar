@@ -40,14 +40,12 @@ typedef struct _Quaternion
 
 bool DEBUG = false;
 
-
-State start,dest;
+State start, dest, trans, trans_dest;
 tf2_ros::Buffer tfBuffer;
 
 vector< vector<Point> > obs;
 vector< vector<Point> > obs_copy;
 
-// tf::TransformListener tflistener;
 bool map_ch = false;
 bool dest_ch = false;
 bool start_ch = false;
@@ -55,11 +53,11 @@ bool start_ch = false;
 void mapCallback(const hybrid_astar::polygonArray& msg)
 {
     map_ch = true;
-    cout<<"Inside mapCallback\n"<<endl;    
+    cout<<"Inside mapCallback"<<endl;    
     
     geometry_msgs::TransformStamped trans_msg;
     try{
-        trans_msg = tfBuffer.lookupTransform("map", "odom",ros::Time(0));
+        trans_msg = tfBuffer.lookupTransform("hybrid_astar", "base_link",ros::Time(0));
     }catch (tf2::TransformException &ex){
         ROS_WARN("%s",ex.what());
     }
@@ -70,48 +68,56 @@ void mapCallback(const hybrid_astar::polygonArray& msg)
         for(int j = 0; j < msg.obstacles[i].polygon.size(); j++)
         {
             geometry_msgs::PointStamped trans,temp;
-	    temp = msg.obstacles[i].polygon[j];
+	        temp = msg.obstacles[i].polygon[j];
             tf2::doTransform(temp,trans,trans_msg);
             obs[i].push_back(Point {trans.point.x,trans.point.y});
         }
     }
 
-/*
-	For printing the points of Convex Hull
-*/
-    obs_copy.resize(obs.size());
-    for (int i = 0; i < obs.size(); ++i)
-    {
-        obs_copy[i].resize(obs[i].size());
-    	for (int j = 0; j < obs[i].size(); ++j)
-    	{
-    		obs_copy[i][j].x=obs[i][j].y;
-    		obs_copy[i][j].y=obs[i][j].x;
-    	}
-    }
+    
+// /*
+// 	For printing the points of Convex Hull
+// */
+//     obs_copy.resize(obs.size());
+//     for (int i = 0; i < obs.size(); ++i)
+//     {
+//         obs_copy[i].resize(obs[i].size());
+//     	for (int j = 0; j < obs[i].size(); ++j)
+//     	{
+//     		obs_copy[i][j].x=obs[i][j].y;
+//     		obs_copy[i][j].y=obs[i][j].x;
+//     	}
+//     }
 
-    // Mat imgp(obs_grid.info.height*5,obs_grid.info.width*5, CV_8UC1,Scalar(0));
-    // for(int i=0;i<obs.size();i++)
-    // {
-    //     for(int j=0;j<obs[i].size();j++)
-    //         imgp.at<uchar>(obs[i][j].y*5,obs[i][j].x*5)=255;
-    // }
-    // imshow("a",imgp);
-    // waitKey(0);
-    // exit(0);
+
 }
 
 void odomCallback(const nav_msgs::Odometry& odom_msg) 
 {
-    cout<<"Inside OdomCallback"<<endl;
-	
+    // cout<<"Inside OdomCallback"<<endl;
     start_ch = true;
-    start.x = odom_msg.pose.pose.position.x ;
-    start.y = odom_msg.pose.pose.position.y ;
 
-    tf::Quaternion q(odom_msg.pose.pose.orientation.x, odom_msg.pose.pose.orientation.y, odom_msg.pose.pose.orientation.z, odom_msg.pose.pose.orientation.w);
-    tf::Matrix3x3 m(q);
+    geometry_msgs::PoseStamped begin;
+    begin.pose = odom_msg.pose.pose;
+
+    geometry_msgs::PoseStamped  trans_goal;
+    geometry_msgs::TransformStamped trans_msg;
     
+    try{
+        trans_msg = tfBuffer.lookupTransform("hybrid_astar", "map",ros::Time(0), ros::Duration(10));
+        tf2::doTransform(begin,trans_goal,trans_msg);
+    }
+    catch (tf2::TransformException &ex) 
+    {
+        ROS_WARN("%s",ex.what());
+    }
+
+    start.x = trans_goal.pose.position.x ;
+    start.y = trans_goal.pose.position.y ;
+
+    tf::Quaternion q(trans_goal.pose.orientation.x, trans_goal.pose.orientation.y, trans_goal.pose.orientation.z, trans_goal.pose.orientation.w);
+    tf::Matrix3x3 m(q);
+
     double roll, pitch, yaw;
     m.getRPY(roll, pitch, yaw);
     start.theta = fmod(yaw+2*M_PI,2*M_PI);
@@ -127,7 +133,7 @@ void goalCallback(const geometry_msgs::PoseStamped&  goal)
 	geometry_msgs::TransformStamped trans_msg;
 	
 	try{
-        trans_msg = tfBuffer.lookupTransform("map", "odom",ros::Time(0));
+        trans_msg = tfBuffer.lookupTransform("hybrid_astar", "odom",ros::Time(0));
         tf2::doTransform(goal,trans_goal,trans_msg);
     }
     catch (tf2::TransformException &ex) 
@@ -135,11 +141,12 @@ void goalCallback(const geometry_msgs::PoseStamped&  goal)
         ROS_WARN("%s",ex.what());
     }
 
-    if(DEBUG)
-    {
-        cout<<"goal.pose.position.x:"<<goal.pose.position.x<<" goal.pose.position.y: "<<goal.pose.position.y<<endl;
-        cout<<"trans_goal.pose.position.x:"<<trans_goal.pose.position.x<<" trans_goal.pose.position.y:"<<trans_goal.pose.position.y<<endl;
-    } 
+    // if(DEBUG)
+    // {
+        // cout<<"goal.pose.position.x:"<<goal.pose.position.x<<" goal.pose.position.y: "<<goal.pose.position.y<<endl;
+        // cout<<"trans_goal.pose.position.x:"<<trans_goal.pose.position.x<<" trans_goal.pose.position.y:"<<trans_goal.pose.position.y<<endl;
+        // cout<<"trans.x:"<<trans.x<<" trans.y:"<<trans.y<<" trans.theta: "<<trans.theta<<endl;
+    // } 
     
     dest.x= trans_goal.pose.position.x ;
     dest.y= trans_goal.pose.position.y ;
@@ -151,6 +158,7 @@ void goalCallback(const geometry_msgs::PoseStamped&  goal)
     m.getRPY(roll, M_PItch, yaw);
 
     dest.theta=fmod(yaw+2*M_PI,2*M_PI);
+    cout<<"dest.x: "<<dest.x<<" dest.y "<<dest.y<<" dest.theta "<<dest.theta<<endl;
 }
 
 Quaternion toQuaternion(double M_PItch, double roll, double yaw)
@@ -175,8 +183,8 @@ Quaternion toQuaternion(double M_PItch, double roll, double yaw)
 int main(int argc,char **argv)
 { 
 
-    int rows = 200, cols = 200;
-    float scale = 5;
+    int rows = 100, cols = 100;
+    float scale = 6;
 
     ros::init(argc,argv,"hybrid_astar");
     ros::NodeHandle nh;
@@ -197,13 +205,6 @@ int main(int argc,char **argv)
 
         nav_msgs::Path path_pub; 
         path_pub.header.frame_id = "/map";
-        
-        while( !map_ch )
-        {
-          	cout<<"Waiting for Map "<<endl;
-            ros::spinOnce();
-        }
-        map_ch = false;
 
         start_ch = false;
         while( !start_ch )
@@ -220,9 +221,21 @@ int main(int argc,char **argv)
             ros::spinOnce();
         }
         cout<<"Destination Received : "<<dest.x<<" "<<dest.y<<" "<<dest.theta<<endl;
+        cout<<"Starting Received : "<<start.x<<" "<<start.y<<" "<<start.theta<<endl;
+
+        while( !map_ch )
+        {
+            cout<<"Waiting for Map "<<endl;
+            ros::spinOnce();
+        }
+        map_ch = false;
+
+        display.draw_car(start,car);
+        display.draw_obstacles(obs);
+        display.show(10);
 
         clock_t start_time=clock();
-        vector<State> path = astar.plan(start, dest, car, obs_copy, display, rows, cols);
+        vector<State> path = astar.plan(start, dest, car, obs, display, rows, cols);
         clock_t end_time=clock();
 
         vector<State>::iterator ptr;
@@ -240,7 +253,7 @@ int main(int argc,char **argv)
             pose.pose.orientation.z = myQuaternion.z;
             pose.pose.orientation.w = myQuaternion.w;
            
-            pose.header.frame_id = "map";
+            pose.header.frame_id = "hybrid_astar";
             pose.header.stamp = ros::Time::now();
             path_pub.poses.push_back(pose);
         }

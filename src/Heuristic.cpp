@@ -32,6 +32,10 @@ void Heuristic::Dijkstra(Map map,State target)
 	cv::Mat grid(map.VISX, map.VISY, CV_8UC1, Scalar(255));
 	cv::drawContours(grid, map.obs, -1, Scalar(0), -1);
 
+    cv::transpose(grid,grid);
+    cv::imshow("Obstacle Image",grid);
+    cv::waitKey(0);
+
 	h_vals=new smallestcost_2d*[map.VISX];
 	for(int i=0;i<map.VISX;i++)
 	{

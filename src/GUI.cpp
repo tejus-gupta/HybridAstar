@@ -5,18 +5,35 @@ GUI::GUI(int rows, int cols, float scale)
 	this->rows = rows * scale;
 	this->cols = cols * scale;
 	this->scale = scale;
-	display=Mat(cv::Size(rows, cols), CV_8UC3, Scalar(220,220,220));
+	display=Mat(cv::Size(this->rows, this->cols), CV_8UC3, Scalar(220,220,220));
 }
 
 void GUI::draw_obstacles(vector< vector<Point> > polygon)
 {
+	for(int i=0;i<polygon.size();i++)
+		cout<<polygon[i].size()<<endl;
+
 	for(int i=0; i < polygon.size(); i++)
 		for(int j=0; j < polygon[i].size(); j++)
+		{
+			float temp = polygon[i][j].x;
+			polygon[i][j].x = polygon[i][j].y;
+			polygon[i][j].y = temp;
+
 			polygon[i][j].x *= scale, polygon[i][j].y *= scale;
+		}
+
+	for(int i=0;i<polygon.size();i++)
+	{
+		for(int j=0;j<polygon[i].size()-1;j++)
+			cv::line(display, polygon[i][j], polygon[i][j+1], Scalar(0, 0, 255), 1);
+
+		cv::line(display, polygon[i][0], polygon[i][polygon[i].size()-1], Scalar(0, 0, 255), 1);
+	}
 	
-	cv::drawContours(display,polygon,-1,Scalar(120,120,120),-1);
 	return;
 }
+
 
 void GUI::draw_car(State state, Vehicle car)
 {
@@ -49,7 +66,8 @@ void GUI::draw_tree(State state, State next)
 	return;
 }
 
-void GUI::show(int t=0){
+void GUI::show(int t=0)
+{
 	imshow("Display", display);
 	waitKey(t);
 	return;
