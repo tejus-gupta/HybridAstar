@@ -57,7 +57,7 @@ bool Planner::operator()(State a,State b)
 vector<State> Planner::plan(State start, State end, Vehicle car, vector<vector<Point> > obs, GUI display, int rows, int cols)
 {
 
-	bool DEBUG = false;
+	bool DEBUG = true;
 	Map map(obs, end, rows, cols);                          //Object of Map class
 
 	veh = car;
@@ -65,12 +65,11 @@ vector<State> Planner::plan(State start, State end, Vehicle car, vector<vector<P
 	
 	if(DEBUG)
 	{
-	    display.draw_obstacles(obs);
+	    // display.draw_obstacles(obs);
 	    display.draw_car(start, car);
 	    display.draw_car(end, car);
-	    display.show();
+	    display.show(0);
 	}   
-
 
 	// Djikstra Calculation
 	clock_t time_begin= clock();

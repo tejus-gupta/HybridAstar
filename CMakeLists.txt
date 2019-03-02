@@ -8,8 +8,6 @@ set( CMAKE_CXX_STANDARD 11 )
 find_package(catkin REQUIRED COMPONENTS 
    tf
    tf2
-   cv_bridge
-   image_transport
    rospy
    roscpp
    nav_msgs
@@ -18,7 +16,6 @@ find_package(catkin REQUIRED COMPONENTS
    message_generation
 )
 find_package (Threads)
-
 
 
 ## OPEN MOTION PLANNING LIBRARY
@@ -48,4 +45,4 @@ CATKIN_DEPENDS message_runtime
 include_directories(include ${OMPL_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS})
 add_executable(Test_ROS src/Test.cpp )
 target_link_libraries(Test_ROS ${OMPL_LIBRARIES} ${Boost_LIBRARIES} ${OpenCV_LIBRARIES} ${catkin_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
-add_dependencies(Test_ROS hybrid_astar_generate_messages_cpp)
+add_dependencies(Test_ROS ${catkin_EXPORTED_TARGETS})
