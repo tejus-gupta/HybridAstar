@@ -4,7 +4,7 @@
 #include "opencv/cv.h"
 #include <opencv2/highgui/highgui.hpp>
 #include "../include/Map.hpp"
-
+using namespace cv;
 
 Map::Map( vector< vector<Point> > obs, State end, int rows, int cols)
 {
@@ -15,7 +15,9 @@ Map::Map( vector< vector<Point> > obs, State end, int rows, int cols)
 	this->obs = obs;
 	this->end = end;
 	
+	initCollisionChecker();
 	initCollisionCheckerSat();
+
 }
 
 double cmod(double a, double b)
@@ -33,12 +35,80 @@ bool Map::isValid(Point p)
 	return true; 
 }
 
+bool Map::isValid(State current)
+{
+	if(current.x < 0 || current.y < 0 || current.x >= VISX || current.y >= VISY)
+		return false;
+	return true; 
+}
+
 bool Map::isReached(State current)
 { 	
 	if( abs(current.x - end.x) < 1 && abs(current.y - end.y) < 1 && abs(cmod(current.theta,2*M_PI) - end.theta) < M_PI/6 )
 		return true;
  	else 
  		return false;
+}
+
+void Map::initCollisionChecker(){
+
+	// Converting the Obstacle Map in form of Polygon Array to Costmap 
+	// so that point based collision detection can work.
+	obs_map = Mat::zeros(Size(VISX, VISY), CV_8UC1);
+	drawContours(obs_map, obs, -1, Scalar(255), -1);
+	transpose(obs_map,obs_map);
+	
+	acc_obs_map=new int*[VISX];
+	for(int i=0;i<VISX;i++)
+	{
+		acc_obs_map[i]=new int[VISY];
+		for(int j=0;j<VISY;j++)
+			acc_obs_map[i][j]=(obs_map.at<uchar>(i,j)==0);
+	}
+
+	for(int i=0;i<VISX;i++)
+		for(int j=1;j<VISY;j++)
+			acc_obs_map[i][j]=acc_obs_map[i][j-1]+acc_obs_map[i][j];
+
+	for(int j=0;j<VISY;j++)
+		for(int i=1;i<VISX;i++)
+			acc_obs_map[i][j]=acc_obs_map[i-1][j]+acc_obs_map[i][j];
+
+	return;
+}
+
+bool Map::checkCollision(State pos){
+
+	if(pos.x>=VISX || pos.x<0 || pos.y>=VISY || pos.y<0 )
+		return true;
+	
+
+	//first use a bounding box around car to check for collision in O(1) time
+	int max_x, min_x, max_y, min_y;
+	max_x =  (pos.x+car.BOT_L*abs(cos(pos.theta))/2+car.BOT_W*abs(sin(pos.theta))/2) + 1;
+	min_x =  (pos.x-car.BOT_L*abs(cos(pos.theta))/2-car.BOT_W*abs(sin(pos.theta))/2) - 1;
+
+	max_y =  (pos.y+car.BOT_L*abs(sin(pos.theta))/2+car.BOT_W*abs(cos(pos.theta))/2) + 1;
+	min_y =  (pos.y-car.BOT_L*abs(sin(pos.theta))/2-car.BOT_W*abs(cos(pos.theta))/2) - 1;
+	
+	if(max_x>=VISX || min_x<0 || max_y>=VISY || min_y<0)
+		return true;
+
+	if(acc_obs_map[max_x][max_y]+acc_obs_map[min_x][min_y]==acc_obs_map[max_x][min_y]+acc_obs_map[min_x][max_y])
+		return false;
+
+	// brute force check through the car
+	for(float i=-car.BOT_L/2.0;i<=car.BOT_L/2.0+0.001;i+=0.25)
+		for(float j=-car.BOT_W/2.0;j<=car.BOT_W/2.0+0.001;j+=0.25)
+		{
+			int s = pos.x+i*cos(pos.theta)+j*sin(pos.theta) + 0.001;
+			int t = pos.y+i*sin(pos.theta)+j*cos(pos.theta) + 0.001;
+
+     		if( obs_map.at<uchar>(s,t) )
+				return true;
+		}
+	return false;
+
 }
 
 /*
@@ -74,7 +144,7 @@ void Map::initCollisionCheckerSat()
 
 bool Map::checkCollisionSat(State pos)
 {
-	bool DEBUG=true;
+	bool DEBUG=false;
 
 	if(DEBUG)
 		cout<<"Inside checkCollisionSat "<<endl;

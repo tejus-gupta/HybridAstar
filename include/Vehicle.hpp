@@ -3,11 +3,8 @@
 
 #include <stdio.h>
 #include <iostream>
-#include "bits/stdc++.h"
 #include "State.hpp"
-//#include "ros/ros.h"
-
-// #define M_PI 3.14159265359
+#include "bits/stdc++.h"
 
 using namespace std;
 
@@ -15,10 +12,10 @@ class Vehicle{
 
 public:
 
-	float BOT_L=2;
-	float BOT_W=1;
+	float BOT_L=3;
+	float BOT_W=2;
 	float BOT_MAX_ALPHA=30;
-	double min_radius = 1 ;//abs(BOT_L/tan(BOT_MAX_ALPHA*M_PI/180));
+	double min_radius = abs(BOT_L/tan(BOT_MAX_ALPHA*M_PI/180));
 	vector<State> nextStates(State*);
 };
 #endif

@@ -10,9 +10,8 @@ GUI::GUI(int rows, int cols, float scale)
 
 void GUI::draw_obstacles(vector< vector<Point> > polygon)
 {
-	for(int i=0;i<polygon.size();i++)
-		cout<<polygon[i].size()<<endl;
 
+	// Reversing the points as OpenCV has different frame for points
 	for(int i=0; i < polygon.size(); i++)
 		for(int j=0; j < polygon[i].size(); j++)
 		{
@@ -57,10 +56,8 @@ void GUI::draw_dubins( vector<State> Path )
 void GUI::draw_tree(State state, State next)
 {
 	Point root,child;
-	root.x=state.y*scale;
-	root.y=state.x*scale;
-	child.x=next.y*scale; 
-	child.y=next.x*scale;
+	root.x=state.y*scale,root.y=state.x*scale;
+	child.x=next.y*scale,child.y=next.x*scale;
 	line(display, root, child, Scalar(0,0,255), 1);
 	
 	return;

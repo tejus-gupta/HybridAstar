@@ -7,25 +7,14 @@ public:
 	float x;
     float y;
 	float theta;
-	
-	int gx;
-	int gy;
 
 	float cost2d;
-	float cost3d;
-
-	float velocity;
-	float steer_angle;
-
 	State* parent;
-	State* next;
 
 	State(float X,float Y,float THETA)
 	{
 		x=X;
 		y=Y;
-		gx=x;
-		gy=y;
 		theta=THETA;
 		parent=NULL;
 		cost2d=0;

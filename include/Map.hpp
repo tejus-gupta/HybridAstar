@@ -2,6 +2,9 @@
 #define MAP_HPP
 
 #include"../src/Vehicle.cpp"
+#include "opencv/cv.h"
+#include <opencv2/highgui/highgui.hpp>
+using namespace cv;
 
 typedef struct _border
 {
@@ -18,6 +21,9 @@ class Map
         State end;
         vector<border> bPoints; 
         vector< vector<Point> > obs;
+
+        Mat obs_map;
+        int** acc_obs_map;
         
         int MAP_THETA;
         int VISX;
@@ -31,12 +37,17 @@ class Map
         }
 
         Map(vector< vector<Point> > polygon, State , int, int);
+
+        bool isReached(State curr);
+        bool isValid(Point);
+        bool isValid(State);
+
+        void initCollisionCheckerSat();
         bool checkCollisionSat(State pos);
         bool helperSAT(vector <Point> v1,vector <Point> v2);
-        void initCollisionCheckerSat();
-        bool isReached(State curr);
-	bool isValid(Point);
+
+        void initCollisionChecker();
+        bool checkCollision(State pos);
+
 };
-
-
 #endif
