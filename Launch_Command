@@ -24,5 +24,4 @@ python tracking_control/src/scripts/tracking_Methods/pure_pursuit.py
 python tracking_control/src/scripts/controllers/PID_velocity_controller.py
 
 # publishing velocity 
-rostopic pub -1 /cmd_vel_frenet geometry_msgs/Twist -- '[2.0, 0.0, 0.0]' '[0.0, 0.0, 0.0]'
-
+rosrun hybrid_astar velocity_publisher
