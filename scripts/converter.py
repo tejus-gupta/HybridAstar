@@ -16,7 +16,7 @@ from rospy_tutorials.msg import Floats
 from geometry_msgs.msg import PointStamped
 
 viz = True
-range_threshold = 100
+range_threshold = 500
 rospy.init_node('converter', anonymous=True)
 pub = rospy.Publisher("/obstacles", obs, queue_size=10)
 
@@ -30,7 +30,6 @@ def draw_polygon(img, polygon):
 
 
 def callback(data):
-    print "Inside Callback"
     points = np.empty((np.sum(np.asarray(data.ranges) < range_threshold), 2), np.float64)
 
     if viz:
