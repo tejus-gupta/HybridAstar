@@ -40,7 +40,7 @@ void odomCallback(const nav_msgs::Odometry& odom_msg)
 
 }
 
-void goalCallback(const geometry_msgs::PoseStamped&  goal)
+void goalCallback(const geometry_msgs::PoseStamped&  target)
 {
     // cout<<"Inside goalCallback"<<endl;
     dest_ch = true;
@@ -50,7 +50,7 @@ void goalCallback(const geometry_msgs::PoseStamped&  goal)
     
     try{
         trans_msg = tfBuffer.lookupTransform("map", "odom",ros::Time(0));
-        tf2::doTransform(goal,trans_goal,trans_msg);
+        tf2::doTransform(target,trans_goal,trans_msg);
     }
     catch (tf2::TransformException &ex) 
     {
