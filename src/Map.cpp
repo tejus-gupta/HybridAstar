@@ -15,6 +15,22 @@ Map::Map( vector< vector<Point> > obs, State end, int rows, int cols)
 	this->obs = obs;
 	this->end = end;
 	
+	// Converting the Obstacle Map in form of Polygon Array to Costmap 
+	// so that point based collision detection can work.
+	// Create a map with resolution 0.5m x 0.5m
+	vector< vector<Point> > obs_copy;
+	obs_map = Mat::zeros(Size(2*VISX, 2*VISY), CV_8UC1);
+	for(int i=0;i < obs.size();i++)
+	{
+		vector< Point > temp;
+		for(int j=0;j < obs[i].size(); j++ )
+			temp.push_back( Point {2*obs[i][j].x, 2*obs[i][j].y});
+		obs_copy.push_back(temp);
+	}
+	drawContours(obs_map, obs_copy, -1, Scalar(255), -1);
+	transpose(obs_map,obs_map);
+	
+	
 	initCollisionChecker();
 	initCollisionCheckerSat();
 
@@ -52,12 +68,6 @@ bool Map::isReached(State current)
 
 void Map::initCollisionChecker(){
 
-	// Converting the Obstacle Map in form of Polygon Array to Costmap 
-	// so that point based collision detection can work.
-	obs_map = Mat::zeros(Size(VISX, VISY), CV_8UC1);
-	drawContours(obs_map, obs, -1, Scalar(255), -1);
-	transpose(obs_map,obs_map);
-	
 	acc_obs_map=new int*[VISX];
 	for(int i=0;i<VISX;i++)
 	{
@@ -90,16 +100,19 @@ bool Map::checkCollision(State pos){
 
 	max_y =  (pos.y+car.BOT_L*abs(sin(pos.theta))/2+car.BOT_W*abs(cos(pos.theta))/2) + 1;
 	min_y =  (pos.y-car.BOT_L*abs(sin(pos.theta))/2-car.BOT_W*abs(cos(pos.theta))/2) - 1;
+
+	// Double the co-ordinates as the resolution is twice (0.5x0.5)
+	max_x*=2,max_y*=2,min_y*=2,min_x*=2;
 	
-	if(max_x>=VISX || min_x<0 || max_y>=VISY || min_y<0)
+	if(max_x>=2*VISX || min_x<0 || max_y>=2*VISY || min_y<0)
 		return true;
 
 	if(acc_obs_map[max_x][max_y]+acc_obs_map[min_x][min_y]==acc_obs_map[max_x][min_y]+acc_obs_map[min_x][max_y])
 		return false;
 
 	// brute force check through the car
-	for(float i=-car.BOT_L/2.0;i<=car.BOT_L/2.0+0.001;i+=0.25)
-		for(float j=-car.BOT_W/2.0;j<=car.BOT_W/2.0+0.001;j+=0.25)
+	for(float i = -car.BOT_L; i<=car.BOT_L + 0.001; i+=0.5)
+		for(float j=-car.BOT_W; j<=car.BOT_W + 0.001; j+=0.5)
 		{
 			int s = pos.x+i*cos(pos.theta)+j*sin(pos.theta) + 0.001;
 			int t = pos.y+i*sin(pos.theta)+j*cos(pos.theta) + 0.001;

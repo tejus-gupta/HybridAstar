@@ -76,7 +76,7 @@ int main(int argc, char **argv)
 
     ros::Publisher pub = nh.advertise<geometry_msgs::Twist>("cmd_vel_frenet", 10);
     ros::Subscriber odom  = nh.subscribe("/base_pose_ground_truth",10,&odomCallback);
-    ros::Subscriber goal  = nh.subscribe("/move_base_simple/goal",10,&goalCallback);
+    ros::Subscriber destination  = nh.subscribe("/move_base_simple/goal",10,&goalCallback);
 
     tf2_ros::TransformListener listener(tfBuffer);
 

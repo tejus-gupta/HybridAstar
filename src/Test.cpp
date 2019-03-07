@@ -171,12 +171,14 @@ int main(int argc,char **argv)
     tf2_ros::TransformListener listener(tfBuffer);
 
     ros::Rate rate(1);
+
+    Planner astar;
+    Vehicle car;
+    GUI display(rows,cols,scale);
+    
     while(ros::ok())
     {
-        Planner astar;
-        Vehicle car;
-        GUI display(rows,cols,scale);
-
+        
         nav_msgs::Path path_pub; 
         path_pub.header.frame_id = "/map";
 
@@ -241,7 +243,7 @@ int main(int argc,char **argv)
         }
         cout<<"Total time taken: "<<(double)(end_time-start_time)/CLOCKS_PER_SEC<<endl;
         cout<<"Got path of length "<<path.size()<<endl<<endl;
-
+        astar.path.clear();
         
         if(DEBUG)
         {

@@ -29,10 +29,6 @@ void Heuristic::Dijkstra(Map map,State target)
 {
  	priority_queue <smallestcost_2d,vector<smallestcost_2d>,compareHeuristic> pq;
 
-	cv::Mat grid(map.VISX, map.VISY, CV_8UC1, Scalar(255));
-	cv::drawContours(grid, map.obs, -1, Scalar(0), -1);
-    cv::transpose(grid,grid);
-
 	h_vals=new smallestcost_2d*[map.VISX];
 	for(int i=0;i<map.VISX;i++)
 	{
@@ -71,7 +67,7 @@ void Heuristic::Dijkstra(Map map,State target)
 				if(!map.isValid({neighbor.x, neighbor.y}))
                     continue;				
 				
-                if ( grid.at<uchar>(i,j)!=0 && is_visited[i][j]==false )
+                if ( map.obs_map.at<uchar>(2*i,2*j)!=0 && is_visited[i][j]==false )
 				{
 					if (h_vals[i][j].dis>h_vals[temp.x][temp.y].dis+distance(temp,neighbor))
 					{

@@ -118,19 +118,11 @@ vector<State> Planner::plan(State start, State end, Vehicle car, vector<vector<P
 		delete[] h_obj.h_vals[i];
 	delete[] h_obj.h_vals;	
 
-
-	// Array of states allocation
-	time_begin= clock();
-	vector< vector< vector< State > > > visited_state(map.VISX,vector< vector< State > >(map.VISY,vector< State >(map.MAP_THETA)));	
-	time_end= clock();
-	cout<<"Time: Array of States Allocation = "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
-
-
 	// To mark the visited states VISX, VISY and MAP_THETA are to be imported from the Map class
-	time_begin= clock();
-	vector< vector< vector< bool > > > visited(map.VISX,vector< vector< bool > >(map.VISY,vector< bool >(map.MAP_THETA,false)));
-	time_end= clock();
-	cout<<"Time: Visited Array of States Allocation = "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
+	for(int i=0; i < map.VISX; i++)
+		for(int j=0; j < map.VISY; j++)
+			for(int k=0; k < map.MAP_THETA; k++ )
+				visited[i][j][k]=false;
 
 
 	// Hybrid Astar Openlist Initiates:
