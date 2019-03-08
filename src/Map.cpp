@@ -9,26 +9,25 @@ using namespace cv;
 Map::Map( vector< vector<Point> > obs, State end, int rows, int cols)
 {
 	MAP_THETA=72;
-    VISX = rows;
-    VISY = cols;
+    	VISX = rows;
+    	VISY = cols;
 
-	this->obs = obs;
 	this->end = end;
 	
 	// Converting the Obstacle Map in form of Polygon Array to Costmap 
 	// so that point based collision detection can work.
+	
 	// Create a map with resolution 0.5m x 0.5m
-	vector< vector<Point> > obs_copy;
 	obs_map = Mat::zeros(Size(2*VISX, 2*VISY), CV_8UC1);
 	for(int i=0;i < obs.size();i++)
 	{
 		vector< Point > temp;
 		for(int j=0;j < obs[i].size(); j++ )
 			temp.push_back( Point {2*obs[i][j].x, 2*obs[i][j].y});
-		obs_copy.push_back(temp);
+		this->obs.push_back(temp);
 	}
-	drawContours(obs_map, obs_copy, -1, Scalar(255), -1);
-	transpose(obs_map,obs_map);
+	drawContours(obs_map, this->obs, -1, Scalar(255), -1);
+	transpose(this->obs, this->obs);
 	
 	
 	initCollisionChecker();
