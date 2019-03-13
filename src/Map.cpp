@@ -19,12 +19,12 @@ Map::Map( vector< vector<Point> > obs, State end, int rows, int cols)
 	// so that point based collision detection can work.
 	// Create a map with resolution 0.5m x 0.5m
 	vector< vector<Point> > obs_copy;
-	obs_map = Mat::zeros(Size(2*VISX, 2*VISY), CV_8UC1);
+	obs_map = Mat::zeros(Size(VISX, VISY), CV_8UC1);
 	for(int i=0;i < obs.size();i++)
 	{
 		vector< Point > temp;
 		for(int j=0;j < obs[i].size(); j++ )
-			temp.push_back( Point {2*obs[i][j].x, 2*obs[i][j].y});
+			temp.push_back( Point {obs[i][j].x, obs[i][j].y});
 		obs_copy.push_back(temp);
 	}
 	drawContours(obs_map, obs_copy, -1, Scalar(255), -1);
@@ -102,9 +102,9 @@ bool Map::checkCollision(State pos){
 	min_y =  (pos.y-car.BOT_L*abs(sin(pos.theta))/2-car.BOT_W*abs(cos(pos.theta))/2) - 1;
 
 	// Double the co-ordinates as the resolution is twice (0.5x0.5)
-	max_x*=2,max_y*=2,min_y*=2,min_x*=2;
+	// max_x*=2,max_y*=2,min_y*=2,min_x*=2;
 	
-	if(max_x>=2*VISX || min_x<0 || max_y>=2*VISY || min_y<0)
+	if(max_x>=VISX || min_x<0 || max_y>=VISY || min_y<0)
 		return true;
 
 	if(acc_obs_map[max_x][max_y]+acc_obs_map[min_x][min_y]==acc_obs_map[max_x][min_y]+acc_obs_map[min_x][max_y])
@@ -148,6 +148,7 @@ void Map::initCollisionCheckerSat()
 			if( obs[i][j].y>temp.Ymax )
 				temp.Ymax=obs[i][j].y;
 		}
+		cout<<"obs.size(): "<<obs.size()<<endl;
 		if(DEBUG)
 			cout<<temp.Xmax<<" "<<temp.Xmin<<" "<<temp.Ymax<<" "<<temp.Ymin<<endl;
 		bPoints.push_back(temp);
@@ -236,7 +237,7 @@ bool Map::checkCollisionSat(State pos)
 		else
 		{
 			if(DEBUG) 
-				cout<<"Used This MF"<<endl;
+				cout<<"Used extreme boundary checking"<<endl;
 		}
 	}
 

@@ -22,6 +22,7 @@
 #include "nav_msgs/Odometry.h"
 
 #include <hybrid_astar/polygonArray.h>
+#include <fstream>
 
 using namespace cv;
 
@@ -33,11 +34,8 @@ typedef struct _Quaternion
     float w;
 }Quaternion;
 
-bool DEBUG = false;
-
 State start, dest;
 tf2_ros::Buffer tfBuffer;
-
 vector< vector<Point> > obs;
 
 bool map_ch = false;
@@ -46,27 +44,33 @@ bool start_ch = false;
 
 void mapCallback(const hybrid_astar::polygonArray& msg)
 {
-    cout<<"Inside mapCallback"<<endl;    
+    // cout<<"Inside mapCallback"<<endl;    
     map_ch = true;
     
     // The map is received in form of polygon points from lidar data. These points are in
     // base_link frame and have to be converter to hybrid_astar frame.
-    geometry_msgs::TransformStamped trans_msg;
-    try{
-        trans_msg = tfBuffer.lookupTransform("hybrid_astar", "center_laser_link",ros::Time(0));
-    }catch (tf2::TransformException &ex){
-        ROS_WARN("%s",ex.what());
-    }
     
+    /*
+        Commented for time calculation purpose:
+    */
+
+    // geometry_msgs::TransformStamped trans_msg;
+    // try{
+    //     trans_msg = tfBuffer.lookupTransform("hybrid_astar", "center_laser_link",ros::Time(0));
+    // }catch (tf2::TransformException &ex){
+    //     ROS_WARN("%s",ex.what());
+    // }
+
     // Creating vector of vector of Obstacles from hull points of lidar data.
     obs.resize(msg.obstacles.size());
     for (int i = 0; i < msg.obstacles.size(); ++i)
         for(int j = 0; j < msg.obstacles[i].polygon.size(); j++)
         {
             geometry_msgs::PointStamped trans,temp;
-            temp = msg.obstacles[i].polygon[j];
-            tf2::doTransform(temp,trans,trans_msg);
-            obs[i].push_back(Point {trans.point.x,trans.point.y});
+	        temp = msg.obstacles[i].polygon[j];
+            // tf2::doTransform(temp,trans,trans_msg);
+            obs[i].push_back(Point {temp.point.x,temp.point.y});
+            // obs[i].push_back(Point {trans.point.x,trans.point.y});
         }
 
 }
@@ -74,7 +78,7 @@ void mapCallback(const hybrid_astar::polygonArray& msg)
 // Used to locate the current position of vehicle
 void odomCallback(const nav_msgs::Odometry& odom_msg) 
 {
-    cout<<"Inside OdomCallback"<<endl;
+    // cout<<"Inside OdomCallback"<<endl;
     start_ch = true;
 
     geometry_msgs::PoseStamped begin;
@@ -108,13 +112,13 @@ void odomCallback(const nav_msgs::Odometry& odom_msg)
 // Used to accept the goal position of vehicle
 void goalCallback(const geometry_msgs::PoseStamped&  goal)
 {
-    cout<<"Inside goalCallback"<<endl;
+    // cout<<"Inside goalCallback"<<endl;
     dest_ch = true;
     
     geometry_msgs::PoseStamped  trans_goal;
-    geometry_msgs::TransformStamped trans_msg;
-    
-    try{
+	geometry_msgs::TransformStamped trans_msg;
+	
+	try{
         trans_msg = tfBuffer.lookupTransform("hybrid_astar", "odom",ros::Time(0));
         tf2::doTransform(goal,trans_goal,trans_msg);
     }
@@ -156,6 +160,7 @@ Quaternion toQuaternion(double M_PItch, double roll, double yaw)
 
 int main(int argc,char **argv)
 { 
+    bool DEBUG = true;
 
     int rows = 100, cols = 100;
     float scale = 6;
@@ -182,65 +187,76 @@ int main(int argc,char **argv)
         nav_msgs::Path path_pub; 
         path_pub.header.frame_id = "/map";
 
-        start_ch = false;
+
+        // For checking without Gazebo
+        dest.x =95,dest.y =95,dest.theta =0;
+        start.x =50,start.y =50,start.theta =0;
+
+        start_ch = true;
         while( !start_ch )
         {
-            cout<<"Waiting for Start "<<endl;
+            // cout<<"Waiting for Start "<<endl;
             ros::spinOnce();
         }
         cout<<"Starting Received : "<<start.x<<" "<<start.y<<" "<<start.theta<<endl;
 
-        dest_ch = false;
+        dest_ch = true;
         while(!dest_ch)
         {
-            cout<<"Waiting for Goal "<<endl;
+            // cout<<"Waiting for Goal "<<endl;
             ros::spinOnce();
         }
         cout<<"Destination Received : "<<dest.x<<" "<<dest.y<<" "<<dest.theta<<endl;
 
+        map_ch = false;
         while( !map_ch )
         {
-            cout<<"Waiting for Map "<<endl;
+            // cout<<"Waiting for Map "<<endl;
             ros::spinOnce();
         }
-        map_ch = false;
+
 
         clock_t start_time=clock();
         vector<State> path = astar.plan(start, dest, car, obs, display, rows, cols);
         clock_t end_time=clock();
 
-        geometry_msgs::PoseStamped  trans_pose;
-        geometry_msgs::TransformStamped trans_msg;
+        /*
+            Commented for time calculation:
+        */
+
+        // geometry_msgs::PoseStamped  trans_pose;
+        // geometry_msgs::TransformStamped trans_msg;
     
-        try{
-            trans_msg = tfBuffer.lookupTransform("map", "hybrid_astar",ros::Time(0), ros::Duration(10));
-        }
-        catch (tf2::TransformException &ex) 
-        {
-            ROS_WARN("%s",ex.what());
-        }
+        // try{
+        //     trans_msg = tfBuffer.lookupTransform("map", "hybrid_astar",ros::Time(0), ros::Duration(10));
+        // }
+        // catch (tf2::TransformException &ex) 
+        // {
+        //     ROS_WARN("%s",ex.what());
+        // }
 
-        vector<State>::iterator ptr;
-        for (ptr = path.begin(); ptr != path.end(); ptr++) 
-        {
-            geometry_msgs::PoseStamped pose;
-            pose.pose.position.x = (*ptr).x;
-            pose.pose.position.y = (*ptr).y;
-            pose.pose.position.z = 0;
+        // vector<State>::iterator ptr;
+        // for (ptr = path.begin(); ptr != path.end(); ptr++) 
+        // {
+        //     geometry_msgs::PoseStamped pose;
+        //     pose.pose.position.x = (*ptr).x;
+        //     pose.pose.position.y = (*ptr).y;
+        //     pose.pose.position.z = 0;
 
-            Quaternion myQuaternion = toQuaternion(0,0,(*ptr).theta);
+        //     Quaternion myQuaternion = toQuaternion(0,0,(*ptr).theta);
 
-            pose.pose.orientation.x = myQuaternion.x;
-            pose.pose.orientation.y = myQuaternion.y;
-            pose.pose.orientation.z = myQuaternion.z;
-            pose.pose.orientation.w = myQuaternion.w;
+        //     pose.pose.orientation.x = myQuaternion.x;
+        //     pose.pose.orientation.y = myQuaternion.y;
+        //     pose.pose.orientation.z = myQuaternion.z;
+        //     pose.pose.orientation.w = myQuaternion.w;
            
-            pose.header.frame_id = "hybrid_astar";
-            pose.header.stamp = ros::Time::now();
+        //     pose.header.frame_id = "hybrid_astar";
+        //     pose.header.stamp = ros::Time::now();
             
-            tf2::doTransform(pose,trans_pose,trans_msg);
-            path_pub.poses.push_back(trans_pose);
-        }
+        //     tf2::doTransform(pose,trans_pose,trans_msg);
+        //     path_pub.poses.push_back(trans_pose);
+        // }
+        
         cout<<"Total time taken: "<<(double)(end_time-start_time)/CLOCKS_PER_SEC<<endl;
         cout<<"Got path of length "<<path.size()<<endl<<endl;
         astar.path.clear();
@@ -255,7 +271,7 @@ int main(int argc,char **argv)
                 dis.draw_car(path[i], car);
                 dis.show(1);
             } 
-            dis.show(200);
+            dis.show(0);
         }
        
         path_pub.header.stamp = ros::Time::now();

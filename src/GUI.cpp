@@ -63,7 +63,7 @@ void GUI::draw_tree(State state, State next)
 	return;
 }
 
-void GUI::show(int t=0)
+void GUI::show(int t)
 {
 	imshow("Display", display);
 	waitKey(t);
