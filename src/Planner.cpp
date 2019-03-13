@@ -67,6 +67,7 @@ vector<State> Planner::plan(State start, State end, Vehicle car, vector<vector<P
 	bool DEBUG = false;
 	Map map(obs, end, rows, cols);                         
 
+	cout<<"After map initialisation"<<endl;
 	// This is done for functioning of Planner::Operator().
 	veh = car;
 	target = end;                         

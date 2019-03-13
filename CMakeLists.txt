@@ -49,6 +49,12 @@ add_executable(hybrid_astar src/Test.cpp )
 target_link_libraries(hybrid_astar ${OMPL_LIBRARIES} ${Boost_LIBRARIES} ${OpenCV_LIBRARIES} ${catkin_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 add_dependencies(hybrid_astar ${catkin_EXPORTED_TARGETS})
 
+## Creating executable for Hybrid Astar Planner:
+add_executable(Test src/Test_check.cpp )
+target_link_libraries(Test ${OMPL_LIBRARIES} ${Boost_LIBRARIES} ${OpenCV_LIBRARIES} ${catkin_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+add_dependencies(Test ${catkin_EXPORTED_TARGETS})
+
+
 ## Creating executable for Velocity Publisher:
 add_executable(velocity_publisher velocity_publisher/velocity_publisher.cpp )
 target_link_libraries(velocity_publisher ${OMPL_LIBRARIES} ${Boost_LIBRARIES} ${OpenCV_LIBRARIES} ${catkin_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})

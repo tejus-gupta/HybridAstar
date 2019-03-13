@@ -9,8 +9,8 @@ using namespace cv;
 Map::Map( vector< vector<Point> > obs, State end, int rows, int cols)
 {
 	MAP_THETA=72;
-    	VISX = rows;
-    	VISY = cols;
+    VISX = rows;
+   	VISY = cols;
 
 	this->end = end;
 	
@@ -27,9 +27,8 @@ Map::Map( vector< vector<Point> > obs, State end, int rows, int cols)
 		this->obs.push_back(temp);
 	}
 	drawContours(obs_map, this->obs, -1, Scalar(255), -1);
-	transpose(this->obs, this->obs);
-	
-	
+	transpose(obs_map, obs_map);
+
 	initCollisionChecker();
 	initCollisionCheckerSat();
 

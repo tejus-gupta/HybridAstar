@@ -156,13 +156,13 @@ Quaternion toQuaternion(double M_PItch, double roll, double yaw)
 
 int main(int argc,char **argv)
 { 
-
+    
     int rows = 100, cols = 100;
     float scale = 6;
-
+    
     ros::init(argc,argv,"hybrid_astar");
     ros::NodeHandle nh;
-
+    
     ros::Subscriber map  = nh.subscribe("/obstacles",10,&mapCallback);   
     ros::Subscriber odom  = nh.subscribe("/base_pose_ground_truth",10,&odomCallback);
     ros::Subscriber goal  = nh.subscribe("/move_base_simple/goal",10,&goalCallback);
