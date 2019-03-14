@@ -33,9 +33,9 @@ bool map_ch = false;
 
 void mapCallback(const nav_msgs::OccupancyGrid::ConstPtr& msg)
 {
-    cout<<"In mapCallback"<<endl;
     map_ch = true;
     obs_grid=*msg;
+    
     obs_map.resize(obs_grid.info.width);
     for(int i=0; i<obs_grid.info.width; i++)
         obs_map[i].resize(obs_grid.info.height);
@@ -44,33 +44,12 @@ void mapCallback(const nav_msgs::OccupancyGrid::ConstPtr& msg)
         for(int j=0; j < obs_grid.info.height; j++)
             obs_map[obs_grid.info.width -1 -i][j] = (obs_grid.data[i*obs_grid.info.width+j]>= 90 || obs_grid.data[i*obs_grid.info.width+j]==-1); 
 
-    // cout<<"Map "<<obs_grid.info.width<<" "<<obs_grid.info.height<<endl;
     obs.clear();
-
     Mat A(obs_grid.info.height, obs_grid.info.width, CV_8UC1, Scalar(0));
     for(int i=0;i<A.rows;i++)
         for(int j=0;j<A.cols;j++)
             if(obs_map[i][j])
                 A.at<uchar>(i,j) = 255;
-
-    // vector <Point> a;
-    // vector <Point> b;
-    // vector <Point> c;
-    // a.push_back(Point(64,105));
-    // a.push_back(Point(64,185));
-    // a.push_back(Point(280,185));
-    // a.push_back(Point(280,105));
-    // obs.push_back(a);
-    // b.push_back(Point(64,225));
-    // b.push_back(Point(64,310));
-    // b.push_back(Point(280,310));
-    // b.push_back(Point(280,225));
-    // obs.push_back(b);
-    // c.push_back(Point(64,335));
-    // c.push_back(Point(64,430));
-    // c.push_back(Point(280,430));
-    // c.push_back(Point(280,335));
-    // obs.push_back(c );
 
 
     // cout<<"Before Canny"<<endl;
@@ -110,31 +89,6 @@ void mapCallback(const nav_msgs::OccupancyGrid::ConstPtr& msg)
     //     drawContours( drawing, temp_obs, i, color, 1, 8, vector<Vec4i>(), 0, Point() );
     //     drawContours( drawing, obs, i, color1, 1, 8, vector<Vec4i>(), 0, Point() );
     // }
-
-/*
-	For printing the points of Convex Hull
-*/
-    obs_copy.resize(obs.size());
-    for (int i = 0; i < obs.size(); ++i)
-    {
-        obs_copy[i].resize(obs[i].size());
-    	for (int j = 0; j < obs[i].size(); ++j)
-    	{
-    		obs_copy[i][j].x=obs[i][j].y;
-    		obs_copy[i][j].y=obs[i][j].x;
-    	}
-    }
-    // Mat drawing = Mat::zeros( A.size(), CV_8UC3 );
-    // for( int i = 0; i< temp_obs.size(); i++ )
-    // {
-    //     Scalar color = Scalar( 0, 0, 255 );
-    //     Scalar color1 = Scalar( 0, 255, 255 );
-    //     // drawContours( drawing, temp_obs, i, color, 1, 8, vector<Vec4i>(), 0, Point() );
-    //     drawContours( drawing, obs_copy, i, color1, 1, 8, vector<Vec4i>(), 0, Point() );
-    // }
-    // imshow("Contours ",drawing);
-    // waitKey(0);
-    // exit(0);
 
 }
 
@@ -204,33 +158,29 @@ int main(int argc,char **argv)
     start.x = start.y = 5;
     start.theta = dest.theta = 0;
     dest.x = dest.y = 195;
-    while(ros::ok())
+    
+    while( !map_ch )
     {
-        GUI dis(rows, cols, scale);
-        while( !map_ch )
-        {
-            cout<<"Waiting for Map "<<endl;
-            ros::spinOnce();
-        }
-        dis.draw_obstacles(obs);
-        dis.draw_car(start, car),dis.draw_car(dest, car);
-        dis.show();
-        map_ch = false;
-        
-        clock_t start_time=clock();
-        vector<State> path = astar.plan(start, dest, car, obs, display);
-        clock_t end_time=clock();
-
-        astar.path.clear();
-        
-        dis.draw_car(start,car);
-        for(int i=0;i<=path.size();i++)
-        {
-            dis.draw_car(path[i], car);
-            dis.show(1);
-        } 
-        dis.show();
+        ros::spinOnce();
     }
+    map_ch = false;
+    
+    clock_t start_time=clock();
+    vector<State> path = astar.plan(start, dest, car, obs, display);
+    clock_t end_time=clock();
+    cout<<"Time: Overall= "<<double(end_time-start_time)/CLOCKS_PER_SEC<<endl;
+
+    astar.path.clear();
+    
+    GUI dis(rows, cols, scale);
+    dis.draw_obstacles(obs);
+    dis.draw_car(start,car);
+    for(int i=0;i<=path.size();i++)
+    {
+        dis.draw_car(path[i], car);
+        dis.show(1);
+    } 
+    dis.show();
 
 }
 

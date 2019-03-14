@@ -64,10 +64,9 @@ bool PriQ::operator()(State a,State b)
 vector<State> Planner::plan(State start, State end, Vehicle car, vector<vector<Point> > obs, GUI display)
 {
 
-	bool DEBUG = true;
+	bool DEBUG = false;
 	Map map(obs, end, rows, cols);                         
 
-	cout<<"After map initialisation"<<endl;
 	// This is done for functioning of Planner::Operator().
 	veh = car;
 	target = end;                         
@@ -131,10 +130,15 @@ vector<State> Planner::plan(State start, State end, Vehicle car, vector<vector<P
 	time_end = clock();
 	cout<<"Time: Marking visited array false= "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
 
-	exit(0);
 	// Hybrid Astar Openlist Initiates:
 	priority_queue <State, vector<State>, PriQ> pq;
 	pq.push(start);
+
+	// State A;
+	// A.x = 40, A.y=41.5, A.theta=0;
+	// cout<<"bdbsbsb "<<(int)map.checkCollision(A)<<endl;
+	// cout<<"bdbsbsb "<<(int)map.acc_obs_map[80][83]<<endl;
+	// exit(0);
 
 	double checkCollisionTime=0;
 	double nextStatesTime=0;
@@ -142,7 +146,8 @@ vector<State> Planner::plan(State start, State end, Vehicle car, vector<vector<P
 	int count=0;
 	while(!pq.empty())
 	{
-		cout<<"Inside While"<<endl;
+		if(DEBUG)
+			cout<<"Inside While"<<endl;
 		
 		State current=pq.top();
 		pq.pop();
