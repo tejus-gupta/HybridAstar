@@ -67,7 +67,7 @@ void Heuristic::Dijkstra(Map map,State target)
 				if(!map.isValid({neighbor.x, neighbor.y}))
                     continue;				
 				
-                if ( map.obs_map.at<uchar>(2*i,2*j)!=0 && is_visited[i][j]==false )
+                if ( map.obs_map.at<uchar>(2*i,2*j)==0 && is_visited[i][j]==false )
 				{
 					if (h_vals[i][j].dis>h_vals[temp.x][temp.y].dis+distance(temp,neighbor))
 					{

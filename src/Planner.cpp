@@ -25,7 +25,7 @@ void threadedDubins( Dubins *a)
 }
 
 // We are calculating the values of Dubins Cost in two seperate threads:
-bool Planner::operator()(State a,State b)
+bool PriQ::operator()(State a,State b)
 {
 	Dubins *ad,*bd;
 	
@@ -61,10 +61,10 @@ bool Planner::operator()(State a,State b)
 
 }
 
-vector<State> Planner::plan(State start, State end, Vehicle car, vector<vector<Point> > obs, GUI display, int rows, int cols)
+vector<State> Planner::plan(State start, State end, Vehicle car, vector<vector<Point> > obs, GUI display)
 {
 
-	bool DEBUG = false;
+	bool DEBUG = true;
 	Map map(obs, end, rows, cols);                         
 
 	cout<<"After map initialisation"<<endl;
@@ -99,35 +99,41 @@ vector<State> Planner::plan(State start, State end, Vehicle car, vector<vector<P
 			
 	// This will cause display of Dijkstra Cost on an image with black representing negligible cost to 
 	// white representing high Dijkstra Cost.		
-	if(DEBUG)
-	{		
-		Mat dijImage(rows*display.scale,cols*display.scale,CV_8UC1,Scalar(0));
-		for(int i=0;i<map.VISX*display.scale;i++)
-		{
-		    for(int j=0;j<map.VISY*display.scale;j++)
-			{
-				dijImage.at<uchar>(i,j)=((int)(H[(int)(i*1.0/display.scale)][(int)(j*1.0/display.scale)]))%256;
-			}	
+	// if(DEBUG)
+	// {		
+	// 	Mat dijImage(rows*display.scale,cols*display.scale,CV_8UC1,Scalar(0));
+	// 	for(int i=0;i<map.VISX*display.scale;i++)
+	// 	{
+	// 	    for(int j=0;j<map.VISY*display.scale;j++)
+	// 		{
+	// 			dijImage.at<uchar>(i,j)=((int)(H[(int)(i*1.0/display.scale)][(int)(j*1.0/display.scale)]))%256;
+	// 		}	
 
-		}
-		imshow("Dijkstra Cost",dijImage);
-		waitKey(0);
-	}
+	// 	}
+	// 	imshow("Dijkstra Cost",dijImage);
+	// 	waitKey(0);
+	// }
 
 	// Memory freeing
+	time_begin = clock();
 	for(int i=0;i<map.VISX;i++)
 		delete[] h_obj.h_vals[i];
 	delete[] h_obj.h_vals;	
+	time_end = clock();
+	cout<<"Time: Memory freeing= "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
 
-	// To mark the visited states VISX, VISY and MAP_THETA are to be imported from the Map class
+	// To mark the visited states. VISX, VISY and MAP_THETA are to be imported from the Map class
+	time_begin = clock();
 	for(int i=0; i < map.VISX; i++)
 		for(int j=0; j < map.VISY; j++)
 			for(int k=0; k < map.MAP_THETA; k++ )
 				visited[i][j][k]=false;
+	time_end = clock();
+	cout<<"Time: Marking visited array false= "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
 
-
+	exit(0);
 	// Hybrid Astar Openlist Initiates:
-	priority_queue <State, vector<State>, Planner> pq;
+	priority_queue <State, vector<State>, PriQ> pq;
 	pq.push(start);
 
 	double checkCollisionTime=0;
@@ -136,8 +142,7 @@ vector<State> Planner::plan(State start, State end, Vehicle car, vector<vector<P
 	int count=0;
 	while(!pq.empty())
 	{
-		if(DEBUG)
-			cout<<"Inside While"<<endl;
+		cout<<"Inside While"<<endl;
 		
 		State current=pq.top();
 		pq.pop();

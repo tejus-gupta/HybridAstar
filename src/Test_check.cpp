@@ -197,7 +197,7 @@ int main(int argc,char **argv)
 
     ros::Rate rate(1);
 
-    Planner astar;
+    Planner astar(rows,cols);
     Vehicle car;
     GUI display(rows,cols,scale);
     
@@ -218,7 +218,7 @@ int main(int argc,char **argv)
         map_ch = false;
         
         clock_t start_time=clock();
-        vector<State> path = astar.plan(start, dest, car, obs, display, rows, cols);
+        vector<State> path = astar.plan(start, dest, car, obs, display);
         clock_t end_time=clock();
 
         astar.path.clear();
