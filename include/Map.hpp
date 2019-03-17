@@ -28,6 +28,7 @@ class Map
         int MAP_THETA;
         int VISX;
         int VISY;
+        int RES;
 
         Vehicle car;
 

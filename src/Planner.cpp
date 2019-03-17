@@ -6,8 +6,6 @@
 #include "opencv/cv.h"
 #include <opencv2/highgui/highgui.hpp>
 
-typedef void * (*THREADFUNCPTR)(void *);
-
 // For storing and using the value of Dijkstra Heuristic Cost inside the Planner Operator()
 vector< vector< double > > H;
 
@@ -18,14 +16,9 @@ double t=0;
 Vehicle veh;
 State target;
 
-void threadedDubins( Dubins *a)
-{
-	Heuristic h;
-	a->dubins_cost = h.DubinCost(a->initial,a->final,a->radius);
-}
 
 // We are calculating the values of Dubins Cost in two seperate threads:
-bool Planner::operator()(State a,State b)
+bool PriQ::operator()(State a,State b)
 {
 	Heuristic h;
 	double a_dubinsCost, b_dubinsCost;
@@ -52,7 +45,7 @@ bool Planner::operator()(State a,State b)
 
 }
 
-vector<State> Planner::plan(State start, State end, Vehicle car, vector<vector<Point> > obs, GUI display, int rows, int cols)
+vector<State> Planner::plan(State start, State end, Vehicle car, vector<vector<Point> > obs, GUI display)
 {
 
 	bool DEBUG = false;
@@ -100,7 +93,7 @@ vector<State> Planner::plan(State start, State end, Vehicle car, vector<vector<P
 			
 	// This will cause display of Dijkstra Cost on an image with black representing negligible cost to 
 	// white representing high Dijkstra Cost.		
-	
+
 	// if(DEBUG)
 	// {		
 	// 	Mat dijImage(rows*display.scale,cols*display.scale,CV_8UC1,Scalar(0));
@@ -117,19 +110,24 @@ vector<State> Planner::plan(State start, State end, Vehicle car, vector<vector<P
 	// }
 
 	// Memory freeing
+	time_begin = clock();
 	for(int i=0;i<map.VISX;i++)
 		delete[] h_obj.h_vals[i];
 	delete[] h_obj.h_vals;	
+	time_end = clock();
+	cout<<"Time: Memory freeing= "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
 
-	// To mark the visited states VISX, VISY and MAP_THETA are to be imported from the Map class
+	// To mark the visited states. VISX, VISY and MAP_THETA are to be imported from the Map class
+	time_begin = clock();
 	for(int i=0; i < map.VISX; i++)
 		for(int j=0; j < map.VISY; j++)
 			for(int k=0; k < map.MAP_THETA; k++ )
 				visited[i][j][k]=false;
-
+	time_end = clock();
+	cout<<"Time: Marking visited array false= "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
 
 	// Hybrid Astar Openlist Initiates:
-	priority_queue <State, vector<State>, Planner> pq;
+	priority_queue <State, vector<State>, PriQ> pq;
 	pq.push(start);
 
 	double checkCollisionTime=0;

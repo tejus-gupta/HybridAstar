@@ -189,7 +189,7 @@ int main(int argc,char **argv)
 
 
         // For checking without Gazebo
-        dest.x =95,dest.y =95,dest.theta =0;
+        dest.x =95,dest.y =95   ,dest.theta =0;
         start.x =50,start.y =50,start.theta =0;
 
         start_ch = true;

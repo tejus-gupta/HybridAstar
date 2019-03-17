@@ -15,10 +15,7 @@ void GUI::draw_obstacles(vector< vector<Point> > polygon)
 	for(int i=0; i < polygon.size(); i++)
 		for(int j=0; j < polygon[i].size(); j++)
 		{
-			float temp = polygon[i][j].x;
-			polygon[i][j].x = polygon[i][j].y;
-			polygon[i][j].y = temp;
-
+			swap(polygon[i][j].x, polygon[i][j].y);
 			polygon[i][j].x *= scale, polygon[i][j].y *= scale;
 		}
 

@@ -8,29 +8,29 @@ using namespace cv;
 
 Map::Map( vector< vector<Point> > obs, State end, int rows, int cols)
 {
-	MAP_THETA=72;
+   	RES = 2;
     VISX = rows;
-    VISY = cols;
-
-	this->obs = obs;
+   	VISY = cols;
+	MAP_THETA=72;
 	this->end = end;
 	
 	// Converting the Obstacle Map in form of Polygon Array to Costmap 
 	// so that point based collision detection can work.
+	
 	// Create a map with resolution 0.5m x 0.5m
-	vector< vector<Point> > obs_copy;
-	obs_map = Mat::zeros(Size(VISX, VISY), CV_8UC1);
+	obs_map = Mat::zeros(Size(RES*VISX, RES*VISY), CV_8UC1);
+
 	for(int i=0;i < obs.size();i++)
 	{
 		vector< Point > temp;
 		for(int j=0;j < obs[i].size(); j++ )
-			temp.push_back( Point {obs[i][j].x, obs[i][j].y});
-		obs_copy.push_back(temp);
+
+			temp.push_back( Point {RES*obs[i][j].x, RES*obs[i][j].y});
+		this->obs.push_back(temp);
 	}
-	drawContours(obs_map, obs_copy, -1, Scalar(255), -1);
-	transpose(obs_map,obs_map);
-	
-	
+	drawContours(obs_map, this->obs, -1, Scalar(255), -1);
+	transpose(obs_map, obs_map);
+
 	initCollisionChecker();
 	initCollisionCheckerSat();
 
@@ -68,20 +68,20 @@ bool Map::isReached(State current)
 
 void Map::initCollisionChecker(){
 
-	acc_obs_map=new int*[VISX];
-	for(int i=0;i<VISX;i++)
+	acc_obs_map=new int*[RES*VISX];
+	for(int i=0;i<RES*VISX;i++)
 	{
-		acc_obs_map[i]=new int[VISY];
-		for(int j=0;j<VISY;j++)
-			acc_obs_map[i][j]=(obs_map.at<uchar>(i,j)==0);
+		acc_obs_map[i]=new int[RES*VISY];
+		for(int j=0;j<RES*VISY;j++)
+			acc_obs_map[i][j]=(obs_map.at<uchar>(i,j)!=0);
 	}
 
-	for(int i=0;i<VISX;i++)
-		for(int j=1;j<VISY;j++)
+	for(int i=0;i<RES*VISX;i++)
+		for(int j=1;j<RES*VISY;j++)
 			acc_obs_map[i][j]=acc_obs_map[i][j-1]+acc_obs_map[i][j];
 
-	for(int j=0;j<VISY;j++)
-		for(int i=1;i<VISX;i++)
+	for(int j=0;j<RES*VISY;j++)
+		for(int i=1;i<RES*VISX;i++)
 			acc_obs_map[i][j]=acc_obs_map[i-1][j]+acc_obs_map[i][j];
 
 	return;
@@ -101,23 +101,24 @@ bool Map::checkCollision(State pos){
 	max_y =  (pos.y+car.BOT_L*abs(sin(pos.theta))/2+car.BOT_W*abs(cos(pos.theta))/2) + 1;
 	min_y =  (pos.y-car.BOT_L*abs(sin(pos.theta))/2-car.BOT_W*abs(cos(pos.theta))/2) - 1;
 
-	// Double the co-ordinates as the resolution is twice (0.5x0.5)
-	// max_x*=2,max_y*=2,min_y*=2,min_x*=2;
-	
 	if(max_x>=VISX || min_x<0 || max_y>=VISY || min_y<0)
 		return true;
 
+	// Double the co-ordinates as the resolution is twice (0.5x0.5)
+	max_x*=RES,max_y*=RES,min_y*=RES,min_x*=RES;
+	
 	if(acc_obs_map[max_x][max_y]+acc_obs_map[min_x][min_y]==acc_obs_map[max_x][min_y]+acc_obs_map[min_x][max_y])
 		return false;
 
 	// brute force check through the car
-	for(float i = -car.BOT_L; i<=car.BOT_L + 0.001; i+=0.5)
-		for(float j=-car.BOT_W; j<=car.BOT_W + 0.001; j+=0.5)
+	for(float i = -RES*car.BOT_L/2; i<=RES*car.BOT_L/2 + 0.001; i+=0.25)
+		for(float j=-RES*car.BOT_W/2; j<=RES*car.BOT_W/2 + 0.001; j+=0.25)
 		{
-			int s = pos.x+i*cos(pos.theta)+j*sin(pos.theta) + 0.001;
-			int t = pos.y+i*sin(pos.theta)+j*cos(pos.theta) + 0.001;
 
-     		if( obs_map.at<uchar>(s,t) )
+			int s = RES*pos.x+i*cos(pos.theta)+j*sin(pos.theta) + 0.001;
+			int t = RES*pos.y+i*sin(pos.theta)+j*cos(pos.theta) + 0.001;
+
+     		if( obs_map.at<uchar>(s,t)!=0 )
 				return true;
 		}
 	return false;
@@ -148,7 +149,7 @@ void Map::initCollisionCheckerSat()
 			if( obs[i][j].y>temp.Ymax )
 				temp.Ymax=obs[i][j].y;
 		}
-		cout<<"obs.size(): "<<obs.size()<<endl;
+
 		if(DEBUG)
 			cout<<temp.Xmax<<" "<<temp.Xmin<<" "<<temp.Ymax<<" "<<temp.Ymin<<endl;
 		bPoints.push_back(temp);
