@@ -5,14 +5,6 @@
 using namespace std;
 
 
-typedef struct _dubins
-{
-	State initial;
-	State final;
-	double radius;
-	double dubins_cost;
-}Dubins;
-
 class Planner
 {
 	int rows,cols;
@@ -37,6 +29,7 @@ class Planner
 			visited.resize(rows,vector< vector< bool > >(cols,vector< bool >(72,false)));
 			time_end= clock();
 			cout<<"Time: Visited Array of States Allocation = "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
+
 		}
 		// bool operator()(State a,State b);
 		vector<State> path;

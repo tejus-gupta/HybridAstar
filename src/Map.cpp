@@ -8,10 +8,10 @@ using namespace cv;
 
 Map::Map( vector< vector<Point> > obs, State end, int rows, int cols)
 {
-	MAP_THETA=72;
+   	RES = 2;
     VISX = rows;
    	VISY = cols;
-   	RES = 2;
+	MAP_THETA=72;
 	this->end = end;
 	
 	// Converting the Obstacle Map in form of Polygon Array to Costmap 
@@ -19,10 +19,12 @@ Map::Map( vector< vector<Point> > obs, State end, int rows, int cols)
 	
 	// Create a map with resolution 0.5m x 0.5m
 	obs_map = Mat::zeros(Size(RES*VISX, RES*VISY), CV_8UC1);
+
 	for(int i=0;i < obs.size();i++)
 	{
 		vector< Point > temp;
 		for(int j=0;j < obs[i].size(); j++ )
+
 			temp.push_back( Point {RES*obs[i][j].x, RES*obs[i][j].y});
 		this->obs.push_back(temp);
 	}
@@ -147,6 +149,7 @@ void Map::initCollisionCheckerSat()
 			if( obs[i][j].y>temp.Ymax )
 				temp.Ymax=obs[i][j].y;
 		}
+
 		if(DEBUG)
 			cout<<temp.Xmax<<" "<<temp.Xmin<<" "<<temp.Ymax<<" "<<temp.Ymin<<endl;
 		bPoints.push_back(temp);
@@ -235,7 +238,7 @@ bool Map::checkCollisionSat(State pos)
 		else
 		{
 			if(DEBUG) 
-				cout<<"Used This MF"<<endl;
+				cout<<"Used extreme boundary checking"<<endl;
 		}
 	}
 

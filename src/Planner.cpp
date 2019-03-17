@@ -6,8 +6,6 @@
 #include "opencv/cv.h"
 #include <opencv2/highgui/highgui.hpp>
 
-typedef void * (*THREADFUNCPTR)(void *);
-
 // For storing and using the value of Dijkstra Heuristic Cost inside the Planner Operator()
 vector< vector< double > > H;
 
@@ -18,34 +16,20 @@ double t=0;
 Vehicle veh;
 State target;
 
-void threadedDubins( Dubins *a)
-{
-	Heuristic h;
-	a->dubins_cost = h.DubinCost(a->initial,a->final,a->radius);
-}
 
 // We are calculating the values of Dubins Cost in two seperate threads:
 bool PriQ::operator()(State a,State b)
 {
-	Dubins *ad,*bd;
-	
-	ad = new Dubins;
-	bd = new Dubins;
-	
-	ad->initial = a, ad->final= target, ad->radius =  veh.min_radius;
-	bd->initial = b, bd->final= target, bd->radius =  veh.min_radius;
+	Heuristic h;
+	double a_dubinsCost, b_dubinsCost;
 
-	pthread_t thread1, thread2;
-    pthread_create( &thread1, NULL, (THREADFUNCPTR)&threadedDubins,(void*)ad);
-    pthread_create( &thread2, NULL, (THREADFUNCPTR)&threadedDubins,(void*)bd);
-
-    pthread_join( thread1, NULL);
-    pthread_join( thread2, NULL); 
-	
+	a_dubinsCost =  h.DubinCost(a, target, veh.min_radius);
+	b_dubinsCost =  h.DubinCost(b, target, veh.min_radius);
+		
 	// Calculating max of Dubin's Cost and Djikstra's Cost  
 	clock_t start_time=clock();
-	double temp_a=max(H[(int)a.x][(int)a.y],ad->dubins_cost);
-	double temp_b=max(H[(int)b.x][(int)b.y],bd->dubins_cost);
+	double temp_a=max(H[(int)a.x][(int)a.y],a_dubinsCost);
+	double temp_b=max(H[(int)b.x][(int)b.y],b_dubinsCost);
 	clock_t end_time=clock();
 
 	// In this conditional loop we are trying force the selection of node with equal gCost + fCost to the one
@@ -77,16 +61,27 @@ vector<State> Planner::plan(State start, State end, Vehicle car, vector<vector<P
 	    display.draw_obstacles(obs);
 	    display.draw_car(start, car);
 	    display.draw_car(end, car);
-	    display.show(10);
+	    display.show(1);
 	}   
 
-	// Djikstra Calculation
+	// Array of states allocation
 	clock_t time_begin= clock();
-	h_obj.Dijkstra(map,end);
+	visited_state.resize(500,vector< vector< State > >(500,vector< State >(72)));	
 	clock_t time_end= clock();
+	cout<<"Time: Array of States Allocation = "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
+
+	// Array of visited allocation
+	time_begin= clock();
+	visited.resize(500,vector< vector< bool > >(500,vector< bool >(72,false)));
+	time_end= clock();
+	cout<<"Time: Visited Array of States Allocation = "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
+
+	// Djikstra Calculation
+	time_begin= clock();
+	h_obj.Dijkstra(map,end);
+	time_end= clock();
 	cout<<"Time: Dijkstra= "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
 
-	
 	// Djikstra Copying
 	time_begin= clock();
 	H.resize(map.VISX, vector<double>(map.VISY));
@@ -98,6 +93,7 @@ vector<State> Planner::plan(State start, State end, Vehicle car, vector<vector<P
 			
 	// This will cause display of Dijkstra Cost on an image with black representing negligible cost to 
 	// white representing high Dijkstra Cost.		
+
 	// if(DEBUG)
 	// {		
 	// 	Mat dijImage(rows*display.scale,cols*display.scale,CV_8UC1,Scalar(0));
@@ -110,7 +106,7 @@ vector<State> Planner::plan(State start, State end, Vehicle car, vector<vector<P
 
 	// 	}
 	// 	imshow("Dijkstra Cost",dijImage);
-	// 	waitKey(0);
+	// 	waitKey(10);
 	// }
 
 	// Memory freeing
@@ -134,12 +130,6 @@ vector<State> Planner::plan(State start, State end, Vehicle car, vector<vector<P
 	priority_queue <State, vector<State>, PriQ> pq;
 	pq.push(start);
 
-	// State A;
-	// A.x = 40, A.y=41.5, A.theta=0;
-	// cout<<"bdbsbsb "<<(int)map.checkCollision(A)<<endl;
-	// cout<<"bdbsbsb "<<(int)map.acc_obs_map[80][83]<<endl;
-	// exit(0);
-
 	double checkCollisionTime=0;
 	double nextStatesTime=0;
 	
@@ -148,7 +138,7 @@ vector<State> Planner::plan(State start, State end, Vehicle car, vector<vector<P
 	{
 		if(DEBUG)
 			cout<<"Inside While"<<endl;
-		
+
 		State current=pq.top();
 		pq.pop();
 
@@ -180,6 +170,8 @@ vector<State> Planner::plan(State start, State end, Vehicle car, vector<vector<P
 			reverse(path.begin(), path.end());			
 			return path;
 		}
+		// else 
+		// 	cout<<"Not Reached"<<endl;
 
 		// This section finds the next states based on trajecory generation.
 		time_begin=clock();
@@ -199,18 +191,19 @@ vector<State> Planner::plan(State start, State end, Vehicle car, vector<vector<P
 				continue;
 			
 			time_begin=clock();
-			if( !map.checkCollision(nextS) )
+			if( !map.checkCollisionSat(nextS) )   //change
 			{
 				time_end=clock();
 				it->parent = &(visited_state[(int)current.x][(int)current.y][grid_theta]);
 				it->cost2d = current.cost2d+1;
+
 				
 				if(DEBUG)
 			    {
 					display.draw_tree(current,nextS);
-		        	display.show(5);
+		        	display.show(1);
 			    }
-				
+
 				pq.push(*it);
 			}
 			else
@@ -261,7 +254,7 @@ vector<State> Planner::plan(State start, State end, Vehicle car, vector<vector<P
 					continue;
 				
 				time_begin=clock();
-				if( !map.checkCollision(nextS) )
+				if( !map.checkCollisionSat(nextS) ) //change
 				{
 
 					if(DEBUG)
@@ -310,7 +303,7 @@ vector<State> Planner::plan(State start, State end, Vehicle car, vector<vector<P
 		}
 
 		if(DEBUG)
-        	display.show(1);
+        	display.show(5);
 		
 		count++;
 	}

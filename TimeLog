@@ -1,0 +1,113 @@
+Grid Based:
+Time: Array of States Allocation = 0.486866
+Time: Visited Array of States Allocation = 0.193085
+Time: Dijkstra= 0.000161
+Time: Dijkstra Copying= 0.000144
+Time :CollisionChecker= 0.002419
+Time :nextStates= 0.000586
+Time :Dubins on Spot = 0.000631
+REACHED!
+Total time taken: 0.740499
+Got path of length 60
+
+SAT Based:
+Time: Array of States Allocation = 0.483932
+Time: Visited Array of States Allocation = 0.191632
+Time: Dijkstra= 0.000147
+Time: Dijkstra Copying= 0.000145
+Time :CollisionChecker= 0.001483
+Time :nextStates= 0.000198
+Time :Dubins on Spot = 8.7e-05
+REACHED!
+Total time taken: 0.706566
+Got path of length 29
+
+Time: Array of States Allocation = 0.004509
+Time: Visited Array of States Allocation = 0.002259
+Time: Dijkstra= 0.000448
+Time: Dijkstra Copying= 0.000414
+Time :CollisionChecker= 0.016561
+Time :nextStates= 0.000147
+Time :Dubins on Spot = 0.000173
+REACHED!
+Total time taken: 0.07757
+Got path of length 29
+
+Grid:
+Time: Array of States Allocation = 0.487439
+Time: Visited Array of States Allocation = 0.19553
+Time: Dijkstra= 0.00016
+Time: Dijkstra Copying= 0.000146
+Time :CollisionChecker= 0.001041
+Time :nextStates= 0.000266
+Time :Dubins on Spot = 0.00025
+REACHED!
+Total time taken: 0.721389
+Got path of length 49
+
+Time: Array of States Allocation = 0.003811
+Time: Visited Array of States Allocation = 0.001887
+Time: Dijkstra= 0.000383
+Time: Dijkstra Copying= 0.000315
+Time :CollisionChecker= 0.001118
+Time :nextStates= 0.00025
+Time :Dubins on Spot = 0.000486
+REACHED!
+Total time taken: 0.066661
+Got path of length 49
+
+Starting Received : 50 50 0
+Destination Received : 15 15 0
+obs.size(): 2
+obs.size(): 2
+Time: Array of States Allocation = 0.003646
+Time: Visited Array of States Allocation = 0.000557
+Time: Dijkstra= 0.000126
+Time: Dijkstra Copying= 8.8e-05
+Time :CollisionChecker= 0.001079
+Time :nextStates= 0.000247
+Time :Dubins on Spot = 0.000737
+REACHED!
+Total time taken: 0.045366
+Got path of length 49
+
+Starting Received : 50 50 0
+Destination Received : 15 15 0
+obs.size(): 2
+obs.size(): 2
+Time: Array of States Allocation = 0.00357
+Time: Visited Array of States Allocation = 0.001104
+Time: Dijkstra= 0.000207
+Time: Dijkstra Copying= 0.000207
+Time :CollisionChecker= 0.001182
+Time :nextStates= 0.000279
+Time :Dubins on Spot = 0.001014
+REACHED!
+
+SAT:
+Time: Array of States Allocation = 0.487128
+Time: Visited Array of States Allocation = 0.193608
+Time: Dijkstra= 0.000147
+Time: Dijkstra Copying= 0.00014
+Time :CollisionChecker= 0.001223
+Time :nextStates= 0.000379
+Time :Dubins on Spot = 0.000213
+REACHED!
+Total time taken: 0.719485
+Got path of length 37
+
+Starting Received : 50 50 0
+Destination Received : 15 15 0
+obs.size(): 2
+obs.size(): 2
+Time: Array of States Allocation = 0.003287
+Time: Visited Array of States Allocation = 0.001614
+Time: Dijkstra= 0.000317
+Time: Dijkstra Copying= 0.000321
+Time :CollisionChecker= 0.002852
+Time :nextStates= 0.000288
+Time :Dubins on Spot = 0.000446
+REACHED!
+Total time taken: 0.066131
+Got path of length 37
+

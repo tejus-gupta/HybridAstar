@@ -15,7 +15,7 @@ rosrun tf static_transform_publisher -50 -50 0 0 0 0 base_link hybrid_astar 10
 rosrun hybrid_astar converter.py
 
 # launching hybrid astar planner
-rosrun hybrid_astar Test_ROS
+rosrun hybrid_astar hybrid_astar
 
 # launching tracking method
 python tracking_control/src/scripts/tracking_Methods/pure_pursuit.py
