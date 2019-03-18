@@ -61,7 +61,7 @@ vector<State> Planner::plan(State start, State end, Vehicle car, vector<vector<P
 	    display.draw_obstacles(obs);
 	    display.draw_car(start, car);
 	    display.draw_car(end, car);
-	    display.show(1);
+	    display.show(10);
 	}   
 
 	// Array of states allocation
