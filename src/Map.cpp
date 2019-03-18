@@ -13,22 +13,23 @@ Map::Map( vector< vector<Point> > obs, State end, int rows, int cols)
    	VISY = cols;
 	MAP_THETA=72;
 	this->end = end;
-	
+	this->obs = obs;
+
 	// Converting the Obstacle Map in form of Polygon Array to Costmap 
 	// so that point based collision detection can work.
 	
 	// Create a map with resolution 0.5m x 0.5m
+	vector< vector<Point> > obs_copy;
 	obs_map = Mat::zeros(Size(RES*VISX, RES*VISY), CV_8UC1);
-
 	for(int i=0;i < obs.size();i++)
 	{
 		vector< Point > temp;
 		for(int j=0;j < obs[i].size(); j++ )
 
 			temp.push_back( Point {RES*obs[i][j].x, RES*obs[i][j].y});
-		this->obs.push_back(temp);
+		obs_copy.push_back(temp);
 	}
-	drawContours(obs_map, this->obs, -1, Scalar(255), -1);
+	drawContours(obs_map, obs_copy, -1, Scalar(255), -1);
 	transpose(obs_map, obs_map);
 
 	initCollisionChecker();
@@ -73,7 +74,7 @@ void Map::initCollisionChecker(){
 	{
 		acc_obs_map[i]=new int[RES*VISY];
 		for(int j=0;j<RES*VISY;j++)
-			acc_obs_map[i][j]=(obs_map.at<uchar>(i,j)!=0);
+			acc_obs_map[i][j]=(obs_map.at<uchar>(i,j)==255);
 	}
 
 	for(int i=0;i<RES*VISX;i++)
@@ -226,8 +227,11 @@ bool Map::checkCollisionSat(State pos)
 	{
 		if(DEBUG)
 		{
-			cout<<(bPoints[i].Xmax<Xmin )<<" "<<( bPoints[i].Xmin>Xmax )<<" "<<( bPoints[i].Ymin>Ymax )<<" "<<(bPoints[i].Ymax<Ymin ) <<endl; 
-			cout<<bPoints[i].Xmax<<" "<<Xmin<<" "<< bPoints[i].Xmin<<" "<<Xmax <<" "<< bPoints[i].Ymin<<" "<<Ymax <<" "<<bPoints[i].Ymax<<" "<<Ymin  <<endl; 
+			cout<<bPoints[i].Xmax<<" "<<Xmin<<" "<< bPoints[i].Xmin<<" "<<Xmax <<" "<< bPoints[i].Ymin<<" "<<Ymax <<" "<<
+				bPoints[i].Ymax<<" "<<Ymin  <<endl; 
+			
+			cout<<"bPoints[i].Xmax<Xmin:"<<(bPoints[i].Xmax<Xmin )<<" bPoints[i].Xmin>Xmax: "<<( bPoints[i].Xmin>Xmax )<<
+			     " bPoints[i].Ymin>Ymax: "<<( bPoints[i].Ymin>Ymax )<<" bPoints[i].Ymax<Ymin: "<<(bPoints[i].Ymax<Ymin ) <<endl; 
 		}
 		
 		if( !(bPoints[i].Xmax<Xmin || bPoints[i].Xmin>Xmax || bPoints[i].Ymin>Ymax || bPoints[i].Ymax<Ymin ) ) 
@@ -265,19 +269,19 @@ bool Map::helperSAT(vector <Point> v1,vector <Point> v2)
 		rmin1=rmin2=INT_MAX;
 		rmax1=rmax2=INT_MIN;
 
-		if( (v1[i+1].x==v1[i].x)) 
+		if( (v1[(i+1)%v1.size()].x==v1[i].x)) 
 		{
 			alpha=0;
 			slope=0;
 		}
-		else if(v1[i+1].y-v1[i].y==0)
+		else if(v1[(i+1)%v1.size()].y-v1[i].y==0)
 		{
 			alpha=CV_PI/2;
 			slope=INT_MAX;
 		}
 		else 
 		{
-			slope=(double)(v1[i+1].y-v1[i].y)/(v1[i+1].x-v1[i].x);
+			slope=(double)(v1[(i+1)%v1.size()].y-v1[i].y)/(v1[(i+1)%v1.size()].x-v1[i].x);
 			slope=-1*(1/slope);
 			if (slope<0)
 				alpha=CV_PI+atan(slope);
@@ -341,19 +345,19 @@ bool Map::helperSAT(vector <Point> v1,vector <Point> v2)
 		rmin1=rmin2=INT_MAX;
 		rmax1=rmax2=INT_MIN;
 
-		if( (v2[i+1].x==v2[i].x)) 
+		if( (v2[(i+1)%v2.size()].x==v2[i].x)) 
 		{
 			alpha=0;
 			slope=0;
 		}
-		else if(v2[i+1].y-v2[i].y==0)
+		else if(v2[(i+1)%v2.size()].y-v2[i].y==0)
 		{
 			alpha=CV_PI/2;
 			slope=INT_MAX;
 		}
 		else 
 		{
-			slope=(double)(v2[i+1].y-v2[i].y)/(v2[i+1].x-v2[i].x);
+			slope=(double)(v2[(i+1)%v2.size()].y-v2[i].y)/(v2[(i+1)%v2.size()].x-v2[i].x);
 			slope=-1*(1/slope);
 			if (slope<0)
 				alpha=CV_PI+atan(slope);
