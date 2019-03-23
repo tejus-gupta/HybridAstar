@@ -180,7 +180,7 @@ int main(int argc,char **argv)
         dis.draw_car(path[i], car);
         dis.show(1);
     } 
-    dis.show();
+    dis.show(1000);
 
 }
 

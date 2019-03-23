@@ -36,7 +36,7 @@ vector <State> Vehicle::nextStates(State* n)
 			t.x = n->x + d*cos(n->theta); 
 			t.y = n->y + d*sin(n->theta);
 			t.theta = n->theta;
-			t.cost2d =  n->cost2d + d;
+			t.g =  n->g + d;
 		}
 
 		next.push_back(t);

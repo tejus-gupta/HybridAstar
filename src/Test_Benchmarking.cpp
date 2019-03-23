@@ -21,7 +21,7 @@
 #include "nav_msgs/Path.h"
 #include "nav_msgs/Odometry.h"
 
-#include <hybrid_astar/polygonArray.h>
+#include "/home/tejus/catkin_ws/devel_isolated/hybrid_astar/include/hybrid_astar/polygonArray.h"
 #include <fstream>
 
 using namespace cv;

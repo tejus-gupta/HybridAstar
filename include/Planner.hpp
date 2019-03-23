@@ -1,39 +1,36 @@
-#include "../src/GUI.cpp"
-// #include "../src/Map.cpp"
-#include "../src/Heuristic.cpp"
+#ifndef PLANNER_HPP
+#define PLANNER_HPP
+
+#include "../include/GUI.hpp"
+#include "../include/Map.hpp"
+#include "../include/Heuristic.hpp"
+
+#include <limits.h>
+#include <pthread.h>
+#include <vector>
 
 using namespace std;
 
-
 class Planner
 {
-	int rows,cols;
 	public:	
-		Heuristic h_obj;
-		vector< vector< vector< State > > > visited_state;
-		vector< vector< vector< bool > > > visited;
-		Planner(int rows,int cols)
-		{
-			// Initialising rows and cols
-			this->rows = rows;
-			this->cols = cols;
+		State*** visited_state;
+		bool*** visited;
 
-			// Array of states allocation
-			clock_t time_begin= clock();
-			visited_state.resize(rows,vector< vector< State > >(cols,vector< State >(72)));	
-			clock_t time_end= clock();
-			cout<<"Time: Array of States Allocation = "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
+		int map_x;
+		int map_y;
 
-			// Array of visited allocation
-			time_begin= clock();
-			visited.resize(rows,vector< vector< bool > >(cols,vector< bool >(72,false)));
-			time_end= clock();
-			cout<<"Time: Visited Array of States Allocation = "<<double(time_end-time_begin)/CLOCKS_PER_SEC<<endl;
+		float map_grid_resolution;
+		float planner_grid_resolution;
 
-		}
-		// bool operator()(State a,State b);
+		int planner_grid_x;
+		int planner_grid_y;
+		int planner_grid_theta;
+		
 		vector<State> path;
-		vector<State> plan(State, State, Vehicle, vector<vector<Point>> obs, GUI display);
+
+		Planner(int map_x, int map_y, float map_grid_resolution, float planner_grid_resolution);
+		vector<State> plan(State start, State end, Vehicle car, int** obstacles, GUI display);
 };
 
 class PriQ
@@ -42,3 +39,5 @@ class PriQ
 		PriQ(){}
 		bool operator()(State a,State b);
 };
+
+#endif

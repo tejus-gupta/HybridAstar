@@ -1,85 +1,101 @@
 #include "../include/Heuristic.hpp"
-#include <limits.h>
-#include <iostream>
-
-#include <ompl/base/ScopedState.h>
-#include <boost/program_options.hpp>
-#include <ompl/geometric/SimpleSetup.h>
-#include <ompl/base/spaces/DubinsStateSpace.h>
-#include <ompl/base/spaces/ReedsSheppStateSpace.h>
  
 using namespace std;
 namespace ob = ompl::base;
 namespace og = ompl::geometric;
 
-class compareHeuristic{
- public:
-	bool operator ()(Heuristic::smallestcost_2d a,Heuristic::smallestcost_2d b)
-	{
-		return (a.dis>b.dis);
-	}
+struct point2d
+{
+    int x;
+    int y;
+    float cost;
+    bool operator<(point2d other) const
+    {
+        return cost > other.cost;
+    }
 };
 
-float distance (Heuristic::smallestcost_2d source,Heuristic::smallestcost_2d neighbor)
+float distance (point2d source, point2d neighbor)
 {
 	return (sqrt((source.x-neighbor.x)*(source.x-neighbor.x)+(source.y-neighbor.y)*(source.y-neighbor.y)));
 }
 
-void Heuristic::Dijkstra(Map map,State target)
+Heuristic::Heuristic(Map map, float dijkstra_grid_resolution, State target, Vehicle vehicle)
 {
- 	priority_queue <smallestcost_2d,vector<smallestcost_2d>,compareHeuristic> pq;
+    this->map = map;
+    this->dijkstra_grid_resolution = dijkstra_grid_resolution;
+    this->target = target;
+    this->vehicle = vehicle;
 
-	h_vals=new smallestcost_2d*[map.VISX];
-	for(int i=0;i<map.VISX;i++)
+    dijkstra_grid_x = toInt(map.map_x/dijkstra_grid_resolution);
+    dijkstra_grid_y = toInt(map.map_y/dijkstra_grid_resolution);
+
+    int** obs = new int*[dijkstra_grid_x];
+	for(int i=0;i<dijkstra_grid_x;i++)
 	{
-		h_vals[i]=new smallestcost_2d[map.VISY];
-        for (int j=0;j<map.VISY;j++)
-			h_vals[i][j].dis=FLT_MAX;
+		obs[i]=new int[dijkstra_grid_y];
+		for(int j=0;j<dijkstra_grid_y;j++)
+			obs[i][j] = 0;
 	}
 
-	bool is_visited[map.VISX][map.VISY];
-	for (int i=0;i<map.VISX;i++)
-		for (int j=0;j<map.VISY;j++)
-			is_visited[i][j]=false;
-
-	is_visited[(int)(target.x)][(int)(target.y)]=true;
-
-	h_vals[(int)(target.x)][(int)(target.y)].dis=0;
-	h_vals[(int)(target.x)][(int)(target.y)].x=(int)(target.x);
-	h_vals[(int)(target.x)][(int)(target.y)].y=(int)(target.y);
-	pq.push(h_vals[(int)(target.x)][(int)(target.y)]);
-
-
-	while (pq.size()>0)
+    for(int i=0;i<map.map_grid_x;i++)
+        for(int j=0;j<map.map_grid_y;j++)
+            if(map.obs[i][j] > 0)
+                obs[roundDown(i*map.map_grid_resolution/dijkstra_grid_resolution)][roundDown(j*map.map_grid_resolution/dijkstra_grid_resolution)] = 1;
+    
+    d = new float*[dijkstra_grid_x];
+	for(int i=0;i<dijkstra_grid_x;i++)
 	{
-		smallestcost_2d temp;
-		temp=pq.top();
-		pq.pop();
-		is_visited[temp.x][temp.y]=true;
-
-		for (int i=temp.x-1;i<=temp.x+1;i++)
-			for (int j=temp.y-1;j<=temp.y+1;j++)
-			{
-				smallestcost_2d neighbor;
-				neighbor.x=i;
-				neighbor.y=j;
-
-				if(!map.isValid({neighbor.x, neighbor.y}))
-                    continue;				
-				
-                if ( map.obs_map.at<uchar>(map.RES*i,map.RES*j)==0 && is_visited[i][j]==false )
-				{
-					if (h_vals[i][j].dis>h_vals[temp.x][temp.y].dis+distance(temp,neighbor))
-					{
-						h_vals[i][j].dis=h_vals[temp.x][temp.y].dis+distance(temp,neighbor);
-						h_vals[i][j].x=i;
-						h_vals[i][j].y=j;
-						pq.push(h_vals[i][j]);
-					}		 						
-				}
-			}
-		
+		d[i]=new float[dijkstra_grid_y];
+		for(int j=0;j<dijkstra_grid_y;j++)
+			d[i][j] = FLT_MAX;
 	}
+
+    bool** visited = new bool*[dijkstra_grid_x];
+	for(int i=0;i<dijkstra_grid_x;i++)
+	{
+		visited[i]=new bool[dijkstra_grid_y];
+		for(int j=0;j<dijkstra_grid_y;j++)
+			visited[i][j] = false;
+	}
+
+    priority_queue <point2d, vector<point2d>> pq;
+
+    point2d start, current, next;
+    start.x = target.x/dijkstra_grid_resolution;
+    start.y = target.y/dijkstra_grid_resolution;
+    start.cost = 0;
+
+    pq.push(start);
+
+    while(pq.size()>0)
+    {
+        current = pq.top();
+        pq.pop();
+
+        if(visited[current.x][current.y])
+            continue;
+
+        visited[current.x][current.y] = true;
+        d[current.x][current.y] = current.cost;
+
+        for(int i=-1;i<=1;i++)
+            for(int j=-1;j<=1;j++)
+            {
+                if(current.x+i<0 || current.x+i>=dijkstra_grid_x || current.y+j<0 || current.y+j>=dijkstra_grid_x)
+                    continue;
+                
+                if(obs[current.x+i][current.y+j] || visited[current.x+i][current.y+j])
+                    continue;
+
+                next.x = current.x + i;
+                next.y = current.y + j;
+                next.cost = distance(current, next);
+
+                pq.push(next);
+            }
+    }    
+    return;
 }
 
 // Dubin's Path
@@ -100,7 +116,7 @@ double Heuristic::DubinCost(State begin, State end, double radius)
     auto *t = goal->as<ob::SE2StateSpace::StateType>();
     
     // Reference :
-    // http://docs.ros.org/diamondback/aM_PI/ompl/html/classompl_1_1base_1_1SE2StateSpace_1_1StateType.html
+    // http://docs.ros.org/diamondback/api/ompl/html/classompl_1_1base_1_1SE2StateSpace_1_1StateType.html
     
     s->setX(begin.x);
     s->setY(begin.y);
@@ -125,6 +141,16 @@ double Heuristic::DubinCost(State begin, State end, double radius)
     return Path.length()*radius;
 }
 
+
+double Heuristic::get_heuristic(State pos)
+{
+    //cout<<roundDown(pos.x/dijkstra_grid_resolution)<<","<<roundDown(pos.y/dijkstra_grid_resolution)<<endl;
+    //cout<<dijkstra_grid_x<<","<<dijkstra_grid_y<<endl;
+    float h1 = dijkstra_grid_resolution * d[roundDown(pos.x/dijkstra_grid_resolution)][roundDown(pos.y/dijkstra_grid_resolution)];
+    float h2 = DubinCost(pos, target, vehicle.min_radius);
+    return max(h1, h2);
+}
+
 vector<State> Heuristic::DubinShot(State begin, State end, double radius)
 {
     bool DEBUG=false;
@@ -142,7 +168,7 @@ vector<State> Heuristic::DubinShot(State begin, State end, double radius)
     auto *t = goal->as<ob::SE2StateSpace::StateType>();
     
     // Reference :
-    // http://docs.ros.org/diamondback/aM_PI/ompl/html/classompl_1_1base_1_1SE2StateSpace_1_1StateType.html
+    // http://docs.ros.org/diamondback/api/ompl/html/classompl_1_1base_1_1SE2StateSpace_1_1StateType.html
     
     s->setX(begin.x);
     s->setY(begin.y);

@@ -1,6 +1,8 @@
 #ifndef STATE_HPP
 #define STATE_HPP
 
+#include <math.h>
+
 class State{
 
 public:
@@ -8,7 +10,8 @@ public:
     float y;
 	float theta;
 
-	float cost2d;
+	float g;
+	float h;
 	State* parent;
 
 	State(float X,float Y,float THETA)
@@ -17,7 +20,7 @@ public:
 		y=Y;
 		theta=THETA;
 		parent=NULL;
-		cost2d=0;
+		g = 0;
 	}
 
 	State()
@@ -26,8 +29,19 @@ public:
 		y=0;
 		theta=0;
 		parent=NULL;
-		cost2d=0;
+		g = 0;
 	}
 };
+
+inline int toInt(float n)
+{
+    return floor(n + 0.5);
+}
+
+inline int roundDown(float n)
+{
+    return floor(n);
+}
+
 #endif
 

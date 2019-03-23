@@ -10,7 +10,7 @@ int main(int argc,char **argv)
     ros::NodeHandle nh;
     ros::Publisher  pub = nh.advertise<hybrid_astar::polygonArray>("/obstacles", 10);
 
-    ifstream obsFile("src/hybrid_astar/polygonPoints.txt");
+    ifstream obsFile("/home/tejus/catkin_ws/src/HybridAstar/polygonPoints.txt");
     
     int totalObstacles, obsSize;
     hybrid_astar::polygonArray obs_msg;

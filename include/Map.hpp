@@ -1,51 +1,36 @@
 #ifndef MAP_HPP
 #define MAP_HPP
 
-#include"../src/Vehicle.cpp"
+#include"../include/Vehicle.hpp"
 #include "opencv/cv.h"
 #include <opencv2/highgui/highgui.hpp>
 using namespace cv;
-
-typedef struct _border
-{
-    int Xmax;
-    int Xmin;
-    int Ymax;
-    int Ymin;
-}border;
 
 class Map
 {
     public:
         
         State end;
-        vector<border> bPoints; 
-        vector< vector<Point> > obs;
-
-        Mat obs_map;
-        int** acc_obs_map;
-        
-        int MAP_THETA;
-        int VISX;
-        int VISY;
-        int RES;
-
         Vehicle car;
 
-        Map()
-        {
-            
-        }
+        int** obs;
+        int** acc_obs_map;
 
-        Map(vector< vector<Point> > polygon, State , int, int);
+        int map_x;
+        int map_y;
+
+        float map_grid_resolution;
+
+        int map_grid_x;
+        int map_grid_y;
+
+        Map();
+
+        Map(int** obs, int map_x, int map_y, float map_grid_resolution, State end, Vehicle car);
 
         bool isReached(State curr);
         bool isValid(Point);
         bool isValid(State);
-
-        void initCollisionCheckerSat();
-        bool checkCollisionSat(State pos);
-        bool helperSAT(vector <Point> v1,vector <Point> v2);
 
         void initCollisionChecker();
         bool checkCollision(State pos);
