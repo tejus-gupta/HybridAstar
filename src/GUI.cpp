@@ -59,4 +59,13 @@ void GUI::show(int t)
 	return;
 }
 
+void GUI::clear()
+{
+	for(int i=0; i<rows; i++)
+		for(int j=0; j<cols; j++)
+			display.at<Vec3b>(i, j) =  {220,220,220};
+
+	return;
+}
+
 

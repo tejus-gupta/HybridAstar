@@ -79,9 +79,7 @@ vector<State> Planner::plan(State start, State end, Vehicle car, int** obstacles
 
 		// Checks if it has reached the goal
 		if(map.isReached(current))
-		{
-			cout<<"REACHED!"<<endl;
-			
+		{	
 			State temp=current;
 			while( temp.parent != NULL )
 			{
@@ -135,8 +133,6 @@ vector<State> Planner::plan(State start, State end, Vehicle car, int** obstacles
 
 				if(map.isReached(nextS))
 				{
-					cout<<"REACHED!"<<endl;
-
 					State temp=check;
 					while( temp.parent != NULL )
 					{

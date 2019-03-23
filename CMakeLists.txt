@@ -65,6 +65,11 @@ add_executable(test_simple src/test.cpp src/Planner.cpp src/GUI.cpp src/Heuristi
 target_link_libraries(test_simple ${OMPL_LIBRARIES} ${Boost_LIBRARIES} ${OpenCV_LIBS} ${catkin_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 add_dependencies(test_simple ${catkin_EXPORTED_TARGETS})
 
+## Creating executable for benchmarks:
+add_executable(test_benchmark src/test_benchmark.cpp src/Planner.cpp src/GUI.cpp src/Heuristic.cpp src/Map.cpp src/Vehicle.cpp)
+target_link_libraries(test_benchmark ${OMPL_LIBRARIES} ${Boost_LIBRARIES} ${OpenCV_LIBS} ${catkin_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+add_dependencies(test_benchmark ${catkin_EXPORTED_TARGETS})
+
 ## Creating executable for ros-integrated test:
 ##add_executable(test_ros src/test_ros.cpp src/Planner.cpp src/GUI.cpp src/Heuristic.cpp src/Map.cpp src/Vehicle.cpp)
 ##target_link_libraries(test_ros ${OMPL_LIBRARIES} ${Boost_LIBRARIES} ${OpenCV_LIBS} ${catkin_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})

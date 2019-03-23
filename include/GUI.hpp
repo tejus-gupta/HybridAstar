@@ -23,6 +23,7 @@ public:
     void draw_dubins( vector<State> Path);
     void draw_car(State src, Vehicle car);
     void show(int t);
+    void clear();
 };
 
 #endif

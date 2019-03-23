@@ -56,7 +56,6 @@ bool Map::isReached(State current)
 
 void Map::initCollisionChecker()
 {
-	cout<<map_grid_x<<","<<map_grid_y<<endl;
 	acc_obs_map=new int*[map_grid_x];
 	for(int i=0;i<map_grid_x;i++)
 	{
