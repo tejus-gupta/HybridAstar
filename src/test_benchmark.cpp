@@ -70,7 +70,11 @@ int main(int argc,char **argv)
         vector<State> path = astar.plan(start, destination, car, map, display);
         end_time = clock();
 
-        cout<<"Time: "<<float(end_time-begin_time)/CLOCKS_PER_SEC<<endl;
+        cout<<"map init: "<<astar.map_init_time<<endl;
+        cout<<"dijkstra: "<<astar.dijkstra_time<<endl;
+        cout<<"planning: "<<(float(end_time-begin_time)/CLOCKS_PER_SEC - astar.map_init_time - astar.dijkstra_time)<<endl;
+        cout<<"total: "<<float(end_time-begin_time)/CLOCKS_PER_SEC<<endl<<endl;
+
         avg_time += float(end_time-begin_time)/CLOCKS_PER_SEC;
 
         for(vector<State>::iterator state_ptr = path.begin(); state_ptr != path.end(); state_ptr++)

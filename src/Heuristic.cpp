@@ -1,4 +1,5 @@
 #include "../include/Heuristic.hpp"
+#include <boost/heap/fibonacci_heap.hpp>
  
 using namespace std;
 namespace ob = ompl::base;
@@ -68,7 +69,7 @@ Heuristic::Heuristic(Map map, float dijkstra_grid_resolution, State target, Vehi
 
     pq.push(start);
 
-    while(pq.size()>0)
+    while(!pq.empty())
     {
         current = pq.top();
         pq.pop();
@@ -90,11 +91,16 @@ Heuristic::Heuristic(Map map, float dijkstra_grid_resolution, State target, Vehi
 
                 next.x = current.x + i;
                 next.y = current.y + j;
-                next.cost = distance(current, next);
+                next.cost = current.cost + distance(current, next);
 
-                pq.push(next);
+                if(next.cost<d[next.x][next.y])
+                {
+                    d[next.x][next.y] = next.cost;
+                    pq.push(next);
+                }
             }
-    }    
+    }
+    
     return;
 }
 

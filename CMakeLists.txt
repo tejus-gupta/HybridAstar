@@ -71,10 +71,9 @@ target_link_libraries(test_benchmark ${OMPL_LIBRARIES} ${Boost_LIBRARIES} ${Open
 add_dependencies(test_benchmark ${catkin_EXPORTED_TARGETS})
 
 ## Creating executable for ros-integrated test:
-##add_executable(test_ros src/test_ros.cpp src/Planner.cpp src/GUI.cpp src/Heuristic.cpp src/Map.cpp src/Vehicle.cpp)
-##target_link_libraries(test_ros ${OMPL_LIBRARIES} ${Boost_LIBRARIES} ${OpenCV_LIBS} ${catkin_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
-##add_dependencies(test_ros ${catkin_EXPORTED_TARGETS})
-
+add_executable(test_ros src/test_ros.cpp src/Planner.cpp src/GUI.cpp src/Heuristic.cpp src/Map.cpp src/Vehicle.cpp)
+target_link_libraries(test_ros ${OMPL_LIBRARIES} ${Boost_LIBRARIES} ${OpenCV_LIBS} ${catkin_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+add_dependencies(test_ros ${catkin_EXPORTED_TARGETS})
 
 ## Creating executable for Velocity Publisher:
 add_executable(velocity_publisher publisher/velocity_publisher.cpp )

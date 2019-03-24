@@ -39,10 +39,14 @@ Planner::Planner(int map_x, int map_y, float map_grid_resolution, float planner_
 
 vector<State> Planner::plan(State start, State end, Vehicle car, int** obstacles, GUI display)
 {
-	Map map(obstacles, map_x, map_y, map_grid_resolution, end, car);      
+	clock_t map_init_start = clock();
+	Map map(obstacles, map_x, map_y, map_grid_resolution, end, car);
+	map_init_time = float(clock()-map_init_start)/CLOCKS_PER_SEC;
 
+	clock_t dijkstra_start = clock();
 	float dijkstra_grid_resolution = 1;
 	Heuristic heuristic(map, dijkstra_grid_resolution, end, car);
+	dijkstra_time = float(clock()-dijkstra_start)/CLOCKS_PER_SEC;
 	
 	for(int i=0; i < planner_grid_x; i++)
 		for(int j=0; j < planner_grid_y; j++)

@@ -36,8 +36,9 @@ class ROSInterface
     int** map;
     float map_origin_x;
     float map_origin_y;
-    int map_size_x;
-    int map_size_y;
+    int map_grid_x;
+    int map_grid_y;
+    float map_grid_resolution;
 
     bool got_start;
     bool got_destination;
@@ -113,14 +114,16 @@ class ROSInterface
 
         cout<<"Getting map"<<endl;
 
-        for(int i=0; i<200; i++)
-            for(int j=0; j<200; j++)
-                map[i][j] = msg->data[i*200 + j] != 0 ? 1 : 0;
-        
         map_origin_x = msg->info.origin.position.x;
         map_origin_y = msg->info.origin.position.y;
-        map_size_x = msg->info.width;
-        map_size_y = msg->info.height;
+        map_grid_x = msg->info.width;
+        map_grid_y = msg->info.height;
+        map_grid_resolution = msg->info.resolution;
+
+        //costmap is stored in row-major format
+        for(int j=0; j<map_grid_y; j++)
+            for(int i=0; i<map_grid_x; i++)
+                map[i][j] = msg->data[j*200 + i] != 0 ? 1 : 0;
 
         got_map = true;
         return;
@@ -271,14 +274,16 @@ void plan_once(ros::NodeHandle nh)
     State start = interface.start;
     State destination = interface.destination;
     int** map = interface.map;
-    int map_size_x = interface.map_size_x;
-    int map_size_y = interface.map_size_y;
+    int map_x = interface.map_grid_x * interface.map_grid_resolution;
+    int map_y = interface.map_grid_y * interface.map_grid_resolution;
+    float map_grid_resolution = interface.map_grid_resolution;
+    float planner_grid_resolution = 1;
 
-    GUI display(100, 100, 5); 
+    GUI display(map_x, map_y, 5); 
     Vehicle car;
 
-    Planner astar(100, 100);
-    vector<State> path = astar.plan(start, destination, car, map, map_size_x, map_size_y, display);
+    Planner astar(map_x, map_y, map_grid_resolution, planner_grid_resolution);
+    vector<State> path = astar.plan(start, destination, car, map, display);
 
     while(ros::ok())
     {
@@ -298,48 +303,61 @@ void plan_once(ros::NodeHandle nh)
 void plan_repeatedly(ros::NodeHandle nh)
 { 
     ROSInterface interface(nh);
-    interface.got_start = false;
+    interface.got_start = true;
     interface.got_destination = false;
-    interface.got_map = false;
+    interface.got_map = true;
 
     ros::Rate wait_rate(20);
     while(ros::ok())
     {
         ros::spinOnce();
 
-        if(interface.got_start && interface.got_destination && interface.got_map)
+        if(interface.got_destination)
             break;
 
         wait_rate.sleep();
     }
 
-    cout<<"Got start, destination and map."<<endl;
+    cout<<"Got destination."<<endl;
 
-    interface.transform_start_and_destination();
+    int map_x = 100;
+    int map_y = 100;
+    float map_grid_resolution = 0.5;
+    float planner_grid_resolution = 1;
 
-    State start = interface.start;
-    State destination = interface.destination;
-    int** map = interface.map;
-    int map_size_x = interface.map_size_x;
-    int map_size_y = interface.map_size_y;
-
+    Planner astar(map_x, map_y, map_grid_resolution, planner_grid_resolution);
     GUI display(100, 100, 5); 
     Vehicle car;
 
-    Planner astar(100, 100);
-    vector<State> path = astar.plan(start, destination, car, map, map_size_x, map_size_y, display);
-
     while(ros::ok())
     {
-        ros::spinOnce();
+        interface.got_start = false;
+        interface.got_map = false;
+
+        while(ros::ok())
+        {
+            ros::spinOnce();
+
+            if(interface.got_start && interface.got_map)
+                break;
+
+            wait_rate.sleep();
+        }
+
+        interface.transform_start_and_destination();
+
+        State start = interface.start;
+        State destination = interface.destination;
+        int** map = interface.map;
+
+        vector<State> path = astar.plan(start, destination, car, map, display);
 
         nav_msgs::Path path_msg = interface.convert_to_path_msg(path);
         interface.publish_path(path_msg);
 
-        wait_rate.sleep();
+        astar.path.clear();
+        interface.transform_back_destination();
     }
-
-    astar.path.clear();
     
     return;
 }
@@ -350,7 +368,7 @@ int main(int argc,char **argv)
     ros::init(argc,argv,"hybrid_astar");
     ros::NodeHandle nh;
 
-    plan_once(nh);
+    plan_repeatedly(nh);
     
     return 0;
 }

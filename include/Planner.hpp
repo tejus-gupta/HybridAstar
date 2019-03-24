@@ -31,13 +31,10 @@ class Planner
 
 		Planner(int map_x, int map_y, float map_grid_resolution, float planner_grid_resolution);
 		vector<State> plan(State start, State end, Vehicle car, int** obstacles, GUI display);
-};
 
-class PriQ
-{
-	public:
-		PriQ(){}
-		bool operator()(State a,State b);
+		//for timing
+		float map_init_time;
+		float dijkstra_time;
 };
 
 #endif
