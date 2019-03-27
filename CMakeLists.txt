@@ -5,7 +5,7 @@ project(hybrid_astar)
 set( CMAKE_CXX_STANDARD 11 )
 
 
-find_package(catkin REQUIRED COMPONENTS
+find_package(catkin REQUIRED COMPONENTS 
    tf
    tf2
    rospy
@@ -20,25 +20,9 @@ find_package (Threads)
 
 ## OPEN MOTION PLANNING LIBRARY
 find_package(OMPL REQUIRED)
-# find_package(OpenCV)
+find_package(OpenCV REQUIRED)
 find_package(Boost REQUIRED COMPONENTS program_options)
 
-SET(OpenCV_INSTALL_PATH /home/tejus/opencv-2.4.9/build/)
-SET(OpenCV_INCLUDE_DIRS "${OpenCV_INSTALL_PATH}/include/opencv;${OpenCV_INSTALL_PATH}/include")
-SET(OpenCV_LIB_DIR "${OpenCV_INSTALL_PATH}/lib")
-LINK_DIRECTORIES(${OpenCV_LIB_DIR})
-set(OpenCV_LIBS opencv_core opencv_imgproc opencv_calib3d opencv_video opencv_features2d opencv_ml opencv_highgui opencv_objdetect opencv_contrib opencv_legacy opencv_gpu)
-
-include_directories(${OpenCV_INCLUDE_DIRS})
-link_directories(${OpenCV_LIBRARY_DIRS})
-link_directories(${OpenCV_LIB_DIR})
-add_definitions(${OpenCV_DEFINITIONS})
-
-MESSAGE( STATUS "OpenCV_LIB_DIR:         " ${OpenCV_LIB_DIR} )
-MESSAGE( STATUS "OpenCV_LIB_DIR:         " ${OpenCV_LIBRARIES} )
-MESSAGE( STATUS "OpenCV_LIB_DIR:         " ${OpenCV_LIBRARY_DIRS} )
-MESSAGE( STATUS "OpenCV_LIB_DIR:         " ${OpenCV_LIBS} )
-#message( FATAL_ERROR "You can not do this at all, CMake will exit." )
 
 add_message_files(
    FILES
@@ -58,7 +42,7 @@ CATKIN_DEPENDS message_runtime
 )
 
 ## Linking 
-include_directories(include ${OMPL_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${OpenCV_LIBS} ${catkin_INCLUDE_DIRS})
+include_directories(include ${OMPL_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS})
 
 ## Creating executable for test:
 add_executable(test_simple src/test.cpp src/Planner.cpp src/GUI.cpp src/Heuristic.cpp src/Map.cpp src/Vehicle.cpp)
@@ -75,13 +59,13 @@ add_executable(test_ros src/test_ros.cpp src/Planner.cpp src/GUI.cpp src/Heurist
 target_link_libraries(test_ros ${OMPL_LIBRARIES} ${Boost_LIBRARIES} ${OpenCV_LIBS} ${catkin_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 add_dependencies(test_ros ${catkin_EXPORTED_TARGETS})
 
+
 ## Creating executable for Velocity Publisher:
 add_executable(velocity_publisher publisher/velocity_publisher.cpp )
-target_link_libraries(velocity_publisher ${OMPL_LIBRARIES} ${Boost_LIBRARIES} ${OpenCV_LIBS} ${catkin_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(velocity_publisher ${OMPL_LIBRARIES} ${Boost_LIBRARIES} ${OpenCV_LIBRARIES} ${catkin_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 add_dependencies(velocity_publisher ${catkin_EXPORTED_TARGETS})
 
 ## Creating executable for Obstacle Publisher:
 add_executable(obstacle_publisher publisher/obstacle_publisher.cpp )
-target_link_libraries(obstacle_publisher ${OMPL_LIBRARIES} ${Boost_LIBRARIES} ${OpenCV_LIBS} ${catkin_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(obstacle_publisher ${OMPL_LIBRARIES} ${Boost_LIBRARIES} ${OpenCV_LIBRARIES} ${catkin_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 add_dependencies(obstacle_publisher ${catkin_EXPORTED_TARGETS})
-
